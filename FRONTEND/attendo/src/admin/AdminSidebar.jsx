@@ -1,0 +1,118 @@
+import React, { useState } from "react";
+import { FaUsers, FaChartBar, FaSchool, FaBars } from "react-icons/fa";
+import { MdAdminPanelSettings, MdClass, MdExpandMore } from "react-icons/md";
+import { Link } from "react-router-dom";
+
+function NavbarAndSidebar() {
+  const [openSubAdmin, setOpenSubAdmin] = useState(false);
+  const [openUsers, setOpenUsers] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="bg-blue-950 text-white p-4 px-6 flex justify-between items-center shadow-md border-b-2 border-white w-full fixed top-0 z-50">
+        {/* Logo & Title */}
+        <div className="flex items-center space-x-2">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/18747/18747599.png"
+            alt="LOGO"
+            className="w-10 h-10"
+          />
+          <div className="text-2xl font-sans font-bold">AttenDo</div>
+        </div>
+
+        {/* Hamburger Menu */}
+        <button
+          className="lg:hidden bg-white p-2 rounded-md text-black hover:bg-gray-200"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <FaBars className="text-xl" />
+        </button>
+
+        {/* Logout Button (Hidden in Small Screens) */}
+        <button className="hidden lg:block bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold">
+          Log Out
+        </button>
+      </nav>
+
+      {/* Sidebar and Content Wrapper */}
+      <div className="flex flex-1 mt-16">
+        {/* Sidebar */}
+        <div
+          className={`fixed top-16 left-0 bg-blue-950 text-white h-screen px-4 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
+        >
+          <nav className="mt-6">
+            {/* Dashboard */}
+            <Link to="/admin" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+              <FaChartBar className="mr-3" /> Dashboard
+            </Link>
+
+            {/* Manage Branch */}
+            <Link to="/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+              <FaSchool className="mr-3" /> Manage Branch
+            </Link>
+
+            {/* Manage Class */}
+            <Link to="/admin/manage-class" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+              <MdClass className="mr-3" /> Manage Class
+            </Link>
+
+            {/* Manage Subadmins */}
+            <div>
+              <button
+                onClick={() => setOpenSubAdmin(!openSubAdmin)}
+                className="flex items-center py-3 px-4 w-full hover:bg-blue-700 rounded"
+              >
+                <MdAdminPanelSettings className="mr-3" /> Manage Subadmins
+                <MdExpandMore className={`ml-auto transform ${openSubAdmin ? "rotate-180" : "rotate-0"}`} />
+              </button>
+              {openSubAdmin && (
+                <div className="ml-6">
+                  <Link to="/admin/manage-hod" className="block py-2 px-4 hover:bg-blue-700 rounded">HOD</Link>
+                  <Link to="/admin/manage-tutor" className="block py-2 px-4 hover:bg-blue-700 rounded">Tutor</Link>
+                </div>
+              )}
+            </div>
+
+            {/* Manage Users */}
+            <div>
+              <button
+                onClick={() => setOpenUsers(!openUsers)}
+                className="flex items-center py-3 px-4 w-full hover:bg-blue-700 rounded"
+              >
+                <FaUsers className="mr-3" /> Manage Users
+                <MdExpandMore className={`ml-auto transform ${openUsers ? "rotate-180" : "rotate-0"}`} />
+              </button>
+              {openUsers && (
+                <div className="ml-6">
+                  <Link to="/admin/manage-faculties" className="block py-2 px-4 hover:bg-blue-700 rounded">Faculties</Link>
+                  <Link to="/admin/manage-parents" className="block py-2 px-4 hover:bg-blue-700 rounded">Parents</Link>
+                  <Link to="/admin/manage-students" className="block py-2 px-4 hover:bg-blue-700 rounded">Students</Link>
+                </div>
+              )}
+            </div>
+
+            {/* Reports & Analytics */}
+            <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+              <FaChartBar className="mr-3" /> Reports & Analytics
+            </Link>
+
+            {/* Logout Button (Visible in Small Screens) */}
+            <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200">
+              Log Out
+            </button>
+          </nav>
+        </div>
+
+        {/* Main Content Area  */}
+        {/* <div className="flex-1 lg:ml-64 p-6 bg-gray-100 min-h-screen"> */}
+          {/* Your page content goes here */}
+          {/* <h1 className="text-2xl font-bold">Welcome to the Dashboard</h1>
+        </div> */}
+      </div>
+    </div>
+  );
+}
+
+export default NavbarAndSidebar;
