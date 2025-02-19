@@ -4,6 +4,9 @@ import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "../admin/Dashboard";
 import Footer from "../components/Footer";
 import ManageBranch from "../admin/ManageBranch";
+import ManageClass from "../admin/ManageClass";
+import ManageHOD from "../admin/ManageHOD";
+import ManageTutor from "../admin/ManageTutor";
 
 function AdminRoutes() {
   // Sidebar state
@@ -24,7 +27,9 @@ function AdminRoutes() {
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/manage-branch" element={<ManageBranch />} />
-
+            <Route path="/admin/manage-class" element={<ManageClass />} />
+            <Route path="/admin/manage-hod" element={<ManageHOD />} />
+            <Route path="/admin/manage-tutor" element={<ManageTutor />} />
           </Routes>
         </div>
       </div>
