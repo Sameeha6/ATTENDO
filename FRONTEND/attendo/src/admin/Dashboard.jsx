@@ -4,6 +4,7 @@ import { MdSchool, MdOutlineClass } from "react-icons/md";
 
 const AdminDashboard = () => {
   return (
+    
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
       <div className="bg-white p-6 shadow-lg rounded-lg flex items-center gap-4">
         <MdSchool className="text-blue-900 text-4xl" />

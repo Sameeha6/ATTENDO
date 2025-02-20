@@ -11,7 +11,7 @@ function NavbarAndSidebar() {
   return (
     <div className="h-screen flex flex-col">
       {/* Navbar */}
-      <nav className="bg-blue-950 text-white p-4 px-6 flex justify-between items-center shadow-md border-b-2 border-white w-full fixed top-0 z-50">
+      <nav className="bg-blue-950 text-white p-4 px-6 flex justify-between items-center shadow-md w-full fixed top-0 z-50">
         {/* Logo & Title */}
         <div className="flex items-center space-x-2">
           <img
@@ -44,33 +44,33 @@ function NavbarAndSidebar() {
         >
           <nav className="mt-6">
             {/* Dashboard */}
-            <Link to="/admin" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+            <Link to="/admin" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
 
             {/* Manage Branch */}
-            <Link to="/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+            <Link to="/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaSchool className="mr-3" /> Manage Branch
             </Link>
 
             {/* Manage Class */}
-            <Link to="/admin/manage-class" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
-              <MdClass className="mr-3" /> Manage Class
+            <Link to="/admin/manage-semester" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <MdClass className="mr-3" /> Manage Semester
             </Link>
 
             {/* Manage Subadmins */}
             <div>
               <button
                 onClick={() => setOpenSubAdmin(!openSubAdmin)}
-                className="flex items-center py-3 px-4 w-full hover:bg-blue-700 rounded"
+                className="flex items-center py-3 px-4 w-full hover:bg-gray-400 hover:text-black rounded"
               >
                 <MdAdminPanelSettings className="mr-3" /> Manage Subadmins
                 <MdExpandMore className={`ml-auto transform ${openSubAdmin ? "rotate-180" : "rotate-0"}`} />
               </button>
               {openSubAdmin && (
                 <div className="ml-6">
-                  <Link to="/admin/manage-hod" className="block py-2 px-4 hover:bg-blue-700 rounded">HOD</Link>
-                  <Link to="/admin/manage-tutor" className="block py-2 px-4 hover:bg-blue-700 rounded">Tutor</Link>
+                  <Link to="/admin/manage-hod" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">HOD</Link>
+                  <Link to="/admin/manage-tutor" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Tutor</Link>
                 </div>
               )}
             </div>
@@ -79,22 +79,22 @@ function NavbarAndSidebar() {
             <div>
               <button
                 onClick={() => setOpenUsers(!openUsers)}
-                className="flex items-center py-3 px-4 w-full hover:bg-blue-700 rounded"
+                className="flex items-center py-3 px-4 w-full hover:bg-gray-400 hover:text-black rounded"
               >
                 <FaUsers className="mr-3" /> Manage Users
                 <MdExpandMore className={`ml-auto transform ${openUsers ? "rotate-180" : "rotate-0"}`} />
               </button>
               {openUsers && (
                 <div className="ml-6">
-                  <Link to="/admin/manage-faculties" className="block py-2 px-4 hover:bg-blue-700 rounded">Faculties</Link>
-                  <Link to="/admin/manage-parents" className="block py-2 px-4 hover:bg-blue-700 rounded">Parents</Link>
-                  <Link to="/admin/manage-students" className="block py-2 px-4 hover:bg-blue-700 rounded">Students</Link>
+                  <Link to="/admin/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
+                  <Link to="/admin/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
+                  <Link to="/admin/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
                 </div>
               )}
             </div>
 
             {/* Reports & Analytics */}
-            <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4 hover:bg-blue-700 rounded">
+            <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Reports & Analytics
             </Link>
 

@@ -7,6 +7,9 @@ import ManageBranch from "../admin/ManageBranch";
 import ManageClass from "../admin/ManageClass";
 import ManageHOD from "../admin/ManageHOD";
 import ManageTutor from "../admin/ManageTutor";
+import ManageFaculties from "../admin/ManageFaculty";
+import ManageParents from "../admin/ManageParent";
+import ManageStudents from "../admin/ManageStudents";
 
 function AdminRoutes() {
   // Sidebar state
@@ -14,6 +17,7 @@ function AdminRoutes() {
 
   return (
     <div className="h-screen flex flex-col">
+      
       {/* Navbar & Sidebar */}
       <NavbarAndSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
@@ -27,9 +31,12 @@ function AdminRoutes() {
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/manage-branch" element={<ManageBranch />} />
-            <Route path="/admin/manage-class" element={<ManageClass />} />
+            <Route path="/admin/manage-semester" element={<ManageClass />} />
             <Route path="/admin/manage-hod" element={<ManageHOD />} />
             <Route path="/admin/manage-tutor" element={<ManageTutor />} />
+            <Route path="/admin/manage-faculties" element={<ManageFaculties />} />
+            <Route path="/admin/manage-parents" element={<ManageParents />} />
+            <Route path="/admin/manage-students" element={<ManageStudents />} />
           </Routes>
         </div>
       </div>
