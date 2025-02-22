@@ -9,7 +9,11 @@ const ManageParents = () => {
 
       {/* Filter Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block mb-1 text-gray-600">Academic year</label>
+            <input type="text" className="w-full p-2 border rounded-md" required />
+          </div>
           <div>
             <label className="block mb-1 text-gray-600">Branch</label>
             <select className="w-full p-2 border rounded-md" required>
@@ -76,6 +80,7 @@ const ManageParents = () => {
               <th className="border p-1">Email</th>
               <th className="border p-1">Phone No</th>
               <th className="border p-1">Ward Name</th>
+              <th className="border p-1">Year</th>
               <th className="border p-1">Branch</th>
               <th className="border p-1">Semester</th>
               <th className="border p-1">Edit</th>
@@ -89,6 +94,7 @@ const ManageParents = () => {
               <td className="border p-1">johndoe@gmail.com</td>
               <td className="border p-1">1234567890</td>
               <td className="border p-1">ravi</td>
+              <td className="border p-1">2022-24</td>
               <td className="border p-1">CS</td>
               <td className="border p-1">S3</td>
               <td className="border p-1">

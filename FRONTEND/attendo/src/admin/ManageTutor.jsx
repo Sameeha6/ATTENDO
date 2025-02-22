@@ -39,19 +39,9 @@ const ManageTutor = () => {
               <option value="ME">ME</option>
             </select>
           </div>
-          <div className="flex-1">
-            <label className="block mb-1 text-gray-600">Semester</label>
-            <select className="w-full p-2 border rounded-md" required>
-              <option value="">Select Semester</option>
-              <option value="S1">S1</option>
-              <option value="S2">S2</option>
-              <option value="S3">S3</option>
-              <option value="S4">S4</option>
-              <option value="S5">S5</option>
-              <option value="S6">S6</option>
-              <option value="S7">S7</option>
-              <option value="S8">S8</option>
-            </select>
+          <div>
+            <label className="block mb-1 text-gray-600">Academic year</label>
+            <input type="text" className="w-full p-2 border rounded-md" required />
           </div>
         </div>
         <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
@@ -71,7 +61,7 @@ const ManageTutor = () => {
               <th className="border p-1">Email Address</th>
               <th className="border p-1">Phone Number</th>
               <th className="border p-1">Branch</th>
-              <th className="border p-1">Semester</th>
+              <th className="border p-1">Year</th>
               <th className="border p-1">Edit</th>
               <th className="border p-1">Delete</th>
             </tr>
@@ -84,7 +74,7 @@ const ManageTutor = () => {
               <td className="border p-1">samseb@example.com</td>
               <td className="border p-1">1234567890</td>
               <td className="border p-1">CS</td>
-              <td className="border p-1">S1</td>
+              <td className="border p-1">2022-24</td>
               <td className="border p-1">
                 <button className="text-blue-600">
                   <FaEdit size={18} />

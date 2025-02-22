@@ -7,6 +7,7 @@ import ManageTutor from "../HOD/ManageTutor";
 import ManageFaculties from "../HOD/ManageFaculty";
 import ManageParents from "../HOD/ManageParent";
 import ManageStudents from "../HOD/ManageStudent";
+import ManageRequests from "../HOD/ManageRequest";
 
 function HodRoutes() {
   // Sidebar state
@@ -31,6 +32,7 @@ function HodRoutes() {
             <Route path="hod/manage-faculties" element={<ManageFaculties />} />
             <Route path="hod/manage-parents" element={<ManageParents />} />
             <Route path="hod/manage-students" element={<ManageStudents />} />
+            <Route path="hod/manage-requests" element={<ManageRequests />} />
           </Routes>
         </div>
       </div>

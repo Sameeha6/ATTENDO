@@ -24,7 +24,7 @@ function NavbarAndSidebar() {
 
         {/* Hamburger Menu */}
         <button
-          className="lg:hidden bg-white p-2 rounded-md text-black hover:bg-gray-200"
+          className="lg:hidden bg-white p-2 rounded-md text-black hover:bg-gray-200 z-50"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           <FaBars className="text-xl" />
@@ -40,7 +40,7 @@ function NavbarAndSidebar() {
       <div className="flex flex-1 mt-16">
         {/* Sidebar */}
         <div
-          className={`fixed top-16 left-0 bg-blue-950 text-white h-screen px-4 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
+          className={`fixed top-16 left-0 bg-blue-950 text-white h-screen px-4 w-64 z-50 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
         >
           <nav className="mt-6">
             {/* Dashboard */}

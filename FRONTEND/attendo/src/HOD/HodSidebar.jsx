@@ -40,7 +40,7 @@ function Hodbar() {
       <div className="flex flex-1 mt-16">
         {/* Sidebar */}
         <div
-          className={`fixed top-16 left-0 bg-blue-950 text-white h-screen px-4 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
+          className={`fixed top-16 left-0 bg-blue-950 text-white w-64 h-screen px-4 z-50 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
         >
           <nav className="mt-6">
             {/* Dashboard */}
@@ -93,7 +93,7 @@ function Hodbar() {
             </div>
 
             {/* Reports & Analytics */}
-            <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hod/manage-requests" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Manage Request
             </Link>
 

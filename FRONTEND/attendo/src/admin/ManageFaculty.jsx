@@ -28,6 +28,10 @@ const ManageFaculties = () => {
             <input type="text" className="w-full p-2 border rounded-md" required />
           </div>
           <div>
+            <label className="block mb-1 text-gray-600">Academic year</label>
+            <input type="text" className="w-full p-2 border rounded-md" required />
+          </div>
+          <div>
             <label className="block mb-1 text-gray-600">Branch</label>
             <select className="w-full p-2 border rounded-md" required>
               <option value="">Select Branch</option>
@@ -79,6 +83,7 @@ const ManageFaculties = () => {
               <th className="border p-1">Last Name</th>
               <th className="border p-1">Email</th>
               <th className="border p-1">Phone No</th>
+              <th className="border p-1">Year</th>
               <th className="border p-1">Branch</th>
               <th className="border p-1">Semester</th>
               <th className="border p-1">Subject</th>
@@ -93,6 +98,7 @@ const ManageFaculties = () => {
               <td className="border p-1">mathew</td>
               <td className="border p-1">ajaymathew@gmail.com</td>
               <td className="border p-1">1234567890</td>
+              <td className="border p-1">2022-24</td>
               <td className="border p-1">IT</td>
               <td className="border p-1">S2</td>
               <td className="border p-1">Mathematics</td>
