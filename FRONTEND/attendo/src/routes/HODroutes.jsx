@@ -3,6 +3,10 @@ import { Routes, Route } from "react-router-dom";
 import Footer from "../components/Footer";
 import HodDashboard from "../HOD/HodDashboard";
 import Hodbar from "../HOD/HodSidebar";
+import ManageTutor from "../HOD/ManageTutor";
+import ManageFaculties from "../HOD/ManageFaculty";
+import ManageParents from "../HOD/ManageParent";
+import ManageStudents from "../HOD/ManageStudent";
 
 function HodRoutes() {
   // Sidebar state
@@ -23,6 +27,10 @@ function HodRoutes() {
         <div className="flex-grow overflow-auto p-6 bg-gray-100">
           <Routes>
             <Route path="/hodDash" element={<HodDashboard />} />
+            <Route path="hod/manage-tutor" element={<ManageTutor />} />
+            <Route path="hod/manage-faculties" element={<ManageFaculties />} />
+            <Route path="hod/manage-parents" element={<ManageParents />} />
+            <Route path="hod/manage-students" element={<ManageStudents />} />
           </Routes>
         </div>
       </div>

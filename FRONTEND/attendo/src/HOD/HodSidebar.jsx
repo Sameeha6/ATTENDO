@@ -44,7 +44,7 @@ function Hodbar() {
         >
           <nav className="mt-6">
             {/* Dashboard */}
-            <Link to="/admin" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hodDash" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
 
@@ -70,7 +70,7 @@ function Hodbar() {
               )}
             </div> */}
 
-            <Link to="/admin/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hod/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <MdAdminPanelSettings className="mr-3" />Tutor
             </Link>
 
@@ -85,16 +85,16 @@ function Hodbar() {
               </button>
               {openUsers && (
                 <div className="ml-6">
-                  <Link to="/admin/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
-                  <Link to="/admin/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
-                  <Link to="/admin/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
+                  <Link to="/hod/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
+                  <Link to="/hod/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
+                  <Link to="/hod/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
                 </div>
               )}
             </div>
 
             {/* Reports & Analytics */}
             <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
-              <FaChartBar className="mr-3" /> Reports & Analytics
+              <FaChartBar className="mr-3" /> Manage Request
             </Link>
 
             {/* Logout Button (Visible in Small Screens) */}
