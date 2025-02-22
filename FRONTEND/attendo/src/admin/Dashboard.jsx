@@ -1,9 +1,23 @@
 import React from "react";
-import { FaUserGraduate, FaUsers, FaChalkboardTeacher, FaUserTie, FaUserFriends } from "react-icons/fa";
+import {
+  FaUserGraduate,
+  FaUsers,
+  FaChalkboardTeacher,
+  FaUserTie,
+  FaUserFriends,
+} from "react-icons/fa";
 import { MdSchool, MdOutlineClass } from "react-icons/md";
 
 const AdminDashboard = () => {
   return (
+<<<<<<< HEAD
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white p-6 shadow-lg rounded-lg flex items-center gap-4">
+        <MdSchool className="text-blue-900 text-4xl" />
+        <div>
+          <h3 className="text-xl font-bold">Branches</h3>
+          <p className="text-gray-700">Total: 5</p>
+=======
     <div className="min-h-screen p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Branches */}
@@ -11,6 +25,7 @@ const AdminDashboard = () => {
           <MdSchool className="text-blue-900 text-5xl mb-2" />
           <h3 className="text-2xl font-bold text-gray-800">Branches</h3>
           <p className="text-gray-600 mt-2">Total: 5</p>
+>>>>>>> 4a68f10be941b28dd7cc34a45943de2864d7c61a
         </div>
 
         {/* Card 2: Classes */}
