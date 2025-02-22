@@ -21,14 +21,14 @@ function Login() {
           <form className="space-y-4">
             
             {/* ID */}
-            <div>
+            {/* <div>
               <label className="block text-gray-700 font-medium">ID</label>
               <input
                 type="text"
                 placeholder="Enter your ID"
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
-            </div>
+            </div> */}
 
             {/* Username */}
             <div>
@@ -36,7 +36,7 @@ function Login() {
               <input
                 type="text"
                 placeholder="Enter your username"
-                className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"required
               />
             </div>
 
@@ -46,7 +46,7 @@ function Login() {
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"required
               />
             </div>
 

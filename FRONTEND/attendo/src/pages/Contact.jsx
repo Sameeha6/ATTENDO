@@ -1,12 +1,20 @@
 import React from "react";
+import { motion } from 'framer-motion';
 
 const ContactUs = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <div className="text-gray-800 text-center py-6 text-4xl font-bold mt-32">
-        CONTACT US: ASK ABOUT ATTENDO
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        // className="text-center max-w-3xl"
+      >
+        <div className="text-gray-800 text-center py-6 text-4xl font-bold mt-32">
+          CONTACT US: ASK ABOUT ATTENDO
+        </div>
+      </motion.div>
 
       {/* Content Section */}
       <div className="flex flex-col md:flex-row justify-center items-center md:items-start px-8 py-12">
@@ -32,12 +40,12 @@ const ContactUs = () => {
         <div className="md:w-1/2 w-full bg-white p-8 shadow-md rounded-lg mt-8 md:mt-0">
           <form>
             <div className="mb-4">
-              <label className="block text-gray-700">Name*</label>
+              <label className="block text-gray-700">Name</label>
               <input type="text" className="w-full p-2 border border-gray-300 rounded-md" required />
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700">Email*</label>
+              <label className="block text-gray-700">Email</label>
               <input type="email" className="w-full p-2 border border-gray-300 rounded-md" required />
             </div>
 
@@ -47,7 +55,7 @@ const ContactUs = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700">Message*</label>
+              <label className="block text-gray-700">Message</label>
               <textarea className="w-full p-2 border border-gray-300 rounded-md" rows="4" required></textarea>
             </div>
 
@@ -101,10 +109,10 @@ const ContactUs = () => {
           </div>
 
           {/* Contact Section */}
-          <div>
+          {/* <div>
             <h2 className="text-xl font-bold border-b border-gray-700 pb-2">CONTACT US:</h2>
             <p className="text-gray-300 mt-4 font-light">Have questions? Need assistance? Reach out to us anytime!</p>
-          </div>
+          </div> */}
 
         </div>
       </section>
