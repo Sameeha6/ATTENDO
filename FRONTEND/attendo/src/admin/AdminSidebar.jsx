@@ -94,9 +94,9 @@ function NavbarAndSidebar() {
             </div>
 
             {/* Reports & Analytics */}
-            <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
+            {/* <Link to="/admin/reports-analytics" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Reports & Analytics
-            </Link>
+            </Link> */}
 
             {/* Logout Button (Visible in Small Screens) */}
             <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200">
