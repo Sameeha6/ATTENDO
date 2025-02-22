@@ -2,7 +2,7 @@ import React from "react";
 import { FaUserGraduate, FaUsers, FaChalkboardTeacher, FaUserTie, FaUserFriends } from "react-icons/fa";
 import { MdSchool, MdOutlineClass } from "react-icons/md";
 
-const AdminDashboard = () => {
+const HodDashboard = () => {
   return (
     
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
@@ -42,4 +42,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default HodDashboard;

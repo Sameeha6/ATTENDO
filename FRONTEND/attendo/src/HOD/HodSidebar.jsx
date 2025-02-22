@@ -3,7 +3,7 @@ import { FaUsers, FaChartBar, FaSchool, FaBars } from "react-icons/fa";
 import { MdAdminPanelSettings, MdClass, MdExpandMore } from "react-icons/md";
 import { Link } from "react-router-dom";
 
-function NavbarAndSidebar() {
+function Hodbar() {
   const [openSubAdmin, setOpenSubAdmin] = useState(false);
   const [openUsers, setOpenUsers] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -70,7 +70,9 @@ function NavbarAndSidebar() {
               )}
             </div> */}
 
-            <Link to="/admin/manage-tutor" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Tutor</Link>
+            <Link to="/admin/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <MdAdminPanelSettings className="mr-3" />Tutor
+            </Link>
 
             {/* Manage Users */}
             <div>
@@ -112,4 +114,4 @@ function NavbarAndSidebar() {
   );
 }
 
-export default NavbarAndSidebar;
+export default Hodbar;

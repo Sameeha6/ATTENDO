@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import AboutUs from './pages/About'
 import ContactUs from './pages/Contact'
 import AdminRoutes from './routes/AdminRoutes'
+import HodRoutes from './routes/HODroutes'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -25,7 +26,8 @@ function App() {
     //   </div>
     //   <Footer/>
     // </div>
-    <AdminRoutes/>
+    // <AdminRoutes/>
+    <HodRoutes/>
   )
 }
 
