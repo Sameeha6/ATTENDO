@@ -10,10 +10,10 @@ import AboutUs from './pages/About'
 import ContactUs from './pages/Contact'
 import AdminRoutes from './routes/AdminRoutes'
 import HodRoutes from './routes/HODroutes'
+import TutorRoutes from './routes/TutorRoutes'
 
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     // <div className=" min-h-screen flex flex-col">
@@ -29,7 +29,8 @@ function App() {
     //   <Footer />
     // </div>
     // <AdminRoutes/>
-    <HodRoutes/>
+    // <HodRoutes/>
+    <TutorRoutes/>
   )
 
 }

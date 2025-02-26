@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { FaUsers, FaChartBar, FaBars } from "react-icons/fa";
+import { FaUsers, FaChartBar, FaBars, FaUserGraduate, FaRegCalendar, FaRegCalendarAlt } from "react-icons/fa";
 import { MdAdminPanelSettings, MdExpandMore } from "react-icons/md";
 import { Link } from "react-router-dom";
 
-function Hodbar() {
-  const [openUsers, setOpenUsers] = useState(false);
+function Tutorbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -41,38 +40,31 @@ function Hodbar() {
         <div
           className={`fixed top-16 left-0 bg-blue-950 text-white w-64 h-screen px-4 z-50 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
         >
-          <nav className="mt-6">
-            {/* Dashboard */}
-            <Link to="/hodDash" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+          <nav className="mt-6 space-y-2">
+            <Link to="/tutorDash" className="flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
 
-            <Link to="/hod/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
-              <MdAdminPanelSettings className="mr-3" />Manage Tutor
+            <Link to="/tutor/manage-faculties" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <MdAdminPanelSettings className="mr-3" />Manage faculties
             </Link>
 
-            {/* Manage Users */}
-            <div>
-              <button
-                onClick={() => setOpenUsers(!openUsers)}
-                className="flex items-center py-3 px-4 w-full hover:bg-gray-400 hover:text-black rounded"
-              >
-                <FaUsers className="mr-3" /> Manage Users
-                <MdExpandMore className={`ml-auto transform ${openUsers ? "rotate-180" : "rotate-0"}`} />
-              </button>
-              {openUsers && (
-                <div className="ml-6">
-                  <Link to="/hod/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
-                  <Link to="/hod/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
-                  <Link to="/hod/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
-                </div>
-              )}
-            </div>
-
-            {/* Reports & Analytics */}
-            <Link to="/hod/manage-requests" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
-              <FaChartBar className="mr-3" /> Manage Request
+            <Link to="/tutor/manage-parents" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaUsers className="mr-3" />Manage Parents
             </Link>
+
+            <Link to="/tutor/manage-students" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaUserGraduate className="mr-3" />Manage Students
+            </Link>
+
+            <Link to="/tutor/manage-timetable" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaRegCalendarAlt className="mr-3" />Manage timetable
+            </Link>
+
+            {/* <Link to="/tutor/trackCondonation" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaRegCalendar className="mr-3" />Track Condonation
+            </Link> */}
+
 
             {/* Logout Button (Visible in Small Screens) */}
             <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200">
@@ -85,4 +77,4 @@ function Hodbar() {
   );
 }
 
-export default Hodbar;
+export default Tutorbar;

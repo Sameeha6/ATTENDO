@@ -1,4 +1,5 @@
 import React from "react";
+import { FiClock } from "react-icons/fi"; // React Icon for clock
 
 const requests = [
   {
@@ -7,6 +8,8 @@ const requests = [
     type: "Hour Exchange",
     subject: "Mathematics",
     status: "Pending",
+    date: "24 Nov 2016",
+    time: "9:30 AM",
   },
   {
     id: 2,
@@ -14,6 +17,8 @@ const requests = [
     type: "Edit Attendance",
     subject: "Physics",
     status: "Approved",
+    date: "24 Nov 2016",
+    time: "9:30 AM",
   },
   {
     id: 3,
@@ -21,62 +26,77 @@ const requests = [
     type: "Hour Exchange",
     subject: "Chemistry",
     status: "Rejected",
+    date: "24 Nov 2016",
+    time: "9:30 AM",
   },
 ];
 
 const ManageRequests = () => {
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Manage Requests</h1>
+    <div className="bg-gray-100 min-h-screen">
+      <div className="w-full bg-white shadow-md rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">Manage Requests</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {requests.map((request) => (
-          <div
-            key={request.id}
-            className="bg-white p-6 rounded-lg shadow-md border-l-4 
-            transition hover:shadow-lg
-            border-blue-500"
-          >
-            <h2 className="text-lg font-semibold">{request.tutor}</h2>
-            <p className="text-gray-600">{request.type}</p>
-            <p className="font-semibold mt-2">{request.subject}</p>
+        <div className="divide-y">
+          {requests.map((request) => (
+            <div key={request.id} className="py-4 flex items-start gap-3">
+              {/* Status Indicator */}
+              <div
+                className={`w-2 h-2 mt-2 rounded-full ${
+                  request.status === "Pending"
+                    ? "bg-yellow-500"
+                    : request.status === "Approved"
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                }`}
+              ></div>
 
-            {/* Status Badge */}
-            <div className="mt-3">
-              {request.status === "Pending" && (
-                <span className="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm">
-                  Pending
-                </span>
-              )}
-              {request.status === "Approved" && (
-                <span className="bg-green-500 text-white px-3 py-1 rounded-md text-sm">
-                  Approved
-                </span>
-              )}
-              {request.status === "Rejected" && (
-                <span className="bg-red-500 text-white px-3 py-1 rounded-md text-sm">
-                  Rejected
-                </span>
-              )}
-            </div>
+              {/* Request Details */}
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">{request.tutor}</p>
+                <p className="text-sm text-gray-600">
+                  {request.type} - {request.subject}
+                </p>
 
-            {/* Action Buttons */}
-            {request.status === "Pending" && (
-              <div className="mt-4 flex space-x-2">
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex-1">
-                  Approve
-                </button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex-1">
-                  Reject
-                </button>
+                {/* Status Badge */}
+                <span
+                  className={`mt-2 inline-block px-3 py-1 text-xs font-semibold rounded-md text-white ${
+                    request.status === "Pending"
+                      ? "bg-yellow-500"
+                      : request.status === "Approved"
+                      ? "bg-green-500"
+                      : "bg-red-500"
+                  }`}
+                >
+                  {request.status}
+                </span>
+
+                {/* Action Buttons (Only for Pending Requests - Static UI) */}
+                {request.status === "Pending" && (
+                  <div className="mt-3 flex space-x-2">
+                    <button className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1">
+                      Approve
+                    </button>
+                    <button className="border border-gray-700 py-1 text-red-700 rounded-md hover:border-red-800 flex-1">
+                      Reject
+                    </button>
+                  </div>
+                )}
+                {request.status !== "Pending" && (
+                  <p className="text-gray-500 mt-3 text-sm">Action Taken</p>
+                )}
               </div>
-            )}
 
-            {request.status !== "Pending" && (
-              <p className="text-gray-500 mt-4 text-sm">Action Taken</p>
-            )}
-          </div>
-        ))}
+              {/* Date & Time */}
+              <div className="text-xs text-gray-500 flex items-center gap-1">
+                <FiClock size={14} />
+                <span>
+                  {request.date} at {request.time}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
