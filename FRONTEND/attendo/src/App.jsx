@@ -11,6 +11,7 @@ import ContactUs from './pages/Contact'
 import AdminRoutes from './routes/AdminRoutes'
 import HodRoutes from './routes/HODroutes'
 import TutorRoutes from './routes/TutorRoutes'
+import FacultyRoutes from './routes/FacultyRoutes'
 
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
     // </div>
     // <AdminRoutes/>
     // <HodRoutes/>
-    <TutorRoutes/>
+    // <TutorRoutes/>
+    <FacultyRoutes/>
   )
 
 }

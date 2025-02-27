@@ -32,7 +32,7 @@ function AboutUs() {
           initial={{ opacity: 0, x: -100 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          // viewport={{ once: true }}
+          viewport={{ once: true }}
           className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
         >
           <img
@@ -55,7 +55,7 @@ function AboutUs() {
           initial={{ opacity: 0, x: 100 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          // viewport={{ once: true }}
+          viewport={{ once: true }}
           className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
         >
           <img
@@ -78,7 +78,7 @@ function AboutUs() {
           initial={{ opacity: 0, x: -100 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          // viewport={{ once: true }}
+          viewport={{ once: true }}
           className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
         >
           <img
@@ -101,7 +101,7 @@ function AboutUs() {
           initial={{ opacity: 0, x: 100 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          // viewport={{ once: true }}
+          viewport={{ once: true }}
           className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
         >
           <img
@@ -124,7 +124,7 @@ function AboutUs() {
           initial={{ opacity: 0, x: -100 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          // viewport={{ once: true }}
+          viewport={{ once: true }}
           className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
         >
           <img

@@ -1,55 +1,39 @@
-import React from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 
 const ManageTutor = () => {
+  const branches = ["IT", "EC", "EEE", "CS", "PT", "ME"];
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       {/* Title */}
       <h2 className="text-2xl font-bold mb-4">Manage Tutor</h2>
 
-      {/* Create HOD Section */}
+      {/* Create Tutor Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Add Tutor</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block mb-1 text-gray-600">First Name</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Last Name</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Email Address</label>
-            <input type="email" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Phone Number</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Branch</label>
-            <select className="w-full p-2 border rounded-md" required>
-              <option value="">Select Branch</option>
-              <option value="IT">IT</option>
-              <option value="EC">EC</option>
-              <option value="EEE">EEE</option>
-              <option value="CS">CS</option>
-              <option value="PT">PT</option>
-              <option value="ME">ME</option>
-            </select>
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Academic year</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
+          <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
+          <select className="w-full p-2 border rounded-md" required>
+            <option value="">Select Branch</option>
+            {branches.map((branch) => (
+              <option key={branch} value={branch}>{branch}</option>
+            ))}
+          </select>
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
         </div>
-        <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
-          Add
-        </button>
+        <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
       </div>
 
-      {/* All HODs Table */}
+      {/* Tutors List Table */}
       <h3 className="text-xl font-semibold mb-3">Tutors List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
@@ -76,7 +60,7 @@ const ManageTutor = () => {
               <td className="border p-1">CS</td>
               <td className="border p-1">2022-24</td>
               <td className="border p-1">
-                <button className="text-blue-600">
+                <button className="text-blue-600" onClick={openModal}>
                   <FaEdit size={18} />
                 </button>
               </td>
@@ -89,6 +73,36 @@ const ManageTutor = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Edit Tutor Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+          <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between mb-3">
+              <h3 className="text-xl font-semibold">Edit Tutor</h3>
+              <button className="text-gray-600" onClick={closeModal}>
+                <FaTimes size={20} />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
+              <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
+              <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+              <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
+              <select className="w-full p-2 border rounded-md" required>
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch} value={branch}>{branch}</option>
+                ))}
+              </select>
+              <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
