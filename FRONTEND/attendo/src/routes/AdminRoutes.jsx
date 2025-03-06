@@ -29,20 +29,20 @@ function AdminRoutes() {
         {/* Content */}
         <div className="flex-grow overflow-auto p-6 bg-gray-100">
           <Routes>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/manage-branch" element={<ManageBranch />} />
-            <Route path="/admin/manage-semester" element={<ManageClass />} />
-            <Route path="/admin/manage-hod" element={<ManageHOD />} />
-            <Route path="/admin/manage-tutor" element={<ManageTutor />} />
-            <Route path="/admin/manage-faculties" element={<ManageFaculties />} />
-            <Route path="/admin/manage-parents" element={<ManageParents />} />
-            <Route path="/admin/manage-students" element={<ManageStudents />} />
+            <Route path="/admin/admin" element={<AdminDashboard />} />
+            <Route path="/admin/admin/manage-branch" element={<ManageBranch />} />
+            <Route path="/admin/admin/manage-semester" element={<ManageClass />} />
+            <Route path="/admin/admin/manage-hod" element={<ManageHOD />} />
+            <Route path="/admin/admin/manage-tutor" element={<ManageTutor />} />
+            <Route path="/admin/admin/manage-faculties" element={<ManageFaculties />} />
+            <Route path="/admin/admin/manage-parents" element={<ManageParents />} />
+            <Route path="/admin/admin/manage-students" element={<ManageStudents />} />
           </Routes>
         </div>
       </div>
 
       {/* Footer: Fixed at full width */}
-      <Footer className="w-full bg-blue-900 text-white text-center" />
+      {/* <Footer className="w-full bg-blue-900 text-white text-center" /> */}
     </div>
   );
 }

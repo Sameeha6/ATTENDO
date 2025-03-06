@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Footer from "../components/Footer";
@@ -27,16 +28,16 @@ function TutorRoutes() {
         <div className="flex-grow overflow-auto p-4 bg-gray-100">
           <Routes>
             <Route path="/tutorDash" element={<TutorDashboard/>} />
-            <Route path="tutor/manage-faculties" element={<ManageFaculties />} />
-            <Route path="tutor/manage-parents" element={<ManageParents />} />
-            <Route path="tutor/manage-students" element={<ManageStudents />} />
-            <Route path="tutor/manage-timetable" element={<Timetable />} />
+            <Route path="/manage-faculties" element={<ManageFaculties />} />
+            <Route path="/manage-parents" element={<ManageParents />} />
+            <Route path="/manage-students" element={<ManageStudents />} />
+            <Route path="/manage-timetable" element={<Timetable />} />
           </Routes>
         </div>
       </div>
 
-      {/* Footer: Fixed at full width */}
-      <Footer className="w-full bg-blue-900 text-white text-center" />
+      
+      {/* <Footer className="w-full bg-blue-900 text-white text-center" /> */}
     </div>
   );
 }

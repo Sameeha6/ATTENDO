@@ -27,20 +27,20 @@ function HodRoutes() {
         {/* Content */}
         <div className="flex-grow overflow-auto p-6 bg-gray-100">
           <Routes>
-            <Route path="/hodDash" element={<HodDashboard />} />
-            <Route path="hod/manage-tutor" element={<ManageTutor />} />
-            <Route path="hod/manage-faculties" element={<ManageFaculties />} />
-            <Route path="hod/manage-parents" element={<ManageParents />} />
-            <Route path="hod/manage-students" element={<ManageStudents />} />
-            <Route path="hod/manage-requests" element={<ManageRequests />} />
+            <Route path="/hod/hodDash" element={<HodDashboard />} />
+            <Route path="/hod/manage-tutor" element={<ManageTutor />} />
+            <Route path="/hod/manage-faculties" element={<ManageFaculties />} />
+            <Route path="/hod/manage-parents" element={<ManageParents />} />
+            <Route path="/hod/manage-students" element={<ManageStudents />} />
+            <Route path="/hod/manage-requests" element={<ManageRequests />} />
           </Routes>
         </div>
       </div>
 
       {/* Footer: Fixed at full width */}
-      <Footer className="w-full bg-blue-900 text-white text-center" />
+      {/* <Footer className="w-full bg-blue-900 text-white text-center" /> */}
     </div>
   );
 }
 
-export default HodRoutes;
+export default HodRoutes

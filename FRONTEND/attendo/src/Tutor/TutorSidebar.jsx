@@ -41,7 +41,7 @@ function Tutorbar() {
           className={`fixed top-16 left-0 bg-blue-950 text-white w-64 h-screen px-4 z-50 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
         >
           <nav className="mt-6 space-y-2">
-            <Link to="/tutorDash" className="flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/tutor/tutorDash" className="flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
 
