@@ -22,9 +22,6 @@ function StudentNav() {
         <Link to="/student/student/studentDash" className="hover:text-gray-400 flex items-center">
           <FaChartBar className="mr-2" /> Dashboard
         </Link>
-        <Link to="/student/student/student/reports" className="hover:text-gray-400 flex items-center">
-          <FaChartBar className="mr-2" /> Reports
-        </Link>
         <Link to="/student/student/student/alerts" className="hover:text-gray-400 flex items-center">
           <FaExclamationTriangle className="mr-2" /> Alerts
         </Link>
@@ -47,9 +44,6 @@ function StudentNav() {
         <div className="absolute top-16 h-screen w-64 left-0  bg-blue-950 text-white flex flex-col py-10 px-4 space-y-4 shadow-md lg:hidden">
           <Link to="/student/student/studentDash" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
             <FaChartBar className="mr-2" /> Dashboard
-          </Link>
-          <Link to="/student/student/student/reports" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
-            <FaChartBar className="mr-2" /> Reports
           </Link>
           <Link to="/student/student/student/alerts" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
             <FaExclamationTriangle className="mr-2" /> Alerts

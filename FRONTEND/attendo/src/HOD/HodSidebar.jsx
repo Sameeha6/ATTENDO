@@ -47,7 +47,7 @@ function Hodbar() {
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
 
-            <Link to="/hod/hod/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hod/manage-tutor" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <MdAdminPanelSettings className="mr-3" />Manage Tutor
             </Link>
 
@@ -62,15 +62,15 @@ function Hodbar() {
               </button>
               {openUsers && (
                 <div className="ml-6">
-                  <Link to="/hod/hod/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
-                  <Link to="/hod/hod/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
-                  <Link to="/hod/hod/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
+                  <Link to="/hod/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
+                  <Link to="/hod/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
+                  <Link to="/hod/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
                 </div>
               )}
             </div>
 
             {/* Reports & Analytics */}
-            <Link to="/hod/hod/manage-requests" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hod/manage-requests" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Manage Request
             </Link>
 

@@ -29,14 +29,14 @@ function AdminRoutes() {
         {/* Content */}
         <div className="flex-grow overflow-auto p-6 bg-gray-100">
           <Routes>
-            <Route path="/admin/admin" element={<AdminDashboard />} />
-            <Route path="/admin/admin/manage-branch" element={<ManageBranch />} />
-            <Route path="/admin/admin/manage-semester" element={<ManageClass />} />
-            <Route path="/admin/admin/manage-hod" element={<ManageHOD />} />
-            <Route path="/admin/admin/manage-tutor" element={<ManageTutor />} />
-            <Route path="/admin/admin/manage-faculties" element={<ManageFaculties />} />
-            <Route path="/admin/admin/manage-parents" element={<ManageParents />} />
-            <Route path="/admin/admin/manage-students" element={<ManageStudents />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/manage-branch" element={<ManageBranch />} />
+            <Route path="/manage-semester" element={<ManageClass />} />
+            <Route path="/manage-hod" element={<ManageHOD />} />
+            <Route path="/manage-tutor" element={<ManageTutor />} />
+            <Route path="/manage-faculties" element={<ManageFaculties />} />
+            <Route path="/manage-parents" element={<ManageParents />} />
+            <Route path="/manage-students" element={<ManageStudents />} />
           </Routes>
         </div>
       </div>

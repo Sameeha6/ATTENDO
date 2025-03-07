@@ -10,7 +10,7 @@ const data = [
 
 const Subject= () => {
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-2 min-h-screen">
       <div className="bg-white text-black p-6 rounded-lg text-xl font-bold shadow-md flex items-center gap-3">
       Subject-wise Attendance 
       </div>

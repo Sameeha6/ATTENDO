@@ -15,10 +15,10 @@ const Hourly = () => {
   const [selectedMonth, setSelectedMonth] = useState("January");
 
   return (
-    <div className="p-6 bg-gray-100 w-full min-h-screen">
+    <div className="p-2  w-full min-h-screen">
       {/* Header and Month Selector */}
-      <div className="flex justify-between items-center bg-white text-black mb-6 p-4 rounded-lg text-xl font-bold shadow-md gap-3">
-        Hourly Attendance
+      <div className="flex justify-between items-center bg-white text-black mb-6 p-4 rounded-lg  font-bold shadow-md gap-3">
+        <h1 className="text-xl">Hourly Attendance</h1>
         <select
           className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
           value={selectedMonth}
@@ -41,7 +41,7 @@ const Hourly = () => {
       </div>
 
       {/* Attendance Table */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
         <table className="w-full">
           <thead className="bg-white">
             <tr>

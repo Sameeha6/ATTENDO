@@ -49,12 +49,12 @@ function NavbarAndSidebar() {
             </Link>
 
             {/* Manage Branch */}
-            <Link to="/admin/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaSchool className="mr-3" /> Manage Branch
             </Link>
 
             {/* Manage Class */}
-            <Link to="/admin/admin/manage-semester" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/admin/manage-semester" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <MdClass className="mr-3" /> Manage Semester
             </Link>
 
@@ -69,8 +69,8 @@ function NavbarAndSidebar() {
               </button>
               {openSubAdmin && (
                 <div className="ml-6">
-                  <Link to="/admin/admin/manage-hod" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">HOD</Link>
-                  <Link to="/admin/admin/manage-tutor" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Tutor</Link>
+                  <Link to="/admin/manage-hod" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">HOD</Link>
+                  <Link to="/admin/manage-tutor" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Tutor</Link>
                 </div>
               )}
             </div>
@@ -86,9 +86,9 @@ function NavbarAndSidebar() {
               </button>
               {openUsers && (
                 <div className="ml-6">
-                  <Link to="/admin/admin/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
-                  <Link to="/admin/admin/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
-                  <Link to="/admin/admin/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
+                  <Link to="/admin/manage-faculties" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Faculties</Link>
+                  <Link to="/admin/manage-parents" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Parents</Link>
+                  <Link to="/admin/manage-students" className="block py-2 px-4 hover:bg-gray-400 hover:text-black rounded">Students</Link>
                 </div>
               )}
             </div>

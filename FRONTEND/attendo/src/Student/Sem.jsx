@@ -10,7 +10,7 @@ const data = [
 
 const Sem = () => {
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-2 min-h-screen">
       <div className="bg-white text-black p-6 rounded-lg text-xl font-bold shadow-md flex items-center gap-3">
          Semester-wise Attendance Report
       </div>
@@ -19,8 +19,8 @@ const Sem = () => {
           const percentage = ((item.attended / item.total) * 100).toFixed(2);
           return (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <FaCheckCircle className="text-green-600" /> {item.semester}
+              <h2 className="text-xl font-semibold text-gray-700 flex items-center gap-1">
+                 {item.semester}
               </h2>
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between items-center">

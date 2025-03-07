@@ -12,6 +12,7 @@ import AdminRoutes from './routes/AdminRoutes'
 import HodRoutes from './routes/HODroutes'
 import TutorRoutes from './routes/TutorRoutes'
 import StudentRoutes from './routes/StudentRoutes'
+import FacultyRoutes from './routes/FacultyRoutes'
 
 
 function App() {
@@ -20,25 +21,23 @@ function App() {
   const hideNavbarRoutes = ["/Admin/*","/hod/*","/tutor/*","/student/*"];
   return (
     <div>
-
-       <div className=" min-h-screen flex flex-col">
-       {!hideNavbarRoutes.includes(location.pathname) && <Navbar/>}
-      <div className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/Admin/*" element={<AdminRoutes />} />
-          <Route path="/hod/*" element={<HodRoutes />} />
-          <Route path="/tutor/*" element={<TutorRoutes />} />
-          <Route path="/student/*" element={<StudentRoutes />} />
-
-
-        </Routes>
-      </div>
-      <Footer />
-    </div> 
+      <div className=" min-h-screen flex flex-col">
+        {!hideNavbarRoutes.includes(location.pathname) && <Navbar/>}
+          <div className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/Admin/*" element={<AdminRoutes />} />
+              <Route path="/hod/*" element={<HodRoutes />} />
+              <Route path="/tutor/*" element={<TutorRoutes />} />
+              <Route path="/student/*" element={<StudentRoutes />} />
+              <Route path="/faculty/*" element={<FacultyRoutes />} />
+            </Routes>
+          </div>
+        <Footer />
+      </div> 
     </div>
     
   )

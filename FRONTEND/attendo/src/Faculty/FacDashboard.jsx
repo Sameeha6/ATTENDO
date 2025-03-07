@@ -26,21 +26,21 @@ const FacultyDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden p-4">
-      {/* Header */}
-      <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Faculty Dashboard</h2>
+    <div className="flex flex-col h-screen overflow-hidden p-4 mt-14">
 
       {/* Filters Section */}
-      <div className="bg-white shadow-md p-4 rounded-lg mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <select className="p-2 border rounded-md" required>
-          <option value="">Select Branch</option>
+      <div className="bg-white shadow-md p-4 rounded-lg mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        
+        <input type="text" placeholder="Academic Year" className="w-full p-2 border rounded-md"/>
+        <select className="p-2 border rounded-md text-gray-500" required>
+          <option value="branch">Select Branch</option>
           {branches.map((branch) => (
             <option key={branch} value={branch}>{branch}</option>
           ))}
         </select>
 
-        <select className="p-2 border rounded-md" required>
-          <option value="">Select Semester</option>
+        <select className="p-2 border rounded-md text-gray-500" required>
+          <option value="sem">Select Semester</option>
           {semesters.map((semester) => (
             <option key={semester} value={semester}>{semester}</option>
           ))}
@@ -48,7 +48,7 @@ const FacultyDashboard = () => {
 
         <input
           type="date"
-          className="p-2 border rounded-md"
+          className="p-2 border rounded-md text-gray-500"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
@@ -56,7 +56,7 @@ const FacultyDashboard = () => {
 
       {/* Timetable Section */}
       <div className="bg-white shadow-md p-4 rounded-lg overflow-x-auto">
-        <h3 className="text-xl font-semibold mb-4 text-center md:text-left">Manage Timetable</h3>
+        <h3 className="text-xl font-semibold mb-4 text-center md:text-left">Timetable</h3>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300 min-w-[600px]">
             <thead>
