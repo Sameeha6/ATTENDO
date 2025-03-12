@@ -12,6 +12,7 @@ function FacHistory() {
   ];
   const [attendance, setAttendance] = useState(students);
   const [date, setDate] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   // Toggle attendance status
   const toggleAttendance = (RegNo) => {
@@ -104,11 +105,30 @@ function FacHistory() {
 
         {/* Submit Button */}
         <div className="flex justify-center items-center mt-6">
-          <button className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full">
+          <button
+            className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full"
+            onClick={() => setShowModal(true)}
+          >
             Submit
           </button>
         </div>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4 text-center">Confirm Attendance Submission</h2>
+            <p className="mb-4 text-center">
+              Are you sure you want to change the attendance record for the selected date and hour?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onClick={() => { alert("Attendance submitted successfully!"); setShowModal(false); }}>Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

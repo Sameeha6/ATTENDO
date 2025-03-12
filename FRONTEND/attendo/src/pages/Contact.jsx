@@ -62,7 +62,7 @@ const ContactUs = () => {
             {/* Send Message Button */}
             <button
               type="button"
-              className="w-full bg-blue-950 text-white p-3 rounded-md hover:bg-blue-600"
+              className="w-full bg-blue-950 text-white p-3 rounded-md hover:bg-blue-900"
               onClick={() => window.location.href = `mailto:support@attendo.com?subject=Contact Us&body=Your Message Here`}
             >
               Send Message
