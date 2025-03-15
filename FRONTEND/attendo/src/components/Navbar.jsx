@@ -20,7 +20,7 @@ function Navbar() {
   }, []);
 
   // Check if the current route is in the specified pages
-  const pagesWithBlueNavbar = ["/features", "/about", "/contact", "/login"];
+  const pagesWithBlueNavbar = ["/features", "/about", "/contact", "/login","*"];
   const isBlueNavbar = pagesWithBlueNavbar.includes(location.pathname) || isScrolled;
 
   return (

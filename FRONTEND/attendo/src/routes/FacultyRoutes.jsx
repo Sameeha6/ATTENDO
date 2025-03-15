@@ -7,6 +7,7 @@ import WelcomePg from "../Faculty/Welcompg";
 import FacultyDashboard from "../Faculty/FacDashboard";
 import FacHistory from "../Faculty/History";
 import Notifications from "../Faculty/Notification";
+import FacultyReport from "../Faculty/Report";
 
 function FacultyRoutes() {
 
@@ -21,6 +22,7 @@ function FacultyRoutes() {
           <Route path="/take-attendance" element={<TakeAttendance />} />
           <Route path="/history" element={<FacHistory />} />
           <Route path="/notification" element={<Notifications/>} />
+          <Route path="/reports" element={<FacultyReport/>} />
         </Routes>
       </div>
       {/* <Footer className="w-full bg-blue-900 text-white text-center" /> */}
