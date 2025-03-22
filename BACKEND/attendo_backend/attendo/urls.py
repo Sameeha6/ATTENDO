@@ -1,6 +1,9 @@
 from django.urls import path
-from . import views
+from .views import LoginView,BranchListCreateView,HODRegisterView
 
 urlpatterns = [
-    path('attendo/', views.attendo, name='attendo'),
+    path("login/", LoginView.as_view(), name="login"),
+    path("branches/",BranchListCreateView.as_view(), name="branches"),
+    path("hod/", HODRegisterView.as_view(), name="hod")
+
 ]

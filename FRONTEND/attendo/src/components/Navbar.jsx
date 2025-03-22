@@ -21,7 +21,8 @@ function Navbar() {
 
   // Check if the current route is in the specified pages
   const pagesWithBlueNavbar = ["/features", "/about", "/contact", "/login","*"];
-  const isBlueNavbar = pagesWithBlueNavbar.includes(location.pathname) || isScrolled;
+  const isNotFoundPage = location.pathname !== "/" && !pagesWithBlueNavbar.includes(location.pathname);
+  const isBlueNavbar = pagesWithBlueNavbar.includes(location.pathname) || isScrolled || isNotFoundPage;
 
   return (
     <>
@@ -30,7 +31,7 @@ function Navbar() {
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
         ${isBlueNavbar ? "bg-blue-950 text-white shadow-md" : "bg-transparent text-white"}`}
       >
-        <div className="flex justify-between items-center px-6 py-4">
+        <div className="flex justify-between items-center px-6 py-3">
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <img

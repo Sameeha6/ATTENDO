@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Login,Branch,HOD
 
-# Register your models here.
+admin.site.register(Login)
+admin.site.register(Branch)
+admin.site.register(HOD)
