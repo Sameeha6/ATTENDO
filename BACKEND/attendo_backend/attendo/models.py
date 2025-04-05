@@ -19,7 +19,39 @@ class HOD(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True, related_name="hods")
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    email = models.EmailField(max_length=50, unique=True, null=True, blank=True)
     role = models.CharField(max_length=15, default="HOD")
 
     def _str_(self):
         return f"HOD: {self.user.username if self.user else 'No User Assigned'} ({self.branch.name if self.branch else 'No Branch'})"
+    
+class Faculty(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email = models.EmailField(max_length=50, unique=True, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True)
+    branch = models.ForeignKey('Branch', on_delete=models.CASCADE, related_name="faculties")
+    role = models.CharField(max_length=15, default="faculty")
+
+    def str(self):
+        return f"{self.user.username} - {self.branch.name if self.branch else 'No Branch Assigned'}"
+    
+class Subject(models.Model):
+    academic_year = models.CharField(max_length=10,default=".")
+    semester = models.CharField(max_length=5,default="")
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE,default="")
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE,default="")
+    subject_code = models.CharField(max_length=20, unique=True,default="")
+    subject_name = models.CharField(max_length=255,default="")
+
+    def _str_(self):
+        return f"{self.subject_code} - {self.subject_name}"
+    
+class Tutor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=10, null=True)
+    branch = models.ForeignKey('Branch', on_delete=models.CASCADE, related_name="tutors")
+    academic_year = models.CharField(max_length=10)
+    role = models.CharField(max_length=15, default="tutor")
+
+    def __str__(self):
+        return self.user.username

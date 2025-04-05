@@ -108,6 +108,10 @@ const ContactUs = () => {
             </p>
           </div>
 
+          <footer className="bg-gray-900 text-white py-6 text-center">
+          <p>&copy; 2025 ATTENDO. All Rights Reserved.</p>
+        </footer>
+
           {/* Contact Section */}
           {/* <div>
             <h2 className="text-xl font-bold border-b border-gray-700 pb-2">CONTACT US:</h2>

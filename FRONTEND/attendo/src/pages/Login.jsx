@@ -27,7 +27,14 @@ function Login() {
 
         if (role === "admin") {
           navigate("/admin/admin"); // Redirect admin to dashboard instantly
-        } else {
+        }
+        else if(role === "hod"){
+          navigate("/hod/hodDash");
+        }
+        else if(role === "faculty"){
+          navigate("/faculty/Dash");
+        }
+         else {
           setError("Access Denied! Only admins can log in.");
         }
       }

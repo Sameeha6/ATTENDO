@@ -15,11 +15,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Card 2: Classes */}
-        <div className="bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 flex flex-col items-center text-center">
+        {/* <div className="bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 flex flex-col items-center text-center">
           <MdOutlineClass className="text-blue-900 text-5xl mb-2" />
           <h3 className="text-2xl font-bold text-gray-800">Classes</h3>
           <p className="text-gray-600 mt-2">Total: 20</p>
-        </div>
+        </div> */}
 
         {/* Card 3: HOD */}
         <div className="bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 flex flex-col items-center text-center">

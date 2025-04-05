@@ -1,47 +1,156 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import axios from "axios";
 
 const ManageTutor = () => {
-  const branches = ["IT", "EC", "EEE", "CS", "PT", "ME"];
-
+  const [tutors, setTutors] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [editData, setEditData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    phone_number: "",
+    branch: "",
+    academic_year: "",
+  });
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [editFormData, setEditFormData] = useState({
+    id: null,
+    username: "",
+    email: "",
+    phone_number: "",
+    branch: "",
+    academic_year: "",
+  });
+
+  const openModal = (tutor) => {
+    setEditData(tutor);
+    setIsModalOpen(true);
+  };
+
+  // const openModal = (tutor) => {
+  //   setEditFormData({
+  //     id: tutor.id,
+  //     username: tutor.username,
+  //     email: tutor.email,
+  //     phone_number: tutor.phone_number,
+  //     branch: tutor.branch,
+  //     academic_year: tutor.academic_year,
+  //   });
+  //   setIsModalOpen(true);
+  // };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditData(null);
+  };
+  
+
+  // const closeModal = () => setIsModalOpen(false);
+
+  const fetchTutors = async () => {
+    const res = await axios.get("http://localhost:8000/api/add-tutor/");
+    setTutors(res.data);
+  };
+
+  const fetchBranches = async () => {
+    const res = await axios.get("http://localhost:8000/api/branches/");
+    setBranches(res.data);
+  };
+
+  useEffect(() => {
+    fetchTutors();
+    fetchBranches();
+  }, []);
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleEditInputChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+
+  const handleAddTutor = async () => {
+    try {
+      await axios.post("http://localhost:8000/api/add-tutor/", formData);
+      fetchTutors();
+      setFormData({ name: "", email: "", phone_number: "", branch: "", academic_year: "" });
+    } catch (err) {
+      console.error("Error adding tutor:", err.response?.data || err);
+    }
+  };
+
+  // const handleUpdateTutor = async () => {
+  //   try {
+  //     const payload = {
+  //       user: {
+  //         username: editFormData.username,
+  //         email: editFormData.email
+  //       },
+  //       phone_number: editFormData.phone_number,
+  //       branch: editFormData.branch,
+  //       academic_year: editFormData.academic_year
+  //     };
+  //     await axios.put(`http://localhost:8000/api/tutors/${editFormData.id}`, payload);
+  //     fetchTutors();
+  //     closeModal();
+  //   } catch (err) {
+  //     console.error(err.response?.data || err);
+  //   }
+  // };
+
+  const saveEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`http://127.0.0.1:8000/api/tutors/${editData.id}/`, editData);
+      setTutors(tutors.map(tutor => tutor.id === editData.id ? response.data : tutor));
+      closeModal();
+    } catch (error) {
+      console.error("Error saving edited tutor:", error);
+    }
+  };
+  
+  
+
+  const handleDeleteTutor = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/tutors/${id}`);
+      fetchTutors();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
-      {/* Title */}
       <h2 className="text-2xl font-bold mb-4">Manage Tutor</h2>
 
-      {/* Create Tutor Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Add Tutor</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
-          <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
-          <select className="w-full p-2 border rounded-md" required>
+          <input name="username" value={formData.username} onChange={handleInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Username" required />
+          <input name="email" value={formData.email} onChange={handleInputChange} type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+          <input name="phone_number" value={formData.phone_number} onChange={handleInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
+          <select name="branch" value={formData.branch} onChange={handleInputChange} className="w-full p-2 border rounded-md" required>
             <option value="">Select Branch</option>
             {branches.map((branch) => (
-              <option key={branch} value={branch}>{branch}</option>
+              <option key={branch.id} value={branch.id}>{branch.name}</option>
             ))}
           </select>
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
+          <input name="academic_year" value={formData.academic_year} onChange={handleInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
         </div>
-        <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
+        <button onClick={handleAddTutor} className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
       </div>
 
-      {/* Tutors List Table */}
       <h3 className="text-xl font-semibold mb-3">Tutors List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-1">#</th>
-              <th className="border p-1">First Name</th>
-              <th className="border p-1">Last Name</th>
+              <th className="border p-1">Username</th>
               <th className="border p-1">Email Address</th>
               <th className="border p-1">Phone Number</th>
               <th className="border p-1">Branch</th>
@@ -51,30 +160,30 @@ const ManageTutor = () => {
             </tr>
           </thead>
           <tbody className="text-gray-600">
-            <tr className="text-center">
-              <td className="border p-1">1</td>
-              <td className="border p-1">Sam</td>
-              <td className="border p-1">Sebastin</td>
-              <td className="border p-1">samseb@example.com</td>
-              <td className="border p-1">1234567890</td>
-              <td className="border p-1">CS</td>
-              <td className="border p-1">2022-24</td>
-              <td className="border p-1">
-                <button className="text-blue-600" onClick={openModal}>
-                  <FaEdit size={18} />
-                </button>
-              </td>
-              <td className="border p-1">
-                <button className="text-red-600">
-                  <FaTrash size={18} />
-                </button>
-              </td>
-            </tr>
+            {tutors.map((tutor, index) => (
+              <tr key={tutor.id} className="text-center">
+                <td className="border p-1">{index + 1}</td>
+                <td className="border p-1">{tutor?.username}</td>
+                <td className="border p-1">{tutor?.email}</td>
+                <td className="border p-1">{tutor?.phone_number}</td>
+                <td className="border p-1">{tutor.branch}</td>
+                <td className="border p-1">{tutor.academic_year}</td>
+                <td className="border p-1">
+                  <button className="text-blue-600" onClick={() => openModal(tutor)}>
+                    <FaEdit size={18} />
+                  </button>
+                </td>
+                <td className="border p-1">
+                  <button className="text-red-600" onClick={() => handleDeleteTutor(tutor.id)}>
+                    <FaTrash size={18} />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* Edit Tutor Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
@@ -84,22 +193,23 @@ const ManageTutor = () => {
                 <FaTimes size={20} />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
-              <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
-              <select className="w-full p-2 border rounded-md" required>
-                <option value="">Select Branch</option>
-                {branches.map((branch) => (
-                  <option key={branch} value={branch}>{branch}</option>
-                ))}
-              </select>
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
-            </div>
-            <div className="mt-4 flex justify-end">
-              <button className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
-            </div>
+            <form onSubmit={saveEdit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input name="username" value={editData.username} onChange={handleEditInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Username" required />
+                <input name="email" value={editData.email} onChange={handleEditInputChange} type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+                <input name="phone_number" value={editData.phone_number} onChange={handleEditInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
+                <select name="branch" value={editData.branch} onChange={handleEditInputChange} className="w-full p-2 border rounded-md" required>
+                  <option value="">Select Branch</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>{branch.name}</option>
+                  ))}
+                </select>
+                <input name="academic_year" value={editData.academic_year} onChange={handleEditInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button type="Submit" className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

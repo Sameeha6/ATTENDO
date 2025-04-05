@@ -47,22 +47,10 @@ const ManageStudents = () => {
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Create Student</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block mb-1 text-gray-600">First Name</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Last Name</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Email Address</label>
-            <input type="email" className="w-full p-2 border rounded-md" required />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Phone Number</label>
-            <input type="text" className="w-full p-2 border rounded-md" required />
-          </div>
+            <input type="text" className="w-full p-2 border rounded-md" required placeholder="Student ID"/>
+            <input type="text" className="w-full p-2 border rounded-md" required placeholder="Name"/>
+            <input type="email" className="w-full p-2 border rounded-md" placeholder="Email_address"required />
+            <input type="number" className="w-full p-2 border rounded-md" placeholder="Phone_number" required />
         </div>
         <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
           Add
@@ -76,6 +64,7 @@ const ManageStudents = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-1">#</th>
+              <th className="border p-1">ID</th>
               <th className="border p-1">Name</th>
               <th className="border p-1">Email</th>
               <th className="border p-1">Phone No</th>
@@ -89,11 +78,12 @@ const ManageStudents = () => {
           <tbody className="text-gray-600">
             <tr className="text-center">
               <td className="border p-1">1</td>
+              <td className="border p-1">IEAWEIT031</td>
               <td className="border p-1">ravi</td>
               <td className="border p-1">ravi@gmail.com</td>
               <td className="border p-1">1234567890</td>
               <td className="border p-1">2022-24</td>
-              <td className="border p-1">CS</td>
+              <td className="border p-1">IT</td>
               <td className="border p-1">S3</td>
               <td className="border p-1">
                 <button className="text-blue-600" onClick={openModal}>

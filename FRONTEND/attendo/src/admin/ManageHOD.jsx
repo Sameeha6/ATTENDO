@@ -3,102 +3,95 @@ import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 
 const ManageHOD = () => {
-  const [hods, setHods] = useState([]);
   const [branches, setBranches] = useState([]);
   const [formData, setFormData] = useState({ username: "", email: "", phone: "", branch: "" });
   const [editData, setEditData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // useEffect(() => {
-  //   // fetchHODs();
-  //   fetchBranches();
-  // }, []);
+  useEffect(() => {
+    fetchBranches();
+  }, []);
 
-  // const fetchHODs = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:8000/api/hod/");
-  //     setHods(response.data);
-  //     console.log(hods)
-  //   } catch (error) {
-  //     console.error("Error fetching HODs", error);
-  //   }
-  // };
-  useEffect(()=>{
-    axios.get("http://localhost:8000/api/branches/").then((response)=>{
-      console.log(response)
-      setBranches(response.data)
-    }).catch((error)=>{
-      console.log(error)
-    })
-
-  },[])
-
-  // const fetchBranches = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:8000/api/branches/");
-  //     setBranches(response.data);
-  //     console.log(branches)
-  //   } catch (error) {
-  //     console.error("Error fetching branches", error);
-  //   }
-  // };
+  const fetchBranches = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/branches/");
+      setBranches(response.data);
+      console.log(response.data)
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  console.log(formData)
-
 
   const addHOD = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!formData.username || !formData.email || !formData.phone || !formData.branch) {
       alert("Please fill in all fields.");
       return;
     }
 
     try {
-      // const payload = {
-      //   username: formData.username,
-      //   email: formData.email,
-      //   phone: formData.phone,
-      //   branch: parseInt(formData.branch), // Convert branch to an integer
-      // };
-     const response= await axios.post("http://localhost:8000/api/hod/", formData);
-      console.log(response.data)
-      // fetchHODs();
+      await axios.post("http://127.0.0.1:8000/api/hod/", formData);
       setFormData({ username: "", email: "", phone: "", branch: "" });
+      fetchBranches();
     } catch (error) {
-      console.error("Error adding HOD");
+      console.error("Error adding HOD:", error);
     }
   };
 
-  // const openEditModal = (hod) => {
-  //   setEditData({ ...hod, branch: hod.branch.id });
-  //   setIsModalOpen(true);
-  // };
+  const openEditModal = (items) => {
+    if (!items.hod) {
+      console.error("HOD data is missing!");
+      return;
+    }
+    setEditData({
+      id: items.hod.id,
+      username: items.hod.user,
+      email: items.hod.email,
+      phone: items.hod.phone,
+      branch: items.id,
+    });
+    setIsModalOpen(true);
 
-  // const updateHOD = async () => {
-  //   try {
-  //     await axios.put(`http://localhost:8000/api/hod/${editData.id}/`, editData);
-  //     fetchHODs();
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error("Error updating HOD", error);
-  //   }
-  // };
+  };
 
-  // const deleteHOD = async (id) => {
-  //   try {
-  //     await axios.delete(`http://localhost:8000/api/hod/${id}/`);
-  //     fetchHODs();
-  //   } catch (error) {
-  //     console.error("Error deleting HOD", error);
-  //   }
-  // };
+  const updateHOD = async (e) => {
+    e.preventDefault();
+    if (!editData || !editData.id) {
+      console.error("HOD ID is missing, cannot update!");
+      return;
+    }
+    console.log(editData)
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/gethod/${editData.id}/`, editData);
+      setIsModalOpen(false);
+      fetchBranches();
+    } catch (error) {
+      console.error("Error updating HOD:", error);
+    }
+  };
+
+  const deleteHOD = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this HOD?");
+    if (!confirmDelete) return;
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/gethod/${id}/`);
+      fetchBranches();
+      alert("HOD deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting HOD:", error);
+      alert("Failed to delete HOD. Please try again.");
+    }
+  };
+  console.log(editData)
 
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage HOD</h2>
+      
       <form className="bg-gray-100 p-3 rounded-md mb-6" onSubmit={addHOD}>
         <h3 className="text-xl font-semibold mb-3">Add HOD</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -112,7 +105,7 @@ const ManageHOD = () => {
             ))}
           </select>
         </div>
-        <button  type="submit" className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
+        <button type="submit" className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
       </form>
 
       <h3 className="text-xl font-semibold mb-3">HODs List</h3>
@@ -129,47 +122,68 @@ const ManageHOD = () => {
               <th className="border p-1">Delete</th>
             </tr>
           </thead>
-          <tbody>
-            {/* {hods.map((hod, index) => (
-              <tr key={hod.id} className="text-center">
+          <tbody className="text-gray-600">
+            {branches.map((items, index) => (
+              <tr key={items.id} className="text-center">
                 <td className="border p-1">{index + 1}</td>
-                <td className="border p-1">{hod.username}</td>
-                <td className="border p-1">{hod.email}</td>
-                <td className="border p-1">{hod.phone}</td>
-                <td className="border p-1">{hod.branch.name}</td>
                 <td className="border p-1">
-                  <button className="text-blue-600" 
-                  // onClick={() => openEditModal(hod)}
-                  >
+                  {items.hod?.user ? (
+                    items.hod.user
+                  ) : (
+                    <span className="text-red-600 ">Not Assigned</span>
+                  )}
+                </td>
+                <td className="border p-1">
+                  {items.hod?.email ? (
+                    items.hod.email
+                  ) : (
+                    <span className="text-red-600 ">N/A</span>
+                  )}
+                </td>
+                <td className="border p-1">
+                  {items.hod?.phone ? (
+                    items.hod.phone
+                  ) : (
+                    <span className="text-red-600">N/A</span>
+                  )}
+                </td>
+                <td className="border p-1">{items.name}</td>
+                <td className="border p-1">
+                  <button className="text-blue-600" onClick={() => openEditModal(items)}>
                     <FaEdit size={18} />
                   </button>
                 </td>
                 <td className="border p-1">
-                  <button className="text-red-600"
-                  //  onClick={() => deleteHOD(hod.id)}
-                   >
+                  <button className="text-red-600" onClick={() => deleteHOD(items.hod?.id)}>
                     <FaTrash size={18} />
                   </button>
                 </td>
               </tr>
-            ))} */}
+            ))}
           </tbody>
         </table>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && editData && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-xl font-semibold">Edit HOD</h3>
-              <button className="text-black" onClick={() => setIsModalOpen(false)}>
-                <FaTimes size={20} />
-              </button>
-            </div>
-            <input type="text" value={editData?.username} onChange={(e) => setEditData({ ...editData, username: e.target.value })} className="w-full p-2 border rounded-md" placeholder="Username" required />
-            <div className="mt-4 flex justify-end">
-              <button onClick={updateHOD} className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
-            </div>
+            <form onSubmit={updateHOD}>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-xl font-semibold">Edit HOD</h3>
+                <button className="text-black" onClick={() => setIsModalOpen(false)}>
+                  <FaTimes size={20} />
+                </button>
+              </div>
+              <input type="text" name="username" value={editData.username} onChange={(e) => setEditData({ ...editData, username: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
+              <input type="email" name="email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
+              <input type="text" name="phone" value={editData.phone} onChange={(e) => setEditData({ ...editData, phone: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
+              {/* <select name="branch" value={editData.branch} onChange={(e) => setEditData({ ...editData, branch: e.target.value })} className="w-full p-2 border rounded-md mb-2" required>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>{branch.name}</option>
+                ))}
+              </select> */}
+              <button type="submit" className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+            </form>
           </div>
         </div>
       )}

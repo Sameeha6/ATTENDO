@@ -42,7 +42,7 @@ return (
         <Route path="*" element={<Notfound />} />
       </Routes>
     </div>
-    <Footer />
+    {/* <Footer /> */}
   </div>
 );
 

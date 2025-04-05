@@ -48,6 +48,7 @@ const ManageParents = () => {
         <input type="text" className="w-full p-2 border rounded-md" placeholder="Parent Name" required />
           <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
           <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="Ward ID" required />
           <input type="text" className="w-full p-2 border rounded-md" placeholder="Ward Name" required />
         </div>
         <button className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
@@ -65,6 +66,7 @@ const ManageParents = () => {
               <th className="border p-1">Parent Name</th>
               <th className="border p-1">Email</th>
               <th className="border p-1">Phone No</th>
+              <th className="border p-1">Ward ID</th>
               <th className="border p-1">Ward Name</th>
               <th className="border p-1">Year</th>
               <th className="border p-1">Branch</th>
@@ -79,6 +81,7 @@ const ManageParents = () => {
               <td className="border p-1">shankar</td>
               <td className="border p-1">johndoe@gmail.com</td>
               <td className="border p-1">1234567890</td>
+              <td className="border p-1">IEAWEIT031</td>
               <td className="border p-1">ravi</td>
               <td className="border p-1">2022-24</td>
               <td className="border p-1">CS</td>

@@ -4,12 +4,13 @@ import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "../admin/Dashboard";
 import Footer from "../components/Footer";
 import ManageBranch from "../admin/ManageBranch";
-import ManageClass from "../admin/ManageClass";
+// import ManageClass from "../admin/ManageClass";
 import ManageHOD from "../admin/ManageHOD";
 import ManageTutor from "../admin/ManageTutor";
 import ManageFaculties from "../admin/ManageFaculty";
 import ManageParents from "../admin/ManageParent";
 import ManageStudents from "../admin/ManageStudents";
+import ManageSubject from "../admin/ManageSubject";
 
 function AdminRoutes() {
   // Sidebar state
@@ -31,12 +32,13 @@ function AdminRoutes() {
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/manage-branch" element={<ManageBranch />} />
-            <Route path="/manage-semester" element={<ManageClass />} />
+            {/* <Route path="/manage-semester" element={<ManageClass />} /> */}
             <Route path="/manage-hod" element={<ManageHOD />} />
             <Route path="/manage-tutor" element={<ManageTutor />} />
             <Route path="/manage-faculties" element={<ManageFaculties />} />
             <Route path="/manage-parents" element={<ManageParents />} />
             <Route path="/manage-students" element={<ManageStudents />} />
+            <Route path="/manage-subject" element={<ManageSubject />} />
           </Routes>
         </div>
       </div>

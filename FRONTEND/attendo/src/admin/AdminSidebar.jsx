@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUsers, FaChartBar, FaSchool, FaBars } from "react-icons/fa";
+import { FaUsers, FaChartBar, FaSchool, FaBars, FaBook } from "react-icons/fa";
 import { MdAdminPanelSettings, MdClass, MdExpandMore } from "react-icons/md";
 import { Link } from "react-router-dom";
 
@@ -43,22 +43,18 @@ function NavbarAndSidebar() {
           className={`fixed top-16 left-0 bg-blue-950 text-white h-screen px-4 w-64 z-50 flex flex-col transition-transform transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:w-64`}
         >
           <nav className="mt-6">
-            {/* Dashboard */}
             <Link to="/admin/admin" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaChartBar className="mr-3" /> Dashboard
             </Link>
-
-            {/* Manage Branch */}
             <Link to="/admin/manage-branch" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaSchool className="mr-3" /> Manage Branch
             </Link>
-
-            {/* Manage Class */}
-            <Link to="/admin/manage-semester" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
-              <MdClass className="mr-3" /> Manage Semester
+            <Link to="/admin/manage-subject" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaBook className="mr-3" /> Manage Subject
             </Link>
-
-            {/* Manage Subadmins */}
+            {/* <Link to="/admin/manage-semester" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <MdClass className="mr-3" /> Manage Semester
+            </Link> */}
             <div>
               <button
                 onClick={() => setOpenSubAdmin(!openSubAdmin)}
@@ -74,8 +70,6 @@ function NavbarAndSidebar() {
                 </div>
               )}
             </div>
-
-            {/* Manage Users */}
             <div>
               <button
                 onClick={() => setOpenUsers(!openUsers)}

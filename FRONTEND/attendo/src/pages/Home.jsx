@@ -162,11 +162,14 @@ function Home() {
         <div>
           <h2 className="text-xl font-bold border-b border-gray-700 pb-2">CONTACT US:</h2>
           <p className="text-gray-300 mt-4 font-light">Have questions? Need assistance? Reach out to us anytime!</p>
-          <Link to="/contact" className="text-blue-400 font-bold hover:underline mt-2 inline-block">
+          <Link to="/contact" className="text-blue-400 font-bold hover:underline mt-2 mb-6 inline-block">
             SEND US AN EMAIL
           </Link>
         </div>
 
+        <footer className="bg-gray-900 text-white py-6 text-center">
+          <p>&copy; 2025 ATTENDO. All Rights Reserved.</p>
+        </footer>
       </div>
     </section>
 

@@ -32,32 +32,36 @@ const ManageBranch = () => {
     }
   };
 
-  // const handleEdit = (branch) => {
-  //   setSelectedBranch(branch);
-  //   setBranchName(branch.name);
-  //   setIsModalOpen(true);
-  // };
+  const handleEdit = (branch) => {
+    setSelectedBranch(branch);
+    setBranchName(branch.name);
+    setIsModalOpen(true);
+  };
 
-  // const handleSaveChanges = async () => {
-  //   if (!selectedBranch) return;
-  //   try {
-  //     await axios.put(`http://127.0.0.1:8000/api/branches/${selectedBranch.id}/`, { name: branchName });
-  //     setBranches(branches.map(b => (b.id === selectedBranch.id ? { ...b, name: branchName } : b)));
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error('Error updating branch:', error);
-  //   }
-  // };
-
-  // const handleDelete = async (id) => {
-  //   try {
-  //     await axios.delete(`http://127.0.0.1:8000/api/branches/${id}/`);
-  //     setBranches(branches.filter(b => b.id !== id));
-  //   } catch (error) {
-  //     console.error('Error deleting branch:', error);
-  //   }
-  // };
-
+  const handleSaveChanges = async () => {
+    if (!selectedBranch) return;
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/editbranches/${selectedBranch.id}/`, { name: branchName });
+      setBranches(branches.map(b => (b.id === selectedBranch.id ? { ...b, name: branchName } : b)));
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error updating branch:', error);
+    }
+  };
+  
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this branch?");
+    if (!confirmDelete) return;
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/editbranches/${id}/`);
+      setBranches(branches.filter(b => b.id !== id));
+      alert("Branch deleted successfully.");
+    } catch (error) {
+      console.error('Error deleting branch:', error);
+      alert("Failed to delete branch. Please try again.");
+    }
+  };
+  
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Branch</h2>
@@ -93,7 +97,8 @@ const ManageBranch = () => {
               <tr key={branch.id} className="text-center">
                 <td className="border p-1">{index + 1}</td>
                 <td className="border p-1">{branch.name}</td>
-                <td className="border p-1"></td>
+                <td className="border p-1">{branch.hod ? (branch.hod.user) : (
+                  <span className="text-red-600">Not Assigned</span>)}</td>
                 <td className="border p-1">
                   <button className="text-blue-600" 
                       onClick={() => handleEdit(branch)}>
