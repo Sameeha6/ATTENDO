@@ -4,7 +4,7 @@ import { FiClock } from "react-icons/fi"; // React Icon for clock
 const requests = [
   {
     id: 1,
-    tutor: "John Doe",
+    tutor: "abcd",
     type: "Hour Exchange",
     subject: "Mathematics",
     status: "Pending",
@@ -13,16 +13,16 @@ const requests = [
   },
   {
     id: 2,
-    tutor: "Jane Smith",
+    tutor: "efg",
     type: "Edit Attendance",
-    subject: "Physics",
+    subject: "20 Nov 2023",
     status: "Approved",
-    date: "24 Nov 2016",
+    date: "24 Nov 2023",
     time: "9:30 AM",
   },
   {
     id: 3,
-    tutor: "Mark Lee",
+    tutor: "hij",
     type: "Hour Exchange",
     subject: "Chemistry",
     status: "Rejected",

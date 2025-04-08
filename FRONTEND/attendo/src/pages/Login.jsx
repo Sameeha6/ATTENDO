@@ -10,7 +10,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError(""); 
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/login/", {
@@ -18,7 +18,7 @@ function Login() {
         password,
       });
 
-      console.log("Login Response:", response.data); // Debugging API response
+      console.log("Login Response:", response.data); 
 
       if (response.status === 200) {
         const role = response.data.role || response.data.data?.role; // Handle API response structure
@@ -26,13 +26,16 @@ function Login() {
         console.log("User Role:", role);
 
         if (role === "admin") {
-          navigate("/admin/admin"); // Redirect admin to dashboard instantly
+          navigate("/admin/admin"); 
         }
         else if(role === "hod"){
           navigate("/hod/hodDash");
         }
         else if(role === "faculty"){
           navigate("/faculty/Dash");
+        }
+        else if(role === "tutor"){
+          navigate("/tutor/tutorDash");
         }
          else {
           setError("Access Denied! Only admins can log in.");

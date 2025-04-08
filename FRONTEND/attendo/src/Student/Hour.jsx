@@ -67,10 +67,10 @@ const Hourly = () => {
                     <span
                       className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
                         status === "✅"
-                          ? "bg-green-100 text-green-600"
+                          ? " text-green-600"
                           : status === "❌"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-yellow-100 text-yellow-600"
+                          ? " text-red-600"
+                          : " text-yellow-600"
                       }`}
                     >
                       {status}
@@ -86,13 +86,13 @@ const Hourly = () => {
       {/* Legend */}
       <div className="flex justify-center space-x-6 mt-8">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full ">
             ✅
           </span>
           <span className="text-gray-700">Present</span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full">
             ❌
           </span>
           <span className="text-gray-700">Leave</span>

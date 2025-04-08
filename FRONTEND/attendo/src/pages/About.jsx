@@ -13,17 +13,17 @@ function AboutUs() {
         transition={{ duration: 0.8 }}
         className="text-center max-w-3xl"
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 mt-20">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-5 mt-20">
           AttenDo - Smart Attendance & Parent Notification System
         </h1>
         <p className="mt-4 text-lg text-gray-700 font-light">
-          A seamless and efficient solution for attendance tracking in institutions, ensure accurate monitoring ,improve transparency ,foster student success and instant parent notifications.
+          A seamless and efficient solution for attendance tracking in institutions, ensure accurate monitoring, improve transparency, foster student success and instant parent notifications.
         </p>
       </motion.div>
 
       {/* Features Section */}
-      <div className="max-w-6xl mt-16 w-full">
-        <h2 className="text-3xl font-bold text-blue-950 text-center mb-12">
+      <div className="max-w-6xl mt-7 w-full">
+        <h2 className="text-3xl font-bold text-blue-950 text-center mb-8">
           What AttenDo Can Do:
         </h2>
 
@@ -33,7 +33,7 @@ function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
+          className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-lg shadow-lg mb-8"
         >
           <img
             src="https://img.freepik.com/free-vector/students-walking-school_74855-5292.jpg?w=900&t=st=1712312342~exp=1712312942~hmac=5f7c7b6d0d8c0b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8b8"
@@ -56,7 +56,7 @@ function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
+          className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-6 rounded-lg shadow-lg mb-8"
         >
           <img
             src="	https://i.pinimg.com/736x/3b/44/1e/3b441e59a2dee6a0b9ea767d3cb21bcc.jpg"
@@ -79,7 +79,7 @@ function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
+          className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-lg shadow-lg mb-8"
         >
           <img
             src="	https://i.pinimg.com/736x/70/df/e7/70dfe7bf93ffc5ffd3cfd1e76f89c88f.jpg"
@@ -102,7 +102,7 @@ function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
+          className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-6 rounded-lg shadow-lg mb-8"
         >
           <img
             src="https://i.pinimg.com/736x/3b/da/ee/3bdaee3477c435cc97a5241ca6e3788f.jpg"
@@ -125,7 +125,7 @@ function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-lg shadow-lg mb-8"
+          className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-lg shadow-lg mb-8"
         >
           <img
             src="https://i.pinimg.com/736x/25/21/72/2521720ae833a6b0ebb587c8edd839e3.jpg"

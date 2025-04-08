@@ -6,7 +6,7 @@ const AdminDashboard = () => {
   return (
 
     <div className="min-h-screen p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Card 1: Branches */}
         <div className="bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 flex flex-col items-center text-center">
           <MdSchool className="text-blue-900 text-5xl mb-2" />

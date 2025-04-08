@@ -4,9 +4,6 @@ const TakeAttendance = () => {
   const students = [
     { RegNo: "IEAWEIT01", name: "Sameeha" },
     { RegNo: "IEAWEIT02", name: "Sangeetha" },
-    { RegNo: "IEAWEIT03", name: "Fidha" },
-    { RegNo: "IEAWEIT04", name: "Lamiya" },
-    { RegNo: "IEAWEIT05", name: "Najiya" },
   ];
 
   const [branch, setBranch] = useState("CSE");

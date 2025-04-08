@@ -24,22 +24,22 @@ const ManageTutor = () => {
     academic_year: "",
   });
 
-  const openModal = (tutor) => {
-    setEditData(tutor);
-    setIsModalOpen(true);
-  };
-
   // const openModal = (tutor) => {
-  //   setEditFormData({
-  //     id: tutor.id,
-  //     username: tutor.username,
-  //     email: tutor.email,
-  //     phone_number: tutor.phone_number,
-  //     branch: tutor.branch,
-  //     academic_year: tutor.academic_year,
-  //   });
+  //   setEditData(tutor);
   //   setIsModalOpen(true);
   // };
+
+  const openModal = (tutor) => {
+    setEditData({
+      id: tutor.id,
+      username: tutor.user?.username || tutor.username,
+      email: tutor.user?.email || tutor.email,
+      phone_number: tutor.phone_number,
+      branch: tutor.branch.id || tutor.branch, // branch could be ID or object
+      academic_year: tutor.academic_year
+    });
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -50,12 +50,12 @@ const ManageTutor = () => {
   // const closeModal = () => setIsModalOpen(false);
 
   const fetchTutors = async () => {
-    const res = await axios.get("http://localhost:8000/api/add-tutor/");
+    const res = await axios.get("http://127.0.0.1:8000/api/add-tutor/");
     setTutors(res.data);
   };
 
   const fetchBranches = async () => {
-    const res = await axios.get("http://localhost:8000/api/branches/");
+    const res = await axios.get("http://127.0.0.1:8000/api/branches/");
     setBranches(res.data);
   };
 
@@ -69,12 +69,16 @@ const ManageTutor = () => {
   };
 
   const handleEditInputChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEditData(prev => ({
+      ...prev,
+      [name]: name === 'branch' ? parseInt(value) : value
+    }));
   };
 
   const handleAddTutor = async () => {
     try {
-      await axios.post("http://localhost:8000/api/add-tutor/", formData);
+      await axios.post("http://127.0.0.1:8000/api/add-tutor/", formData);
       fetchTutors();
       setFormData({ name: "", email: "", phone_number: "", branch: "", academic_year: "" });
     } catch (err) {
@@ -104,11 +108,25 @@ const ManageTutor = () => {
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://127.0.0.1:8000/api/tutors/${editData.id}/`, editData);
-      setTutors(tutors.map(tutor => tutor.id === editData.id ? response.data : tutor));
+      const payload = {
+        username: editData.username,
+        email: editData.email,
+        phone_number: editData.phone_number,
+        branch: editData.branch,
+        academic_year: editData.academic_year
+      };
+      
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/tutors/${editData.id}/`,
+        payload
+      );
+      
+      setTutors(tutors.map(tutor => 
+        tutor.id === editData.id ? response.data : tutor
+      ));
       closeModal();
     } catch (error) {
-      console.error("Error saving edited tutor:", error);
+      console.error("Error saving edited tutor:", error.response?.data || error);
     }
   };
   
@@ -116,7 +134,7 @@ const ManageTutor = () => {
 
   const handleDeleteTutor = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/tutors/${id}`);
+      await axios.delete(`http://127.0.0.1:8000/api/tutors/${id}/`);
       fetchTutors();
     } catch (err) {
       console.error(err);
@@ -195,8 +213,24 @@ const ManageTutor = () => {
             </div>
             <form onSubmit={saveEdit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input name="username" value={editData.username} onChange={handleEditInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Username" required />
-                <input name="email" value={editData.email} onChange={handleEditInputChange} type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
+                <input 
+                  name="username" 
+                  value={editData?.username || ''} 
+                  onChange={handleEditInputChange} 
+                  type="text" 
+                  className="w-full p-2 border rounded-md" 
+                  placeholder="Username" 
+                  required 
+                />
+                <input 
+                  name="email" 
+                  value={editData?.email || ''} 
+                  onChange={handleEditInputChange} 
+                  type="email" 
+                  className="w-full p-2 border rounded-md" 
+                  placeholder="Email Address" 
+                  required 
+                />
                 <input name="phone_number" value={editData.phone_number} onChange={handleEditInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
                 <select name="branch" value={editData.branch} onChange={handleEditInputChange} className="w-full p-2 border rounded-md" required>
                   <option value="">Select Branch</option>

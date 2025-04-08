@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import *
 from django.core.mail import send_mail
 import random
+import string
 from django.conf import settings
 
 
@@ -53,8 +54,8 @@ class BranchSerializer(serializers.Serializer):
     
     def update(self, instance, validated_data):
         """Handles updating an existing branch"""
-        instance.name = validated_data.get("name", instance.name)  # Update name if provided
-        instance.save()  # Save changes to the database
+        instance.name = validated_data.get("name", instance.name)
+        instance.save()  
         return instance
     
 
@@ -280,7 +281,7 @@ class TutorRegisterSerializer(serializers.Serializer):
         return f"{word1}{symbol}{word2}{number}"
 
     def create(self, validated_data):
-        user_data = validated_data("user")
+        user_data = validated_data.pop("user")
         username = user_data["username"]
         email = user_data["email"]
         phone_number = validated_data["phone_number"]
@@ -340,6 +341,44 @@ class TutorRegisterSerializer(serializers.Serializer):
         instance.save()
 
         return instance
+    
+class StudentRegisterSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    username = serializers.CharField(max_length=150)
+    student_id = serializers.CharField(max_length=20)
+    email = serializers.EmailField()
+    phone_number = serializers.CharField(max_length=15)
+    academic_year = serializers.CharField(max_length=4)
+    branch_id = serializers.IntegerField(write_only=True)
+    semester = serializers.CharField()
+    branch_name = serializers.CharField(source='branch.name', read_only=True)
+
+    def create(self, validated_data):
+        username = validated_data['username']
+        email = validated_data['email']
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        user = User.objects.create_user(username=username, email=email, password=password)
+
+        branch = Branch.objects.get(id=validated_data['branch_id'])
+
+        student = Student.objects.create(
+            user=user,
+            student_id=validated_data['student_id'],
+            email=email,
+            phone_number=validated_data['phone_number'],
+            academic_year=validated_data['academic_year'],
+            branch=branch,
+            semester=validated_data['semester'],
+        )
+
+        send_mail(
+            subject='Your Student Account Details',
+            message=f'Hello {username},\n\nUsername: {username}\nPassword: {password}',
+            from_email='noreply@yourdomain.com',
+            recipient_list=[email],
+        )
+
+        return student
 
 
 

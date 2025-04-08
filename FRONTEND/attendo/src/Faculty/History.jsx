@@ -6,9 +6,7 @@ function FacHistory() {
   const students = [
     { RegNo: "IEAWEIT01", name: "Sameeha", status: "Present" },
     { RegNo: "IEAWEIT02", name: "Sangeetha", status: "Absent" },
-    { RegNo: "IEAWEIT03", name: "Fidha", status: "Present" },
-    { RegNo: "IEAWEIT04", name: "Lamiya", status: "Present" },
-    { RegNo: "IEAWEIT05", name: "Najiya", status: "Absent" },
+
   ];
   const [attendance, setAttendance] = useState(students);
   const [date, setDate] = useState("");

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserLoginSerializer,BranchSerializer,HODRegisterSerializer,FacultyRegisterSerializer,HODDetailSerializer,SubjectSerializer,TutorRegisterSerializer
+from .serializers import UserLoginSerializer,BranchSerializer,HODRegisterSerializer,FacultyRegisterSerializer,HODDetailSerializer,SubjectSerializer,TutorRegisterSerializer,StudentRegisterSerializer
 from .models import*
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -268,4 +268,110 @@ class TutorDetailView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class StudentRegisterView(APIView):
 
+    def post(self, request):
+        serializer = StudentRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            student = serializer.save()
+            student_data = {
+                'username': student.user.username,
+                'student_id': student.student_id,
+                'email': student.email,
+                'phone_number': student.phone_number,
+                'academic_year': student.academic_year,
+                'semester': student.semester,
+                'branch': {
+                    'id': student.branch.id,
+                    'name': student.branch.name,
+                    # 'code': student.branch.code
+                } if student.branch else None
+            }
+            return Response({
+                'message': 'Student registered successfully. Login details sent to email.',
+                'student': student_data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, student_id=None):
+        if student_id:
+            try:
+                student = Student.objects.get(id=student_id)
+                data = {
+                    "id": student.id,
+                    "username": student.user.username,
+                    "student_id": student.student_id,
+                    "email": student.email,
+                    "phone_number": student.phone_number,
+                    "academic_year": student.academic_year,
+                    "semester": student.semester,
+                    "branch": {
+                        "id": student.branch.id,
+                        "name": student.branch.name,
+                        # "code": student.branch.code
+                    } if student.branch else None
+                }
+                return Response(data, status=status.HTTP_200_OK)
+            except Student.DoesNotExist:
+                return Response({'error': 'Student not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Return all students
+            students = Student.objects.all()
+            data = []
+            for student in students:
+                data.append({
+                    "id": student.id,
+                    "username": student.user.username,
+                    "student_id": student.student_id,
+                    "email": student.email,
+                    "phone_number": student.phone_number,
+                    "academic_year": student.academic_year,
+                    "semester": student.semester,
+                    "branch": {
+                        "id": student.branch.id,
+                        "name": student.branch.name,
+                        # "code": student.branch.code
+                    } if student.branch else None
+                })
+            return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request, student_id):
+        try:
+            student = Student.objects.get(id=student_id)
+            user = student.user
+
+            data = request.data
+            user.username = data.get("username", user.username)
+            user.email = data.get("email", user.email)
+            user.save()
+
+            student.student_id = data.get("student_id", student.student_id)
+            student.email = data.get("email", student.email)
+            student.phone_number = data.get("phone_number", student.phone_number)
+            student.academic_year = data.get("academic_year", student.academic_year)
+            student.semester = data.get("semester", student.semester)
+
+            branch_id = data.get("branch_id")
+            if branch_id:
+                try:
+                    branch = Branch.objects.get(id=branch_id)
+                    student.branch = branch
+                except Branch.DoesNotExist:
+                    return Response({"error": "Invalid branch ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+            student.save()
+
+            return Response({"message": "Student updated successfully."}, status=status.HTTP_200_OK)
+        except Student.DoesNotExist:
+            return Response({"error": "Student not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, student_id):
+        try:
+            student = Student.objects.get(id=student_id)
+            user = student.user
+            student.delete()
+            user.delete()
+            return Response({'message': 'Student deleted successfully.'}, status=status.HTTP_200_OK)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=status.HTTP_404_NOT_FOUND)

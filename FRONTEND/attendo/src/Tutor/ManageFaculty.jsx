@@ -20,8 +20,7 @@ const ManageFaculties = () => {
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Add Faculty</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
-          <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
+          <input type="text" className="w-full p-2 border rounded-md" placeholder="Name" required />
           <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
           <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
           <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />
@@ -56,8 +55,7 @@ const ManageFaculties = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-1">#</th>
-              <th className="border p-1">First Name</th>
-              <th className="border p-1">Last Name</th>
+              <th className="border p-1">Name</th>
               <th className="border p-1">Email</th>
               <th className="border p-1">Phone No</th>
               <th className="border p-1">Year</th>
@@ -71,7 +69,6 @@ const ManageFaculties = () => {
           <tbody className="text-gray-600">
             <tr className="text-center">
               <td className="border p-1">1</td>
-              <td className="border p-1">ajay</td>
               <td className="border p-1">mathew</td>
               <td className="border p-1">ajaymathew@gmail.com</td>
               <td className="border p-1">1234567890</td>
@@ -105,8 +102,7 @@ const ManageFaculties = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="First Name" required />
-              <input type="text" className="w-full p-2 border rounded-md" placeholder="Last Name" required />
+              <input type="text" className="w-full p-2 border rounded-md" placeholder="Name" required />
               <input type="email" className="w-full p-2 border rounded-md" placeholder="Email Address" required />
               <input type="text" className="w-full p-2 border rounded-md" placeholder="Phone Number" required />
               <input type="text" className="w-full p-2 border rounded-md" placeholder="Academic Year" required />

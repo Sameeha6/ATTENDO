@@ -55,3 +55,17 @@ class Tutor(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    student_id = models.CharField(max_length=20, null=True)
+    email = models.EmailField(unique=True, null=True)
+    phone_number = models.CharField(max_length=15, null=True)
+    academic_year = models.CharField(max_length=10, null=True)
+    branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True)
+    semester = models.CharField(max_length=10, null=True)
+    # role = models.CharField(max_length=15, default="student")
+
+
+    def _str_(self):
+        return f"{self.student_id} - {self.user.username}"
