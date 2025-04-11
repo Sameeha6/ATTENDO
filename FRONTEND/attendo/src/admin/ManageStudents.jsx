@@ -12,9 +12,9 @@ const ManageStudents = () => {
     student_id: "",
     email: "",
     phone_number: "",
-    academic_year: "",
-    branch_id: "",
-    semester: "",
+    // academic_year: "",
+    // branch_id: "",
+    // semester: "",
   });
 
   const [filters, setFilters] = useState({
@@ -74,7 +74,7 @@ const ManageStudents = () => {
       email: student.email,
       phone_number: student.phone_number,
       academic_year: student.academic_year,
-      branch_id: student.branch?.id,
+      branch_id: student.branch.id,
       semester: student.semester,
     });
     setEditStudentId(student.id);
@@ -109,11 +109,15 @@ const ManageStudents = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this student?");
+    if (!confirmDelete) return;
     try {
       await axios.delete(`http://127.0.0.1:8000/api/students/${id}/`);
       fetchStudents();
+      alert("Student deleted successfully.");
     } catch (err) {
-      console.error(err);
+      console.error("Error deleting student:", err);
+      alert("Failed to delete student. Please try again.");
     }
   };
 
@@ -257,40 +261,12 @@ const ManageStudents = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                name="username"
-                value={form.username}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-                placeholder="Name"
-              />
-              <input
-                name="email"
-                value={form.email}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-                placeholder="Email"
-              />
-              <input
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-                placeholder="Phone Number"
-              />
-              <input
-                name="academic_year"
-                value={form.academic_year}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-                placeholder="Academic Year"
-              />
-              <select
-                name="branch_id"
-                value={form.branch_id}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-              >
+              <input name="student_id" value={form.student_id} onChange={handleInputChange} type="text" className="w-full p-2 border rounded-md" placeholder="Student ID"/>
+              <input name="username" value={form.username} onChange={handleInputChange} className="w-full p-2 border rounded-md" placeholder="Name" />
+              <input name="email" value={form.email} onChange={handleInputChange} className="w-full p-2 border rounded-md" placeholder="Email"/>
+              <input name="phone_number" value={form.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded-md" placeholder="Phone Number"/>
+              <input name="academic_year" value={form.academic_year} onChange={handleInputChange} className="w-full p-2 border rounded-md" placeholder="Academic Year"/>
+              <select name="branch_id" value={form.branch_id} onChange={handleInputChange} className="w-full p-2 border rounded-md">
                 <option value="">Select Branch</option>
                 {branches.map((branch) => (
                   <option key={branch.id} value={branch.id}>
@@ -298,12 +274,7 @@ const ManageStudents = () => {
                   </option>
                 ))}
               </select>
-              <select
-                name="semester"
-                value={form.semester}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-md"
-              >
+              <select name="semester" value={form.semester} onChange={handleInputChange} className="w-full p-2 border rounded-md">
                 <option value="">Select Semester</option>
                 {semesters.map((sem) => (
                   <option key={sem} value={sem}>
@@ -313,12 +284,7 @@ const ManageStudents = () => {
               </select>
             </div>
             <div className="mt-4 flex justify-end">
-              <button
-                className="bg-blue-950 text-white px-4 py-1 rounded-md"
-                onClick={handleUpdate}
-              >
-                Save
-              </button>
+              <button className="bg-blue-950 text-white px-4 py-1 rounded-md" onClick={handleUpdate}>Save</button>
             </div>
           </div>
         </div>

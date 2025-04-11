@@ -1,7 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from 'framer-motion';
 
 const ContactUs = () => {
+  // State for form fields and response message
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = {
+      username: name,
+      email: email,
+      subject: subject,
+      message: message,
+    };
+
+    try {
+      // Send POST request to backend API
+      const response = await fetch("http://127.0.0.1:8000/api/contactus/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      // Check if the request was successful
+      if (response.ok) {
+        setResponseMessage("Your message has been sent successfully!");
+        // Clear form fields
+        setName("");
+        setEmail("");
+        setSubject("");
+        setMessage("");
+      } else {
+        const errorData = await response.json();
+        setResponseMessage(errorData.detail || "There was an error sending your message.");
+      }
+    } catch (error) {
+      setResponseMessage("Network error. Please try again later.");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
@@ -9,7 +54,6 @@ const ContactUs = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        // className="text-center max-w-3xl"
       >
         <div className="text-gray-800 text-center py-6 text-4xl font-bold mt-32">
           CONTACT US: ASK ABOUT ATTENDO
@@ -25,53 +69,73 @@ const ContactUs = () => {
             Feel free to ask anything about how Attendo can help you manage attendance tracking, management, parent communications, and more.  
             We’re happy to assist with any questions and would love to hear your suggestions on how to improve Attendo!
           </p>
-          {/* <img src="https://i.pinimg.com/736x/e0/fa/99/e0fa99273d3d78853fc1b1ed24e77f7b.jpg" alt="contact us" className="w-80  /> */}
-          {/* Social Media Links */}
-          {/* <div className="mt-4">
-            <span className="text-gray-700">Follow us on social media:</span>
-            <div className="flex space-x-4 mt-2">
-              <a href="#" className="text-blue-600 text-2xl">🔵</a>
-              <a href="#" className="text-blue-400 text-2xl">🐦</a>
-            </div>
-          </div> */}
         </div>
 
         {/* Contact Form (Right Side) */}
         <div className="md:w-1/2 w-full bg-white p-8 shadow-md rounded-lg mt-8 md:mt-0">
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700">Name</label>
-              <input type="text" className="w-full p-2 border border-gray-300 rounded-md" required />
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
 
             <div className="mb-4">
               <label className="block text-gray-700">Email</label>
-              <input type="email" className="w-full p-2 border border-gray-300 rounded-md" required />
+              <input
+                type="email"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
             <div className="mb-4">
               <label className="block text-gray-700">Subject</label>
-              <input type="text" className="w-full p-2 border border-gray-300 rounded-md" />
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
             </div>
 
             <div className="mb-4">
               <label className="block text-gray-700">Message</label>
-              <textarea className="w-full p-2 border border-gray-300 rounded-md" rows="4" required></textarea>
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows="4"
+                required
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              ></textarea>
             </div>
 
             {/* Send Message Button */}
             <button
-              type="button"
+              type="submit"
               className="w-full bg-blue-950 text-white p-3 rounded-md hover:bg-blue-900"
-              onClick={() => window.location.href = `mailto:support@attendo.com?subject=Contact Us&body=Your Message Here`}
             >
               Send Message
             </button>
           </form>
+
+          {/* Response Message */}
+          {responseMessage && (
+            <div className="mt-4 text-center text-gray-800 font-semibold">
+              {responseMessage}
+            </div>
+          )}
         </div>
       </div>
 
-
+      {/* Additional content like features and footer */}
       <section className="bg-gray-800 text-white py-12 px-6">
         <div className="max-w-5xl mx-auto">
           {/* Features */}
@@ -121,7 +185,6 @@ const ContactUs = () => {
         </div>
       </section>
     </div>
-    
   );
 };
 

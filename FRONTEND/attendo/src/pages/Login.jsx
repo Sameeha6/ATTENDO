@@ -17,12 +17,14 @@ function Login() {
         username,
         password,
       });
-
       console.log("Login Response:", response.data); 
-
       if (response.status === 200) {
         const role = response.data.role || response.data.data?.role; // Handle API response structure
-
+        localStorage.setItem('role',response.data.data.role)
+        localStorage.setItem("hod_id",response.data.data.hod_id);
+        localStorage.setItem("tutor_id",response.data.data.tutor_id);
+        localStorage.setItem("faculty_id",response.data.data.faculty_id);
+        
         console.log("User Role:", role);
 
         if (role === "admin") {
@@ -37,8 +39,14 @@ function Login() {
         else if(role === "tutor"){
           navigate("/tutor/tutorDash");
         }
+        else if(role === "student"){
+          navigate("/tutor/tutorDash");
+        }
+        else if(role === "tutor"){
+          navigate("/tutor/tutorDash");
+        }
          else {
-          setError("Access Denied! Only admins can log in.");
+          setError("Access Denied!");
         }
       }
     } catch (error) {

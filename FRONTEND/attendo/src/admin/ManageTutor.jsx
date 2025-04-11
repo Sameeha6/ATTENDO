@@ -32,8 +32,8 @@ const ManageTutor = () => {
   const openModal = (tutor) => {
     setEditData({
       id: tutor.id,
-      username: tutor.user?.username || tutor.username,
-      email: tutor.user?.email || tutor.email,
+      username: tutor.username,
+      email: tutor.email,
       phone_number: tutor.phone_number,
       branch: tutor.branch.id || tutor.branch, // branch could be ID or object
       academic_year: tutor.academic_year
@@ -46,8 +46,6 @@ const ManageTutor = () => {
     setEditData(null);
   };
   
-
-  // const closeModal = () => setIsModalOpen(false);
 
   const fetchTutors = async () => {
     const res = await axios.get("http://127.0.0.1:8000/api/add-tutor/");
@@ -80,30 +78,12 @@ const ManageTutor = () => {
     try {
       await axios.post("http://127.0.0.1:8000/api/add-tutor/", formData);
       fetchTutors();
-      setFormData({ name: "", email: "", phone_number: "", branch: "", academic_year: "" });
+      setFormData({ username: "", email: "", phone_number: "", branch: "", academic_year: "" });
     } catch (err) {
       console.error("Error adding tutor:", err.response?.data || err);
     }
   };
 
-  // const handleUpdateTutor = async () => {
-  //   try {
-  //     const payload = {
-  //       user: {
-  //         username: editFormData.username,
-  //         email: editFormData.email
-  //       },
-  //       phone_number: editFormData.phone_number,
-  //       branch: editFormData.branch,
-  //       academic_year: editFormData.academic_year
-  //     };
-  //     await axios.put(`http://localhost:8000/api/tutors/${editFormData.id}`, payload);
-  //     fetchTutors();
-  //     closeModal();
-  //   } catch (err) {
-  //     console.error(err.response?.data || err);
-  //   }
-  // };
 
   const saveEdit = async (e) => {
     e.preventDefault();
@@ -115,12 +95,7 @@ const ManageTutor = () => {
         branch: editData.branch,
         academic_year: editData.academic_year
       };
-      
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/tutors/${editData.id}/`,
-        payload
-      );
-      
+      const response = await axios.put(`http://127.0.0.1:8000/api/tutors/${editData.id}/`,payload); 
       setTutors(tutors.map(tutor => 
         tutor.id === editData.id ? response.data : tutor
       ));
@@ -130,14 +105,17 @@ const ManageTutor = () => {
     }
   };
   
-  
 
   const handleDeleteTutor = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this Tutor?");
+    if (!confirmDelete) return;
     try {
       await axios.delete(`http://127.0.0.1:8000/api/tutors/${id}/`);
       fetchTutors();
+      alert("Tutor deleted successfully.");
     } catch (err) {
-      console.error(err);
+      console.error("Error deleting tutor:", err);
+      alert("Failed to delete tutor. Please try again.");
     }
   };
 
@@ -181,11 +159,11 @@ const ManageTutor = () => {
             {tutors.map((tutor, index) => (
               <tr key={tutor.id} className="text-center">
                 <td className="border p-1">{index + 1}</td>
-                <td className="border p-1">{tutor?.username}</td>
-                <td className="border p-1">{tutor?.email}</td>
-                <td className="border p-1">{tutor?.phone_number}</td>
-                <td className="border p-1">{tutor.branch}</td>
-                <td className="border p-1">{tutor.academic_year}</td>
+                <td className="border p-1">{tutor.username}</td>
+                <td className="border p-1">{tutor.email}</td>
+                <td className="border p-1">{tutor.phone_number}</td>
+                <td className="border p-1">{tutor.branch_name}</td>
+                <td className="border p-1">{tutor?.academic_year}</td>
                 <td className="border p-1">
                   <button className="text-blue-600" onClick={() => openModal(tutor)}>
                     <FaEdit size={18} />

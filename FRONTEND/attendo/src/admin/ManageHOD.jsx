@@ -49,7 +49,7 @@ const ManageHOD = () => {
     }
     setEditData({
       id: items.hod.id,
-      username: items.hod.user,
+      username: items.hod.username,
       email: items.hod.email,
       phone: items.hod.phone,
       branch: items.id,
@@ -127,8 +127,8 @@ const ManageHOD = () => {
               <tr key={items.id} className="text-center">
                 <td className="border p-1">{index + 1}</td>
                 <td className="border p-1">
-                  {items.hod?.user ? (
-                    items.hod.user
+                  {items.hod?.username ? (
+                    items.hod.username
                   ) : (
                     <span className="text-red-600 ">Not Assigned</span>
                   )}

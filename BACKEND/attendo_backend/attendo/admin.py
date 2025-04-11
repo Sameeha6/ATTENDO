@@ -1,21 +1,27 @@
 from django.contrib import admin
-from .models import Login,Branch,HOD,Faculty,Subject,Tutor,Student
+from .models import Login,Branch,HOD,Faculty,Subject,Tutor,Student,ContactMessage
 
+
+
+# admin.site.unregister(Student)
+# admin.site.unregister(Faculty)
+admin.site.register(ContactMessage)
 admin.site.register(Login)
 admin.site.register(Branch)
 admin.site.register(HOD)
-admin.site.register(Faculty)
+# admin.site.register(Faculty)
 admin.site.register(Subject)
 admin.site.register(Tutor)
-admin.site.register(Student)
+# admin.site.register(Student)
 
-# class StuAdmin(admin.ModelAdmin):
-#     list_display = ["user","role"]
+
+class StuAdmin(admin.ModelAdmin):
+    list_display = ["role"]
     
-# admin.site.register(Student,StuAdmin)
+admin.site.register(Student,StuAdmin)
 
-# class FacAdmin(admin.ModelAdmin):
-#     list_display = ["user","role"]
-# admin.site.register(Faculty,FacAdmin)
+class FacAdmin(admin.ModelAdmin):
+    list_display = ["role"]
+admin.site.register(Faculty,FacAdmin)
 
 

@@ -97,7 +97,7 @@ const ManageBranch = () => {
               <tr key={branch.id} className="text-center">
                 <td className="border p-1">{index + 1}</td>
                 <td className="border p-1">{branch.name}</td>
-                <td className="border p-1">{branch.hod ? (branch.hod.user) : (
+                <td className="border p-1">{branch.hod ? (branch.hod.username) : (
                   <span className="text-red-600">Not Assigned</span>)}</td>
                 <td className="border p-1">
                   <button className="text-blue-600" 

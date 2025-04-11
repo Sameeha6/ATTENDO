@@ -81,17 +81,33 @@ const ManageSubject = () => {
   };
 
   const openEditModal = (subject) => {
-    setEditData(subject);
+    setEditData({
+      id: subject.id,
+      academic_year: subject.academic_year,
+      semester: subject.semester,
+      branch: subject.branch,  
+      faculty: subject.faculty,
+      subject_code: subject.subject_code,
+      subject_name: subject.subject_name,
+    });
     setIsModalOpen(true);
   };
+  
+  
 
   const updateSubject = async () => {
     try {
+      console.log("Updating with data:", editData);
       await axios.put(`http://127.0.0.1:8000/api/subjects/${editData.id}/`, editData);
       fetchSubjects();
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error updating subject:", error);
+      if (error.response && error.response.data) {
+        console.error("Validation Errors:", error.response.data);
+        alert("Update failed: " + JSON.stringify(error.response.data));
+      } else {
+        console.error("Error updating subject:", error.message);
+      }
     }
   };
 
@@ -189,9 +205,11 @@ const ManageSubject = () => {
               <input type="text" name="academic_year" value={editData.academic_year} onChange={handleEditChange} className="p-2 border rounded-md" />
               <input type="text" name="semester" value={editData.semester} onChange={handleEditChange} className="p-2 border rounded-md" />
               <select name="branch" value={editData.branch} onChange={handleEditChange} className="p-2 border rounded-md">
+                <option value="">Select Branch</option>
                 {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
               </select>
               <select name="faculty" value={editData.faculty} onChange={handleEditChange} className="p-2 border rounded-md">
+              <option value="">Select Faculty</option>
                 {faculties.map((faculty) => <option key={faculty.id} value={faculty.id}>{faculty.username}</option>)}
               </select>
               <input type="text" name="subject_code" value={editData.subject_code} onChange={handleEditChange} className="p-2 border rounded-md" />
