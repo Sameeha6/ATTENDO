@@ -1,41 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";  // Import axios for making API requests
 import { FiClock } from "react-icons/fi"; // React Icon for clock
 
-const requests = [
-  {
-    id: 1,
-    tutor: "abcd",
-    type: "Hour Exchange",
-    subject: "Mathematics",
-    status: "Pending",
-    date: "24 Nov 2016",
-    time: "9:30 AM",
-  },
-  {
-    id: 2,
-    tutor: "efg",
-    type: "Edit Attendance",
-    subject: "20 Nov 2023",
-    status: "Approved",
-    date: "24 Nov 2023",
-    time: "9:30 AM",
-  },
-  {
-    id: 3,
-    tutor: "hij",
-    type: "Hour Exchange",
-    subject: "Chemistry",
-    status: "Rejected",
-    date: "24 Nov 2016",
-    time: "9:30 AM",
-  },
-];
-
 const ManageRequests = () => {
+  // State to hold the list of requests
+  const [requests, setRequests] = useState([]);
+  const [error, setError] = useState(null);
+
+  // Function to fetch requests from the backend
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/request-hour-change/");
+        setRequests(response.data);
+      } catch (error) {
+        setError("Error fetching requests.");
+        console.error(error);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  // Function to handle approving or rejecting a request
+  const handleRequestAction = async (requestId, action) => {
+    try {
+      const response = await axios.put(`http://127.0.0.1:8000/api/request-hour-change/${requestId}/`, {
+        status: action,
+      });
+
+      // Update the requests in the UI after the status change
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === requestId ? { ...request, status: action } : request
+        )
+      );
+    } catch (error) {
+      setError("Error updating request status.");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="w-full bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Manage Requests</h1>
+
+        {/* Display error message if there's an error */}
+        {error && <p className="text-red-500">{error}</p>}
 
         <div className="divide-y">
           {requests.map((request) => (
@@ -53,9 +65,9 @@ const ManageRequests = () => {
 
               {/* Request Details */}
               <div className="flex-1">
-                <p className="font-semibold text-gray-800">{request.tutor}</p>
+                <p className="font-semibold text-gray-800">{request.requester.username}</p>
                 <p className="text-sm text-gray-600">
-                  {request.type} - {request.subject}
+                  {request.type} - {request.timetable_entry.subject}
                 </p>
 
                 {/* Status Badge */}
@@ -71,17 +83,24 @@ const ManageRequests = () => {
                   {request.status}
                 </span>
 
-                {/* Action Buttons (Only for Pending Requests - Static UI) */}
+                {/* Action Buttons (Only for Pending Requests) */}
                 {request.status === "Pending" && (
                   <div className="mt-3 flex space-x-2">
-                    <button className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1">
+                    <button
+                      className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1"
+                      onClick={() => handleRequestAction(request.id, "Approved")}
+                    >
                       Approve
                     </button>
-                    <button className="border border-gray-700 py-1 text-red-700 rounded-md hover:border-red-800 flex-1">
+                    <button
+                      className="border border-gray-700 py-1 text-red-700 rounded-md hover:border-red-800 flex-1"
+                      onClick={() => handleRequestAction(request.id, "Rejected")}
+                    >
                       Reject
                     </button>
                   </div>
                 )}
+
                 {request.status !== "Pending" && (
                   <p className="text-gray-500 mt-3 text-sm">Action Taken</p>
                 )}
@@ -91,7 +110,7 @@ const ManageRequests = () => {
               <div className="text-xs text-gray-500 flex items-center gap-1">
                 <FiClock size={14} />
                 <span>
-                  {request.date} at {request.time}
+                {request.timetable_entry.day} - {request.timetable_entry.time}
                 </span>
               </div>
             </div>
