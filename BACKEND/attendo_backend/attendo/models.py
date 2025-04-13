@@ -100,7 +100,7 @@ class ContactMessage(models.Model):
         return f"Message from {self.user.username} - {self.subject}"
         
 class Timetable(models.Model):
-    semester = models.IntegerField()
+    semester = models.CharField(max_length=2)
     day = models.CharField(max_length=10)
     time = models.TimeField()
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -109,3 +109,20 @@ class Timetable(models.Model):
 
     def _str_(self):
         return f"{self.day} - {self.time} - Semester {self.semester} - {self.branch.name}"
+    
+# class TimetableChangeRequest(models.Model):
+#     requester = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="change_requests")
+#     timetable_entry = models.ForeignKey(Timetable, on_delete=models.CASCADE, related_name="change_requests")
+#     status = models.CharField(max_length=20, default="Pending") 
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def _str_(self):
+#         return f"{self.requester.username} → {self.timetable_entry} ({self.status})"
+    
+# class Attendance(models.Model):
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+#     date = models.DateField(default=timezone.now)
+#     status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')])
+
+#     def _str_(self):
+#         return f"{self.student.username} - {self.date} - {self.status}"

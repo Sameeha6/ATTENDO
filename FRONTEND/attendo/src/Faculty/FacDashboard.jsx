@@ -1,123 +1,190 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const FacultyDashboard = () => {
-  const [branch, setBranch] = useState("");
-  const [semester, setSemester] = useState("");
-  const [date, setDate] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedHour, setSelectedHour] = useState("");
-  const navigate = useNavigate();
+  const [branches, setBranches] = useState([]);
+  const [timetable, setTimetable] = useState([]);
+  const [filteredTimetable, setFilteredTimetable] = useState([]);
+  const [facultyId, setFacultyId] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const branches = ["IT", "EC", "EEE", "CS", "PT", "ME"];
-  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
-
-  // Function to handle cell clicks
-  const handleCellClick = (event, day, subject) => {
-    const cell = event.target;
-    const isColored = cell.classList.contains("bg-orange-200"); // Check if it's a colored cell
-
-    if (isColored) {
-      navigate("/faculty/take-attendance"); // Go to take attendance page for colored cells
-    } else {
-      setSelectedHour(`${day} - ${subject}`);
-      setShowModal(true); // Show request modal for uncolored cells
+  useEffect(() => {
+    const storedId = localStorage.getItem("faculty_id");
+    if (storedId) {
+      setFacultyId(parseInt(storedId)); 
     }
+
+    axios
+      .get('http://127.0.0.1:8000/api/timetables/')
+      .then((response) => {
+        const data = response.data;
+        setTimetable(data);
+
+        const uniqueBranches = [...new Map(data.map(item => [item.branch.id, item.branch])).values()];
+        setBranches(uniqueBranches);
+        setFilteredTimetable(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    let filtered = [...timetable];
+
+    if (selectedBranch) {
+      filtered = filtered.filter(entry => entry.branch.id === parseInt(selectedBranch));
+    }
+    if (selectedSemester) {
+      filtered = filtered.filter(entry => entry.semester === parseInt(selectedSemester));
+    }
+
+    setFilteredTimetable(filtered);
+  }, [selectedBranch, selectedSemester, timetable]);
+
+  const handleSubjectClick = (entry) => {
+    if (entry.faculty.id === facultyId) return;
+  
+    axios
+      .get("http://127.0.0.1:8000/api/request-hour-change/")
+      .then((response) => {
+        const existingRequest = response.data.find(
+          (req) =>
+            req.requester.id === facultyId &&
+            req.timetable_entry.id === entry.id
+        );
+  
+        if (existingRequest) {
+          if (existingRequest.status === 'Approved') {
+            window.location.href = "stdattnd/"; 
+          } else if (existingRequest.status === 'Pending') {
+            alert("Request already sent and is pending HOD approval.");
+          } else if (existingRequest.status === 'Rejected') {
+            alert("Your previous request for this hour was rejected.");
+          }
+        } else {
+          const confirmTakeHour = window.confirm(
+            `Are you sure you want to take this hour?\n\nDay: ${entry.day}\nTime: ${entry.time}\nSubject: ${entry.subject.name}`
+          );
+  
+          if (confirmTakeHour) {
+            axios
+              .post("http://127.0.0.1:8000/api/request-hour-change/", {
+                faculty_id: facultyId,
+                timetable_id: entry.id,
+              })
+              .then((res) => {
+                alert("Request sent to HOD successfully.");
+                setFilteredTimetable((prev) =>
+                  prev.filter((item) => item.id !== entry.id)
+                );
+              })
+              .catch((error) => {
+                console.error("Failed to send request:", error);
+                if (error.response?.data?.error) {
+                  alert(error.response.data.error);
+                } else {
+                  alert("Failed to send request. Try again later.");
+                }
+              });
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching requests:", err);
+        alert("Something went wrong. Please try again.");
+      });
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden p-4 mt-14">
-
-      {/* Filters Section */}
-      <div className="bg-white shadow-md p-4 rounded-lg mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="container mx-auto mt-14 max-w-6xl">
+      {/* <div className="bg-white rounded-xl shadow-md p-6 mb-8 w-full"> */}
+        {/* <h2 className="text-2xl font-bold text-gray-800 mb-6">Faculty Dashboard</h2> */}
         
-        <input type="text" placeholder="Academic Year" className="w-full p-2 border rounded-md"/>
-        <select className="p-2 border rounded-md text-gray-500" required>
-          <option value="branch">Select Branch</option>
-          {branches.map((branch) => (
-            <option key={branch} value={branch}>{branch}</option>
-          ))}
-        </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Branch</label>
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+            >
+              <option value="">All Branches</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} ({b.code})
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <select className="p-2 border rounded-md text-gray-500" required>
-          <option value="sem">Select Semester</option>
-          {semesters.map((semester) => (
-            <option key={semester} value={semester}>{semester}</option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          className="p-2 border rounded-md text-gray-500"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-      </div>
-
-      {/* Timetable Section */}
-      <div className="bg-white shadow-md p-4 rounded-lg overflow-x-auto">
-        <h3 className="text-xl font-semibold mb-4 text-center md:text-left">Timetable</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 min-w-[600px]">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Day/Time</th>
-                <th className="border border-gray-300 p-2">9:30-10:30</th>
-                <th className="border border-gray-300 p-2">10:30-11:30</th>
-                <th className="border border-gray-300 p-2">11:30-12:30</th>
-                <th className="border border-gray-300 p-2">1:30-2:30</th>
-                <th className="border border-gray-300 p-2">2:30-3:30</th>
-                <th className="border border-gray-300 p-2">3:30-4:30</th>
-              </tr>
-            </thead>
-            <tbody className="text-center">
-              <tr>
-                <td className="border border-gray-300 p-2">Monday</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "Math")}>Math</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "OS")}>OS</td>
-                <td className="border border-gray-300 bg-orange-200 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "Lab")}>wit</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "C")}>C</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "COD")}>COD</td>
-                <td className="border border-gray-300 bg-orange-200 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Monday", "Lab")}>wit</td>
-              </tr>
-              <tr className="bg-gray-100">
-                <td className="border border-gray-300 p-2">Tuesday</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "OS")}>OS</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "C")}>C</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "Math")}>Math</td>
-                <td className="border border-gray-300 bg-orange-200 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "Lab")}>wit</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "COD")}>COD</td>
-                <td className="border border-gray-300 bg-orange-200 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Tuesday", "Lab")}>wit</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 p-2">Wednesday</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "C")}>C</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "Math")}>Math</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "OS")}>OS</td>
-                <td className="border border-gray-300 bg-orange-200 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "Lab")}>wit</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "Lab")}>wit</td>
-                <td className="border border-gray-300 p-2 cursor-pointer" onClick={(e) => handleCellClick(e, "Wednesday", "COD")}>COD</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Request Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">Request to Take This Hour</h2>
-            <p className="mb-4 text-center">
-              Are you sure you want to take the hour of <strong>{selectedHour}</strong>?
-            </p>
-            <div className="flex justify-center gap-4">
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onClick={() => { alert(`Request sent for ${selectedHour}`); setShowModal(false); }}>Send Request</button>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Semester</label>
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+            >
+              <option value="">All Semesters</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                <option key={sem} value={sem}>{sem}</option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-200 px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-3">Day</th>
+                  <th className="px-6 py-3 ">Time</th>
+                  <th className="px-6 py-3">Subject</th>
+                  <th className="px-6 py-3">Code</th>
+                  <th className="px-6 py-3">Faculty</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredTimetable.length > 0 ? (
+                  filteredTimetable.map((entry) => {
+                    const isOwnSubject = entry.faculty.id === facultyId;
+
+                    return (
+                      <tr key={entry.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{entry.day}</td>
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{entry.time}</td>
+                        <td 
+                          className={`px-6 py-3 whitespace-nowrap text-sm ${isOwnSubject ? 'bg-orange-100 font-semibold text-orange-300' : 'text-gray-500 hover:text-blue-600 cursor-pointer'}`}
+                          onClick={() => !isOwnSubject && handleSubjectClick(entry)}
+                        >
+                          {entry.subject.name}
+                        </td>
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{entry.subject.code}</td>
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{entry.faculty.username}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                      No timetable data available for the selected filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      {/* </div> */}
     </div>
   );
 };

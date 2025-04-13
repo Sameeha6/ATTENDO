@@ -10,55 +10,6 @@ import random
 import string
 
 
-# class UserLoginSerializer(serializers.Serializer):
-#     username = serializers.CharField()
-#     password = serializers.CharField(write_only=True)
-
-#     def validate(self, data):
-#         username = data.get("username")
-#         password = data.get("password")
-
-#         user = User.objects.filter(username=username).first()
-#         if not user:
-#             raise serializers.ValidationError("User does not exist.")
-
-#         if user.is_superuser:
-#             if not user.check_password(password):
-#                 raise serializers.ValidationError("Invalid credentials for admin.")
-#             return {
-#                 "username": user.username,
-#                 "role": "admin",
-#                 "message": "Admin login successful",
-#             }
-
-#         if not user.check_password(password):
-#             raise serializers.ValidationError("Invalid credentials. Please try again.")
-
-#         hod = HOD.objects.filter(user=user).first()
-#         if hod:
-#             if not hod.is_approved:
-#                 raise serializers.ValidationError("Your HOD account is pending approval.")
-#             return {
-#                 "username": user.username,
-#                 "role": "hod",
-#                 "branch": hod.branch.name,
-#                 "message": "HOD login successful",
-#             }
-
-#         faculty = Faculty.objects.filter(user=user).first()
-#         if faculty:
-#             return {
-#                 "username": user.username,
-#                 "role": "faculty",
-#                 "branch": faculty.branch.name,
-#                 "subject": faculty.subject_name,
-#                 "message": "Faculty login successful",
-#             }
-
-#         raise serializers.ValidationError("Your account is not associated with any role.")
-
-
-
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -248,15 +199,15 @@ class FacultyRegisterSerializer(serializers.Serializer):
     branch = serializers.PrimaryKeyRelatedField(queryset=Branch.objects.all())  
     branch_name = serializers.CharField(source="branch.name", read_only=True) 
 
-    def validate_username(self, value):
-        if Faculty.objects.filter(username=value).exists():
-            raise serializers.ValidationError("This username is already taken.")
-        return value
+    # def validate_username(self, value):
+    #     if Faculty.objects.filter(username=value).exists():
+    #         raise serializers.ValidationError("This username is already taken.")
+    #     return value
 
-    def validate_email(self, value):
-        if Faculty.objects.filter(email=value).exists():
-            raise serializers.ValidationError("An account with this email already exists.")
-        return value
+    # def validate_email(self, value):
+    #     if Faculty.objects.filter(email=value).exists():
+    #         raise serializers.ValidationError("An account with this email already exists.")
+    #     return value
 
     def generate_random_password(self, length=12):
         words = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Gamma", "Hawk", "Titan", "Zebra"]
@@ -537,14 +488,11 @@ class ContactMessageSerializer(serializers.Serializer):
             subject=validated_data['subject'],
             message=validated_data['message'],
             from_email=email,
-            recipient_list=['attendo0402@gmail.com'],
+            recipient_list=["attendo0402@gmail.com"],
             fail_silently=False,
         )
 
         return contact_message
-    
-
-
 
 class ParentSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -629,7 +577,7 @@ class ParentSerializer(serializers.Serializer):
 
 class TimetableSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    semester = serializers.IntegerField()
+    semester = serializers.CharField()
     day = serializers.CharField(max_length=10)
     time = serializers.TimeField() 
     subject_id = serializers.IntegerField()
@@ -685,6 +633,59 @@ class TimetableSerializer(serializers.Serializer):
             'branch': {
                 'id': instance.branch.id,
                 'name': instance.branch.name,
-                # 'code': instance.branch.code
             }
+        }
+    
+class TimetableChangeRequestSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    requester_id = serializers.IntegerField()
+    timetable_entry_id = serializers.IntegerField()
+    status = serializers.CharField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+
+    def create(self, validated_data):
+        requester = Faculty.objects.get(id=validated_data['requester_id'])
+        timetable_entry = Timetable.objects.get(id=validated_data['timetable_entry_id'])
+
+        faculty_branch = requester.branch  
+        hod = faculty_branch.hods.first()  
+
+        request_obj = TimetableChangeRequest.objects.create(
+            requester=requester,
+            timetable_entry=timetable_entry
+           
+        )
+        return request_obj
+
+    def to_representation(self, instance):
+        branch = instance.requester.branch
+        hod = branch.hods.first()  
+
+        return {
+            'id': instance.id,
+            'requester': {
+                'id': instance.requester.id,
+                'username': instance.requester.username,
+                'email': instance.requester.email,
+            },
+            'timetable_entry': {
+                'id': instance.timetable_entry.id,
+                'day': instance.timetable_entry.day,
+                'time': instance.timetable_entry.time,
+                'subject': instance.timetable_entry.subject.subject_name,
+                'faculty': instance.timetable_entry.faculty.username,
+                'semester': instance.timetable_entry.semester
+            },
+
+            'branch': {
+              'id': instance.timetable_entry.faculty.branch.id,
+               'name': instance.timetable_entry.faculty.branch.name,
+              },
+            'hod': {
+                'id': hod.id if hod else None,
+                'username': hod.username if hod else None,
+                'email': hod.email if hod else None
+            },
+            'status': instance.status,
+            'created_at': instance.created_at
         }

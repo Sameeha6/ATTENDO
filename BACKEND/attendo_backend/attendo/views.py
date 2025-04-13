@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status,permissions
 from .serializers import *
 from rest_framework.decorators import api_view
-from .models import Branch,HOD,Faculty,Subject,Tutor,Timetable
+from .models import *
 from django.db import transaction
 from rest_framework.exceptions import NotFound
 
@@ -480,26 +480,32 @@ class RegisterParentView(APIView):
 
 
 class TimetableListCreateView(APIView):
-    # permission_classes = [IsAuthenticated]
+    
+    # permission_classes = [] 
+
+    def get(self, request):
+        tutor_id = request.GET.get('tutor_id')
+        if not tutor_id:
+            return Response({"error": "Missing tutor_id"}, status=400)
+
+        try:
+            tutor = Tutor.objects.get(id=int(tutor_id))
+        except (ValueError, Tutor.DoesNotExist):
+            return Response({"error": "Tutor not found"}, status=404)
+
+        timetables = Timetable.objects.filter(branch=tutor.branch)
+        serializer = TimetableSerializer(timetables, many=True)
+        return Response(serializer.data, status=200)
 
     def post(self, request):
-        try:
-            # Get logged in tutor (faculty)
-            
-            tutor = Faculty.objects.get(user=request.user)
-        except Faculty.DoesNotExist:
-            return Response({"error": "Tutor not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        data = request.data.copy()
-        # Force the branch ID to be the tutor's branch
-        data['branch_id'] = tutor.branch.id
-
-        serializer = TimetableSerializer(data=data)
+        serializer = TimetableSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            tt = serializer.save()
+            return Response(
+                TimetableSerializer(tt).data,
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 
 class TutorSubjectsAndSemestersView(APIView):
@@ -582,27 +588,150 @@ class TimetableDetailView(APIView):
 
         timetable.delete()
         return Response({"success": "Timetable deleted"}, status=204)
-    
-class TimetableByFacultyView(APIView):
+
+
+class AllTimetablesView(APIView):
     def get(self, request):
-        faculty_id = request.GET.get('faculty_id')
-        
-        if not faculty_id:
-            return Response({"error": "Missing faculty_id"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            faculty = Faculty.objects.select_related("branch").get(id=faculty_id)
-        except Faculty.DoesNotExist:
-            return Response({"error": "Faculty not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        timetables = Timetable.objects.filter(branch=faculty.branch)
+        timetables = Timetable.objects.all()
         serializer = TimetableSerializer(timetables, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class RequestTimetableHourChangeView(APIView):
+    def get(self, request):
+        requests = TimetableChangeRequest.objects.all()
+        serializer = TimetableChangeRequestSerializer(requests, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        timetable_id = request.data.get('timetable_id')
+        faculty_id = request.data.get('faculty_id')
+        if not timetable_id or not faculty_id:
+            return Response({"error": "Missing timetable_id or faculty_id"}, status=400)
+        try:
+            timetable = Timetable.objects.get(id=timetable_id)
+            requester = Faculty.objects.get(id=faculty_id)
+        except (Timetable.DoesNotExist, Faculty.DoesNotExist):
+            return Response({"error": "Invalid timetable or faculty ID"}, status=404)
+        if timetable.faculty.id == requester.id:
+            return Response({"error": "You are already assigned to this subject."}, status=400)
+        faculty_branch = requester.branch  
+        hod = faculty_branch.hods 
+        if TimetableChangeRequest.objects.filter(requester=requester, timetable_entry=timetable, status="Pending").exists():
+            return Response({"error": "A request is already pending for this slot."}, status=400)
         
-        return Response({
-            "branch": {
-                "id": faculty.branch.id,
-                "name": faculty.branch.name,
-                # "code": faculty.branch.code
-            },
-            "timetable": serializer.data
-        }, status=status.HTTP_200_OK)
+        request_obj = TimetableChangeRequest.objects.create(
+            requester=requester,
+            timetable_entry=timetable
+        )
+        serializer = TimetableChangeRequestSerializer(request_obj)
+        return Response(serializer.data, status=201)
+    
+class ApproveTimetableChangeRequestView(APIView):
+    def put(self, request, request_id):
+        try:
+            timetable_change_request = TimetableChangeRequest.objects.get(id=request_id)
+            
+            new_status = request.data.get('status')
+
+            if new_status not in ['Approved', 'Rejected']:
+                return Response({"error": "Invalid status provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+            branch = timetable_change_request.requester.branch
+            hod = branch.hods.first()
+            if not hod:
+                return Response({"error": "No HOD assigned to this branch."}, status=status.HTTP_400_BAD_REQUEST)
+
+            timetable_change_request.status = new_status
+            timetable_change_request.save()
+
+            serializer = TimetableChangeRequestSerializer(timetable_change_request)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except TimetableChangeRequest.DoesNotExist:
+            return Response({"error": "Timetable change request not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+# class MarkAttendance(APIView): 
+#     def post(self, request):
+#         attendance_data = request.data
+#         updated_attendance = []
+
+#         for entry in attendance_data:
+#             student_id = entry.get('student_id')
+#             status = entry.get('status')
+#             date = entry.get('date')
+
+          
+#             if not student_id or not status or not date:
+#                 return Response(
+#                     {"error": "Missing required fields: student_id, status, or date."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+
+          
+#             if status not in ['Present', 'Absent']:
+#                 return Response(
+#                     {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+           
+#             try:
+#                 attendance, created = Attendance.objects.get_or_create(
+#                     student_id=student_id,
+#                     date=date,
+#                 )
+#                 attendance.status = status
+#                 attendance.save()
+#                 updated_attendance.append(attendance)
+#             except ValidationError as e:
+#                 return Response(
+#                     {"error": str(e)},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+        
+#         return Response({"message": "Attendance successfully updated.", "updated_attendance": len(updated_attendance)}, status=status.HTTP_200_OK)
+
+#     def get(self, request):
+#         try:
+           
+#             attendance_records = Attendance.objects.all()
+
+          
+#             data = [{
+#                 "student_id": record.student_id,
+#                 "status": record.status,
+#                 "date": record.date
+#             } for record in attendance_records]
+
+#             return Response({"attendance": data}, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({"error": f"Error retrieving attendance data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+# class StudentAttendanceListView(APIView):
+#     def get(self, request):
+#         try:
+#             students = Student.objects.select_related('branch').all()
+#             data = []
+
+#             for student in students:
+#                 attendance_records = Attendance.objects.filter(student=student).values('date', 'status').order_by('-date')
+
+#                 student_data = {
+#                     "student_id": student.student_id,
+#                     "username": student.username,
+#                     "email": student.email,
+#                     "phone_number": student.phone_number,
+#                     "academic_year": student.academic_year,
+#                     "semester": student.semester,
+#                     "branch_name": student.branch.name if student.branch else None,
+#                     "branch_code": student.branch.code if student.branch else None,
+#                     "attendance": list(attendance_records)  
+#                 }
+
+#                 data.append(student_data)
+
+#             return Response({"students": data}, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

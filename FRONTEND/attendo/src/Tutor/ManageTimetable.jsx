@@ -4,7 +4,7 @@ import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const times = [
-  "9:30-10:30", "10:30-11:30", "11:30-12:30", "1:30-2:30", "2:30-3:30", "3:30-4:30"
+  "9:30:00", "10:30:00", "11:30:00", "1:30:00", "2:30:00", "3:30:00"
 ];
 
 const ManageTimetable = ({ tutorId }) => {
@@ -12,67 +12,74 @@ const ManageTimetable = ({ tutorId }) => {
   const [subjectsBySemester, setSubjectsBySemester] = useState({});
   const [timetable, setTimetable] = useState([]);
   const [form, setForm] = useState({ semester: "", day: "", time: "", subject_id: "", faculty_id: "" ,branch_id:""});
-  const [editingId, setEditingId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
       fetchSubjectsAndSemesters();
-      // fetchTimetable();
+      fetchTimetable();
   
   }, []);
 
+  useEffect(() => {
+    console.log("Current semester:", form.semester);
+    console.log("Subjects for semester:", subjectsBySemester[form.semester]);
+  }, [form.semester, subjectsBySemester]);
+
   const fetchSubjectsAndSemesters = async () => {
     const tutor_id=localStorage.getItem("tutor_id")
-
     try {
       const res = await axios.get(`http://127.0.0.1:8000/api/subjects-and-semesters/?tutor_id=${tutor_id}`);
-      console.log(res)
+      console.log(res.data)
+      const { branch } = res.data;
       setSemesters(res.data.semesters);
       setSubjectsBySemester(res.data.subjects_by_semester);
+      
+      if (branch?.id) {
+        localStorage.setItem("branch_id", branch.id);
+        setForm(fd => ({ ...fd, branch_id: branch.id }));
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
-  // const fetchTimetable = async () => {
-  //   try {
-  //     const res = await axios.get(`http://127.0.0.1:8000/api/timetbl-faculty/?faculty_id=${tutorId}`);
-  //     setTimetable(res.data.timetable);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+  const fetchTimetable = async () => {
+    try {
+    const tutorId=localStorage.getItem("tutor_id")
+      const res = await axios.get(`http://127.0.0.1:8000/api/add-timetable/?tutor_id=${tutorId}`);
+      console.log(res)
+      setTimetable(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleChange = (e) => {
-    
     setForm({ ...form, [e.target.name]: e.target.value });
     console.log(form)
-
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const tutor_id=localStorage.getItem("tutor_id")
-
+    const tutor_id = localStorage.getItem("tutor_id")
      // build payload matching your serializer
      const payload = {
-      semester: parseInt(form.semester, 10),
+      semester: form.semester,
       day: form.day,
       time:form.time,
       subject_id: parseInt(form.subject_id, 10),
       faculty_id: parseInt(form.faculty_id, 10),
       branch_id: parseInt(form.branch_id, 10),
     };
-
     try {
       const res = await axios.post(
-        
-        'http://localhost:8000/api/add-timetable/',
+        `http://127.0.0.1:8000/api/add-timetable/?tutor_id=${tutor_id}`,
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );
       console.log(res.data);
       alert('Timetable added successfully!');
-    
       setForm({
         semester: '',
         day: '',
@@ -87,17 +94,58 @@ const ManageTimetable = ({ tutorId }) => {
     }
   };
 
-  
   const handleEdit = (entry) => {
+    setIsModalOpen(true);
+    setEditId(entry.id);
     setForm({
+      ...form,
       semester: entry.semester,
       day: entry.day,
       time: entry.time,
       subject_id: entry.subject.id,
-      faculty_id: entry.faculty.id
+      faculty_id: entry.faculty.id,
+      branch_id: form.branch_id,  // Keep current branch
     });
-    setEditingId(entry.id);
   };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditId(null);
+    setForm({
+      semester: '',
+      day: '',
+      time: '',
+      subject_id: '',
+      faculty_id: '',
+      branch_id: form.branch_id,
+    });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const payload = {
+        semester: form.semester,
+        day: form.day,
+        time: form.time,
+        subject_id: parseInt(form.subject_id),
+        faculty_id: parseInt(form.faculty_id),
+        branch_id: parseInt(form.branch_id),
+      };
+  
+      await axios.put(`http://127.0.0.1:8000/api/delete-timetable/${editId}/`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      alert("Updated successfully!");
+      closeModal();
+      fetchTimetable(); // refresh table
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update");
+    }
+  };
+  
+
 
   const handleDelete = async (id) => {
     try {
@@ -111,75 +159,73 @@ const ManageTimetable = ({ tutorId }) => {
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Timetable</h2>
-      <div className="bg-gray-100 p-3 rounded-md mb-6">
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
-          <select
-            className="w-full p-2 border rounded-md"
-            name="semester"
-            value={form.semester}
-            onChange={handleChange}
-          >
-            <option value="">Select Semester</option>
-            {semesters.map((sem) => (
-              <option key={sem} value={sem}>{`Semester ${sem}`}</option>
-            ))}
-          </select>
-          <select
-            className="w-full p-2 border rounded-md"
-            name="day"
-            value={form.day}
-            onChange={handleChange}
-          >
-            <option value="">Select Day</option>
-            {days.map((day) => (
-              <option key={day} value={day}>{day}</option>
-            ))}
-          </select>
-          <select
-            className="w-full p-2 border rounded-md"
-            name="time"
-            value={form.time}
-            onChange={handleChange}
-          >
-            <option value="">Select Time</option>
-            {times.map((time) => (
-              <option key={time} value={time}>{time}</option>
-            ))}
-          </select>
-          <select
-            className="w-full p-2 border rounded-md"
-            name="subject_id"
-            value={form.subject_id}
-            onChange={handleChange}
-          >
-            <option value="">Select Subject</option>
-            {form.semester &&
-              subjectsBySemester[form.semester]?.map((subj) => (
-                <option key={subj.id} value={subj.id}>
-                  {`${subj.subject_code} - ${subj.subject_name}`}
-                </option>
-              ))}
-          </select>
-          <select
-            className="w-full p-2 border rounded-md"
-            name="faculty_id"
-            value={form.faculty_id}
-            onChange={handleChange}
-          >
-            <option value="">Select Faculty</option>
-            {form.semester &&
-              subjectsBySemester[form.semester]
-                ?.filter((subj) => subj.faculty)
-                .map((subj) => (
-                  <option key={subj.faculty.id} value={subj.faculty.id}>
-                    {`${subj.faculty.username} (${subj.faculty.email})`}
-                  </option>
+        <div className="bg-gray-100 rounded-md mb-6">
+          <form className="bg-gray-100 p-3 rounded-md " onSubmit={handleSubmit}>
+            <h3 className="text-xl font-semibold mb-4">Add Timetable</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select className="w-full p-2 border rounded-md" name="semester" value={form.semester} onChange={handleChange}>
+                <option value="">Select Semester</option>
+                {semesters.map((sem) => (
+                  <option key={sem} value={sem}>{` ${sem}`}</option>
                 ))}
-          </select>
-          <button type="submit" className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
-            {editingId ? "Update" : "Add"} Timetable
-          </button>
-        </form>
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                name="day"
+                value={form.day}
+                onChange={handleChange}
+              >
+                <option value="">Select Day</option>
+                {days.map((day) => (
+                  <option key={day} value={day}>{day}</option>
+                ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                name="time"
+                value={form.time}
+                onChange={handleChange}
+              >
+                <option value="">Select Time</option>
+                {times.map((time) => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                name="subject_id"
+                value={form.subject_id}
+                onChange={handleChange}
+              >
+                <option value="">Select Subject</option>
+                {form.semester &&
+                  subjectsBySemester[form.semester]?.map((subj) => (
+                    <option key={subj.id} value={subj.id}>
+                      {`${subj.subject_code} - ${subj.subject_name}`}
+                    </option>
+                  ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                name="faculty_id"
+                value={form.faculty_id}
+                onChange={handleChange}
+              >
+                <option value="">Select Faculty</option>
+                {form.semester &&
+                  subjectsBySemester[form.semester]
+                    ?.filter((subj) => subj.faculty)
+                    .map((subj) => (
+                      <option key={subj.faculty.id} value={subj.faculty.id}>
+                        {`${subj.faculty.username}`}
+                      </option>
+                    ))}
+              </select>
+            </div>
+            <button type="submit" className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">
+              Add
+            </button>
+          </form>
       </div>
 
       <h3 className="text-xl font-semibold mb-3">Timetable List</h3>
@@ -221,6 +267,87 @@ const ManageTimetable = ({ tutorId }) => {
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+          <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between mb-3">
+              <h3 className="text-xl font-semibold">Edit Timetable</h3>
+              <button className="text-gray-600" onClick={closeModal}>
+                <FaTimes size={20} />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                className="w-full p-2 border rounded-md"
+                name="semester"
+                value={form.semester}
+                onChange={handleChange}
+              >
+                <option value="">Select Semester</option>
+                {semesters.map((sem) => (
+                  <option key={sem} value={sem}>{` ${sem}`}</option>
+                ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                value={form.day}
+                onChange={(e) => setForm({ ...form, day: e.target.value })}
+              >
+                <option value="">Select Day</option>
+                {days.map((day) => (
+                  <option key={day} value={day}>{day}</option>
+                ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                value={form.time}
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+              >
+                <option value="">Select Time</option>
+                {times.map((time) => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+              <select
+                className="w-full p-2 border rounded-md"
+                value={form.subject_id}
+                onChange={(e) => setForm({ ...form, subject_id: e.target.value })}
+              >
+                <option value="">Select Subject</option>
+                {form.semester &&
+                  subjectsBySemester[form.semester]?.map((subj) => (
+                    <option key={subj.id} value={subj.id}>
+                      {`${subj.subject_code} - ${subj.subject_name}`}
+                    </option>
+                  ))}
+              </select>
+
+              <select
+                className="w-full p-2 border rounded-md"
+                value={form.faculty_id}
+                onChange={(e) => setForm({ ...form, faculty_id: e.target.value })}
+              >
+                <option value="">Select Faculty</option>
+                {form.semester &&
+                  subjectsBySemester[form.semester]
+                    ?.filter((subj) => subj.faculty)
+                    .map((subj) => (
+                      <option key={subj.faculty.id} value={subj.faculty.id}>
+                        {`${subj.faculty.username}`}
+                      </option>
+                    ))}
+              </select>
+
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button className="bg-blue-950 text-white px-4 py-1 rounded-md" onClick={handleUpdate}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
