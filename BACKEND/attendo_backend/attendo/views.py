@@ -626,6 +626,20 @@ class RequestTimetableHourChangeView(APIView):
         )
         serializer = TimetableChangeRequestSerializer(request_obj)
         return Response(serializer.data, status=201)
+    # def delete(self, request, pk):
+    #     try:
+    #        notification = TimetableChangeRequest.objects.get(pk=pk)
+    #        notification.delete()
+    #        return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    #     except TimetableChangeRequest.DoesNotExist:
+    #        return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+    def delete(self, request, pk):
+        try:
+            notification = TimetableChangeRequest.objects.get(pk=pk)
+            notification.delete()
+            return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except TimetableChangeRequest.DoesNotExist:
+            return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
     
 class ApproveTimetableChangeRequestView(APIView):
     def put(self, request, request_id):
@@ -652,64 +666,62 @@ class ApproveTimetableChangeRequestView(APIView):
             return Response({"error": "Timetable change request not found."}, status=status.HTTP_404_NOT_FOUND)
         
 
+# class MarkAttendance(APIView): 
+#     def post(self, request):
+#         attendance_data = request.data
+#         updated_attendance = []
 
-
-class MarkAttendance(APIView): 
-    def post(self, request):
-        attendance_data = request.data
-        updated_attendance = []
-
-        for entry in attendance_data:
-            student_id = entry.get('student_id')
-            status = entry.get('status')
-            date = entry.get('date')
+#         for entry in attendance_data:
+#             student_id = entry.get('student_id')
+#             status = entry.get('status')
+#             date = entry.get('date')
 
           
-            if not student_id or not status or not date:
-                return Response(
-                    {"error": "Missing required fields: student_id, status, or date."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+#             if not student_id or not status or not date:
+#                 return Response(
+#                     {"error": "Missing required fields: student_id, status, or date."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
 
           
-            if status not in ['Present', 'Absent']:
-                return Response(
-                    {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+#             if status not in ['Present', 'Absent']:
+#                 return Response(
+#                     {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
            
-            try:
-                attendance, created = Attendance.objects.get_or_create(
-                    student_id=student_id,
-                    date=date,
-                )
-                attendance.status = status
-                attendance.save()
-                updated_attendance.append(attendance)
-            except ValidationError as e:
-                return Response(
-                    {"error": str(e)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+#             try:
+#                 attendance, created = Attendance.objects.get_or_create(
+#                     student_id=student_id,
+#                     date=date,
+#                 )
+#                 attendance.status = status
+#                 attendance.save()
+#                 updated_attendance.append(attendance)
+#             except ValidationError as e:
+#                 return Response(
+#                     {"error": str(e)},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
         
-        return Response({"message": "Attendance successfully updated.", "updated_attendance": len(updated_attendance)}, status=status.HTTP_200_OK)
+#         return Response({"message": "Attendance successfully updated.", "updated_attendance": len(updated_attendance)}, status=status.HTTP_200_OK)
 
-    def get(self, request):
-        try:
+#     def get(self, request):
+#         try:
            
-            attendance_records = Attendance.objects.all()
+#             attendance_records = Attendance.objects.all()
 
           
-            data = [{
-                "student_id": record.student_id,
-                "status": record.status,
-                "date": record.date
-            } for record in attendance_records]
+#             data = [{
+#                 "student_id": record.student_id,
+#                 "status": record.status,
+#                 "date": record.date
+#             } for record in attendance_records]
 
-            return Response({"attendance": data}, status=status.HTTP_200_OK)
+#             return Response({"attendance": data}, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            return Response({"error": f"Error retrieving attendance data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except Exception as e:
+#             return Response({"error": f"Error retrieving attendance data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 # class StudentAttendanceListView(APIView):
 #     def get(self, request):

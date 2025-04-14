@@ -119,10 +119,10 @@ class TimetableChangeRequest(models.Model):
     def _str_(self):
         return f"{self.requester.username} → {self.timetable_entry} ({self.status})"
     
-class Attendance(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    date = models.DateField(default=timezone.now)
-    status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')])
+# class Attendance(models.Model):
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+#     date = models.DateField(default=timezone.now)
+#     status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')])
 
-    def _str_(self):
-        return f"{self.student.username} - {self.date} - {self.status}"
+#     def _str_(self):
+#         return f"{self.student.username} - {self.date} - {self.status}"

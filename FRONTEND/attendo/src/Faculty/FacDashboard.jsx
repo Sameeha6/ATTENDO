@@ -11,24 +11,35 @@ const FacultyDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
+  const [hourChangeRequests, setHourChangeRequests] = useState([]);
+
 
   useEffect(() => {
     const storedId = localStorage.getItem("faculty_id");
     if (storedId) setFacultyId(parseInt(storedId));
-
-    axios.get('http://127.0.0.1:8000/api/timetables/')
-      .then((res) => {
-        setTimetable(res.data);
-        const uniqueBranches = [...new Map(res.data.map(item => [item.branch.id, item.branch])).values()];
+  
+    const fetchData = async () => {
+      try {
+        const [timetableRes, requestRes] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/timetables/'),
+          axios.get("http://127.0.0.1:8000/api/request-hour-change/")
+        ]);
+  
+        setTimetable(timetableRes.data);
+        const uniqueBranches = [...new Map(timetableRes.data.map(item => [item.branch.id, item.branch])).values()];
         setBranches(uniqueBranches);
-        setFilteredTimetable(res.data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
+        setFilteredTimetable(timetableRes.data);
+        setHourChangeRequests(requestRes.data);
+      } catch (err) {
         console.error(err);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+  
+    fetchData();
   }, []);
+  
 
   useEffect(() => {
     let filtered = [...timetable];
@@ -39,12 +50,31 @@ const FacultyDashboard = () => {
 
   const handleSubjectClick = (entry) => {
     if (entry.faculty.id === facultyId) {
-      window.location.href = "/faculty/take-attendance"; // 🧭 Redirect to take attendance
+      // Faculty is already assigned → go to attendance
+      window.location.href = "/faculty/take-attendance";
+      return;
+    }
+  
+    const existingRequest = hourChangeRequests.find(
+      (req) => req.requester.id === facultyId && req.timetable_entry.id === entry.id
+    );
+  
+    if (existingRequest) {
+      if (existingRequest.status === 'Approved') {
+        window.location.href = "/faculty/take-attendance";
+      } else if (existingRequest.status === 'Pending') {
+        alert("Your request is still pending approval.");
+      } else if (existingRequest.status === 'Rejected') {
+        setSelectedEntry(entry);
+        setShowModal(true);
+      }
     } else {
-      setSelectedEntry(entry);  // Show modal
+      // No request yet → allow sending
+      setSelectedEntry(entry);
       setShowModal(true);
     }
   };
+  
 
   const handleConfirmRequest = () => {
     axios.get("http://127.0.0.1:8000/api/request-hour-change/")
@@ -52,16 +82,30 @@ const FacultyDashboard = () => {
         const exists = res.data.find(
           req => req.requester.id === facultyId && req.timetable_entry.id === selectedEntry.id
         );
-
+  
         if (exists) {
           if (exists.status === 'Pending') {
             alert("Request is already pending.");
-          } else if (exists.status === 'Rejected') {
-            alert("Previous request was rejected.");
-          } else {
+          } else if (exists.status === 'Approved') {
             alert("Already approved. Please refresh the page.");
+          } else if (exists.status === 'Rejected') {
+            // ✅ Resend the request
+            axios.post("http://127.0.0.1:8000/api/request-hour-change/", {
+              faculty_id: facultyId,
+              timetable_id: selectedEntry.id
+            })
+              .then(() => {
+                alert("Request re-sent to HOD.");
+                setShowModal(false);
+                setSelectedEntry(null);
+              })
+              .catch(err => {
+                console.error(err);
+                alert("Error re-sending request.");
+              });
           }
         } else {
+          // No request exists → send new
           axios.post("http://127.0.0.1:8000/api/request-hour-change/", {
             faculty_id: facultyId,
             timetable_id: selectedEntry.id
@@ -82,6 +126,7 @@ const FacultyDashboard = () => {
         alert("Error checking existing requests.");
       });
   };
+  
 
   return (
     <div className="container mx-auto mt-14 max-w-6xl">
