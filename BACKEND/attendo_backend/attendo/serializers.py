@@ -254,8 +254,6 @@ class FacultyRegisterSerializer(serializers.Serializer):
         return faculty
 
 
-
-
 class FacultySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(max_length=150)
@@ -336,15 +334,15 @@ class TutorRegisterSerializer(serializers.Serializer):
         return Tutor.objects.create(**validated_data)
     
 
-    def validate_username(self, value):
-        if Tutor.objects.filter(username=value).exists():
-            raise serializers.ValidationError("This username is already taken.")
-        return value
+    # def validate_username(self, value):
+    #     if Tutor.objects.filter(username=value).exists():
+    #         raise serializers.ValidationError("This username is already taken.")
+    #     return value
 
-    def validate_email(self, value):
-        if Tutor.objects.filter(email=value).exists():
-            raise serializers.ValidationError("An account with this email already exists.")
-        return value
+    # def validate_email(self, value):
+    #     if Tutor.objects.filter(email=value).exists():
+    #         raise serializers.ValidationError("An account with this email already exists.")
+    #     return value
 
     def generate_random_password(self, length=12):
         words = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Gamma", "Hawk", "Titan", "Zebra"]
@@ -371,7 +369,8 @@ class TutorRegisterSerializer(serializers.Serializer):
             phone_number=validated_data["phone_number"],
             branch=validated_data["branch"],
             academic_year=validated_data['academic_year'],
-            password=random_password
+            password=random_password,
+            role="tutor" 
             # If you later add a password field to tutor, store random_password here.
         )
 
@@ -390,8 +389,6 @@ class TutorRegisterSerializer(serializers.Serializer):
             print(f"Error sending email: {str(e)}")
 
         return tutor
-
-
 
     def update(self, instance, validated_data):
         instance.username = validated_data.get('username', instance.username)
@@ -448,7 +445,6 @@ class StudentRegisterSerializer(serializers.Serializer):
             role='student'
         )
 
-      
         send_mail(
             subject='Your Student Account Details',
             message=(
@@ -462,8 +458,6 @@ class StudentRegisterSerializer(serializers.Serializer):
         )
 
         return student
-
-
 
 
 class ContactMessageSerializer(serializers.Serializer):
@@ -689,3 +683,4 @@ class TimetableChangeRequestSerializer(serializers.Serializer):
             'status': instance.status,
             'created_at': instance.created_at
         }
+    

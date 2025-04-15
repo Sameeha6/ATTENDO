@@ -14,7 +14,9 @@ const ManageFaculties = () => {
       .then((response) => setBranches(response.data))
       .catch((error) => console.error("Error fetching branches", error));
 
-    axios.get("http://127.0.0.1:8000/api/addfaculty/")
+      const hod_id = localStorage.getItem("hod_id");
+
+      axios.get(`http://127.0.0.1:8000/api/faculties-under-hod/${hod_id}/`)
       .then((response) => setFaculties(response.data))
       .catch((error) => console.error("Error fetching faculties", error));
   }, []);

@@ -7,11 +7,8 @@ from rest_framework.decorators import api_view
 from .models import *
 from django.db import transaction
 from rest_framework.exceptions import NotFound
-
 from rest_framework.permissions import IsAuthenticated
-
 from django.shortcuts import get_object_or_404
-
 
 
 class LoginView(APIView):
@@ -27,11 +24,6 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class HODRegisterView(APIView):
-    # def get(self, request):
-    #     hods = HOD.objects.all()
-    #     serializer = HODRegisterSerializer(hods, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-    
     def post(self, request):
         serializer = HODRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -58,28 +50,21 @@ class HODDetailView(APIView):
     def delete(self, request, pk):
         """Delete a specific HOD without deleting the branch"""
         print("Delete method called")  
-
         hod = get_object_or_404(HOD, pk=pk)
         print(f"Found HOD: {hod.username}")  
-
         hod.delete()
         print("HOD deleted successfully")  
-
         return Response({"message": "HOD deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-
-
 
 class BranchListCreateView(APIView):
     def get(self, request):
         branches = Branch.objects.all()
-
         branch_data = []
         for branch in branches:
             hod = branch.hods.first()  # Get the first HOD if exists
             branch_data.append({
                 "id": branch.id,
                 "name": branch.name,
-                # "code": branch.code,
                 "hod": {
                     "id": hod.id,
                     "username": hod.username,
@@ -87,7 +72,6 @@ class BranchListCreateView(APIView):
                     "phone": hod.phone
                 } if hod else None
             })
-
         return Response(branch_data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -96,8 +80,6 @@ class BranchListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 class BranchDetailView(APIView):
     def get(self, request, pk):
@@ -113,29 +95,24 @@ class BranchDetailView(APIView):
             branch = Branch.objects.get(pk=pk) 
         except Branch.DoesNotExist:
             return Response({"error": "Branch not found"}, status=status.HTTP_404_NOT_FOUND)
-
         serializer = BranchSerializer(branch, data=request.data)  
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
     def delete(self, request, pk):
         try:
             branch = Branch.objects.get(pk=pk)
         except Branch.DoesNotExist:
             return Response({"error": "Branch not found"}, status=status.HTTP_404_NOT_FOUND)
-        
         if hasattr(branch, 'hod') and branch.hod:
          branch.hod.delete()
-
         branch.delete()
         return Response({"message": "Branch deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
 
 class FacultyRegisterView(APIView):
-
     def get(self, request):
         """Retrieve all faculty members with branch details."""
         faculties = Faculty.objects.select_related("branch").all()   
@@ -158,7 +135,6 @@ class FacultyRegisterView(APIView):
                     )
             except Exception as e:
                 return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         print(serializer.errors)  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -199,8 +175,6 @@ class SubjectListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-
 class SubjectDetailView(APIView):
     def get_object(self, id):
         try:
@@ -235,7 +209,6 @@ class SubjectDetailView(APIView):
 
 class TutorRegisterView(APIView):
     """API View to handle CRUD operations for Tutor"""
-
     def get(self, request, tutor_id=None):
         """Retrieve all tutors or a single tutor by ID"""
         if tutor_id:
@@ -275,11 +248,33 @@ class TutorRegisterView(APIView):
         tutor.delete()
         return Response({"message": "Tutor deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
     
+# class TutorDetailView(APIView):
+#     def get(self, request, tutor_id):
+#         """Retrieve tutor details."""
+#         tutor = get_object_or_404(Tutor, id=tutor_id)
+#         serializer = TutorRegisterSerializer(tutor)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
+#     def put(self, request, tutor_id):
+#         """Update tutor details."""
+#         tutor = get_object_or_404(Tutor, id=tutor_id)
+#         serializer = TutorRegisterSerializer(tutor, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+#     def delete(self, request, tutor_id):
+#         """Delete a tutor."""
+#         tutor = get_object_or_404(Tutor, id=tutor_id)
+#         try:
+#             with transaction.atomic():
+#                 tutor.delete()
+#             return Response({"message": "Tutor deleted successfully!"}, status=status.HTTP_204_NO_CONTENT)
+#         except Exception as e:
+#             return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class TutorDetailView(APIView):
-
     def get(self, request, tutor_id):
         """Retrieve tutor details."""
         tutor = get_object_or_404(Tutor, id=tutor_id)
@@ -375,14 +370,12 @@ class StudentRegisterView(APIView):
         try:
             student = Student.objects.get(id=student_id)
             data = request.data
-
             student.username = data.get("username", student.username)
             student.student_id = data.get("student_id", student.student_id)
             student.email = data.get("email", student.email)
             student.phone_number = data.get("phone_number", student.phone_number)
             student.academic_year = data.get("academic_year", student.academic_year)
             student.semester = data.get("semester", student.semester)
-
             branch_id = data.get("branch_id")
             if branch_id:
                 try:
@@ -392,7 +385,6 @@ class StudentRegisterView(APIView):
                     return Response({"error": "Invalid branch ID"}, status=status.HTTP_400_BAD_REQUEST)
 
             student.save()
-
             return Response({"message": "Student updated successfully."}, status=status.HTTP_200_OK)
         except Student.DoesNotExist:
             return Response({"error": "Student not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -416,12 +408,11 @@ class ContactMessageView(APIView):
     
 
 class RegisterParentView(APIView):
-
-
     def get(self, request):
         parents = Parent.objects.all()
         serializer = ParentSerializer(parents, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def post(self, request):
         serializer = ParentSerializer(data=request.data)
         if serializer.is_valid():
@@ -434,20 +425,17 @@ class RegisterParentView(APIView):
             parent = Parent.objects.get(pk=pk)
         except Parent.DoesNotExist:
             return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
-
         serializer = ParentSerializer(parent, data=request.data, partial=True)
         if serializer.is_valid():
             updated_parent = serializer.save()
             return Response({"message": "Parent updated successfully", "parent_id": updated_parent.id}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
     def get(self, request, pk):
         try:
             parent = Parent.objects.get(pk=pk)
         except Parent.DoesNotExist:
             return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
-
         serializer = ParentSerializer(parent)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -476,13 +464,7 @@ class RegisterParentView(APIView):
 #             }, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
 class TimetableListCreateView(APIView):
-    
-    # permission_classes = [] 
-
     def get(self, request):
         tutor_id = request.GET.get('tutor_id')
         if not tutor_id:
@@ -626,13 +608,8 @@ class RequestTimetableHourChangeView(APIView):
         )
         serializer = TimetableChangeRequestSerializer(request_obj)
         return Response(serializer.data, status=201)
-    # def delete(self, request, pk):
-    #     try:
-    #        notification = TimetableChangeRequest.objects.get(pk=pk)
-    #        notification.delete()
-    #        return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-    #     except TimetableChangeRequest.DoesNotExist:
-    #        return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+class deleteNotificationView(APIView):
     def delete(self, request, pk):
         try:
             notification = TimetableChangeRequest.objects.get(pk=pk)
@@ -675,21 +652,16 @@ class ApproveTimetableChangeRequestView(APIView):
 #             student_id = entry.get('student_id')
 #             status = entry.get('status')
 #             date = entry.get('date')
-
-          
 #             if not student_id or not status or not date:
 #                 return Response(
 #                     {"error": "Missing required fields: student_id, status, or date."},
 #                     status=status.HTTP_400_BAD_REQUEST
 #                 )
-
-          
 #             if status not in ['Present', 'Absent']:
 #                 return Response(
 #                     {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
 #                     status=status.HTTP_400_BAD_REQUEST
 #                 )
-           
 #             try:
 #                 attendance, created = Attendance.objects.get_or_create(
 #                     student_id=student_id,
@@ -750,3 +722,64 @@ class ApproveTimetableChangeRequestView(APIView):
 
 #         except Exception as e:
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class FacultyUnderHODView(APIView):
+    def get(self, request, hod_id):
+        try:
+            hod = HOD.objects.get(id=hod_id, role="HOD")
+            if hod.role != "HOD":
+                return Response({"error": "The specified user is not an HOD."}, status=status.HTTP_400_BAD_REQUEST)
+            faculty_under_hod = Faculty.objects.select_related('branch').filter(branch=hod.branch).exclude(id=hod.id)
+            serializer = FacultySerializer(faculty_under_hod, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Faculty.DoesNotExist:
+            return Response({"error": "HOD not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class TutorsUnderHODView(APIView):
+    def get(self, request, hod_id):
+        try:
+            hod = HOD.objects.get(id=hod_id, role="HOD")
+            tutors = Tutor.objects.select_related('branch').filter(branch=hod.branch, role="tutor")
+            serializer = TutorRegisterSerializer(tutors, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Faculty.DoesNotExist:
+            return Response({"error": "HOD not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class StudentsUnderHODView(APIView):
+    def get(self, request, hod_id):
+        try:
+            hod = HOD.objects.get(id=hod_id, role="HOD")
+            students = Student.objects.filter(branch=hod.branch)
+            serializer = StudentRegisterSerializer(students, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Faculty.DoesNotExist:
+            return Response({"error": "HOD not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class FacultiesUnderTutorView(APIView):
+    def get(self, request, tutor_id):
+        try:
+            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            branch = tutor.branch
+            faculties = Faculty.objects.filter(branch=branch)
+            serializer = FacultySerializer(faculties, many=True)
+            return Response(serializer.data)
+        except Faculty.DoesNotExist:
+            return Response({'error': 'Tutor not found'}, status=404)
+
+class StudentsUnderTutorView(APIView):
+    def get(self, request, tutor_id):
+        try:
+            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            branch = tutor.branch
+            Students = Student.objects.filter(branch=branch)
+            serializer = FacultySerializer(Students, many=True)
+            return Response(serializer.data)
+        except Faculty.DoesNotExist:
+            return Response({'error': 'Tutor not found'}, status=404)

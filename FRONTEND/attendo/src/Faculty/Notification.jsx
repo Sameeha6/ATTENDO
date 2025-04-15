@@ -23,7 +23,7 @@ const Notifications = () => {
   // ✅ Handle deleting a notification
   const handleDeleteNotification = (id) => {
     axios
-      .delete(`http://127.0.0.1:8000/api/request-hour-change/${id}/`) // Backend delete URL with pk
+      .delete(`http://127.0.0.1:8000/api/request-delete/${id}/`) // Backend delete URL with pk
       .then(() => {
         // Remove it from local state
         setNotifications((prev) => prev.filter((n) => n.id !== id));

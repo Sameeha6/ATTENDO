@@ -129,10 +129,17 @@ const FacultyDashboard = () => {
   
 
   return (
-    <div className="container mx-auto mt-14 max-w-6xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div className="container mx-auto mt-16 max-w-6xl">
+      <h1 className="text-4xl text-center font-bold text-cyan-950 mb-3">
+        Here’s What’s on Your Schedule
+      </h1>
+      <p className="text-base text-center text-gray-600 mb-8">
+        View your scheduled classes for the selected branch and semester. Click on your allocated hour to mark attendance.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 shadow-md bg-gray-50 rounded-md p-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Branch</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Filter by Branch</label>
           <select className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
             <option value="">All Branches</option>
@@ -142,7 +149,7 @@ const FacultyDashboard = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Semester</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Filter by Semester</label>
           <select className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)}>
             <option value="">All Semesters</option>
