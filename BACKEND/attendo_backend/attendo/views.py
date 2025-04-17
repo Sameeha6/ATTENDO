@@ -765,21 +765,21 @@ class StudentsUnderHODView(APIView):
 class FacultiesUnderTutorView(APIView):
     def get(self, request, tutor_id):
         try:
-            tutor = Tutor.objects.get(pk=tutor_id)
+            tutor = Tutor.objects.get(id=tutor_id,role="tutor")
             branch = tutor.branch
             faculties = Faculty.objects.filter(branch=branch)
             serializer = FacultySerializer(faculties, many=True)
             return Response(serializer.data)
-        except Faculty.DoesNotExist:
+        except Tutor.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=404)
 
 class StudentsUnderTutorView(APIView):
     def get(self, request, tutor_id):
         try:
-            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            tutor = Tutor.objects.get(id=tutor_id,role="tutor")
             branch = tutor.branch
             Students = Student.objects.filter(branch=branch)
-            serializer = FacultySerializer(Students, many=True)
+            serializer = StudentRegisterSerializer(Students, many=True)
             return Response(serializer.data)
         except Faculty.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=404)
