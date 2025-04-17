@@ -72,17 +72,18 @@ const ManageStudents = () => {
 
   const openModal = (student) => {
     setForm({
-      username: student.username,
-      student_id: student.student_id,
-      email: student.email,
-      phone_number: student.phone_number,
-      academic_year: student.academic_year,
-      branch_id: student.branch.id,
-      semester: student.semester,
+      username: student.username || "",
+      student_id: student.student_id || "",
+      email: student.email || "",
+      phone_number: student.phone_number || "",
+      academic_year: student.academic_year || "",
+      branch_id: student.branch?.id || "",
+      semester: student.semester || "",
     });
-    setEditStudentId(student.id);
+    setEditStudentId(student.id);  // <- Make sure `student.id` exists
     setIsModalOpen(true);
   };
+  
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -229,7 +230,7 @@ const ManageStudents = () => {
                 <td className="border p-1">{student.email}</td>
                 <td className="border p-1">{student.phone_number}</td>
                 <td className="border p-1">{student.academic_year}</td>
-                <td className="border p-1">{student.branch?.name}</td>
+                <td className="border p-1">{student.branch_name}</td>
                 <td className="border p-1">{student.semester}</td>
                 <td className="border p-1">
                   <button

@@ -765,7 +765,7 @@ class StudentsUnderHODView(APIView):
 class FacultiesUnderTutorView(APIView):
     def get(self, request, tutor_id):
         try:
-            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            tutor = Tutor.objects.get(pk=tutor_id)
             branch = tutor.branch
             faculties = Faculty.objects.filter(branch=branch)
             serializer = FacultySerializer(faculties, many=True)
