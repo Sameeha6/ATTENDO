@@ -684,3 +684,123 @@ class TimetableChangeRequestSerializer(serializers.Serializer):
             'created_at': instance.created_at
         }
     
+class ParentSerializer(serializers.ModelSerializer):
+    student_ids = serializers.ListField(
+        child=serializers.CharField(max_length=20), write_only=True
+    )
+    associated_student_ids = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Parent
+        fields = [
+            'id', 'username', 'password', 'email', 'phone_number', 'ward_name', 'ward_id',
+            'academic_year', 'branch', 'semester', 'student_ids', 'associated_student_ids', 'role'
+        ]
+
+    def get_associated_student_ids(self, obj):
+        return list(obj.students.values_list('student_id', flat=True))  
+
+    def create(self, validated_data):
+        student_ids = validated_data.pop('student_ids')  
+
+       
+        existing_parent = Parent.objects.filter(email=validated_data['email']).first()
+        if existing_parent:
+           
+            students = []
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(student_id=student_id)
+                    students.append(student)
+                except Student.DoesNotExist:
+                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
+
+            existing_parent.students.add(*students)  
+            return existing_parent
+
+      
+        students = []
+        for student_id in student_ids:
+            try:
+                student = Student.objects.get(student_id=student_id)
+                students.append(student)
+            except Student.DoesNotExist:
+                raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
+
+        parent = Parent.objects.create(**validated_data)
+        parent.students.set(students)  
+        return parent
+
+    def update(self, instance, validated_data):
+        student_ids = validated_data.pop('student_ids', None)  
+
+        if student_ids is not None:  
+            students = []
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(student_id=student_id)
+                    students.append(student)
+                except Student.DoesNotExist:
+                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
+
+           
+            instance.students.set(students)
+
+      
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+    
+# class AttendanceSerializer(serializers.Serializer):
+#     student_id = serializers.IntegerField()
+#     status = serializers.ChoiceField(choices=['Present', 'Absent'])
+#     date = serializers.DateField(required=False)
+
+#     def validate_student_id(self, value):
+#         if not Student.objects.filter(id=value).exists():
+#             raise serializers.ValidationError("Student not found.")
+#         return value
+
+#     def create(self, validated_data):
+#         student = Student.objects.get(id=validated_data['student_id'])
+#         attendance = Attendance.objects.create(
+#             student=student,
+#             status=validated_data['status'],
+#             date=validated_data.get('date')  
+#         )
+#         return attendance
+    
+class AttendanceEditRequestSerializer(serializers.Serializer):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+    student_id = serializers.CharField(max_length=20)
+    date = serializers.DateField()
+    new_status = serializers.CharField(max_length=10)  # 'Present' or 'Absent'
+    branch = serializers.CharField(max_length=100)
+    requested_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # Assuming User model for HOD
+    status = serializers.ChoiceField(choices=STATUS_CHOICES, default='Pending')
+    requested_at = serializers.DateTimeField(read_only=True)
+    reviewed_at = serializers.DateTimeField(allow_null=True, required=False)
+    reviewed_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
+
+    def create(self, validated_data):
+        # Create a new AttendanceEditRequest instance and return it
+        return AttendanceEditRequest.objects.create(**validated_data)
+    def update(self, instance, validated_data):
+        # Update the existing instance with new data
+        instance.student_id = validated_data.get('student_id', instance.student_id)
+        instance.date = validated_data.get('date', instance.date)
+        instance.new_status = validated_data.get('new_status', instance.new_status)
+        instance.branch = validated_data.get('branch', instance.branch)
+        instance.requested_by = validated_data.get('requested_by', instance.requested_by)
+        instance.status = validated_data.get('status', instance.status)
+        instance.requested_at = validated_data.get('requested_at', instance.requested_at)
+        instance.reviewed_at = validated_data.get('reviewed_at', instance.reviewed_at)
+        instance.reviewed_by = validated_data.get('reviewed_by', instance.reviewed_by)
+        instance.save()
+        return instance

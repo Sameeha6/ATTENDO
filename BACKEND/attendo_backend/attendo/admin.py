@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Login,Branch,HOD,Faculty,Subject,Tutor,Student,ContactMessage,Timetable,TimetableChangeRequest
+from .models import *
 
 
 
@@ -15,6 +15,7 @@ admin.site.register(Tutor)
 # admin.site.register(Student)
 admin.site.register(Timetable)
 admin.site.register(TimetableChangeRequest)
+admin.site.register(Attendance)
 
 
 class StuAdmin(admin.ModelAdmin):

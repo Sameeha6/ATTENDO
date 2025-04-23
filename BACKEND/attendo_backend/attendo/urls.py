@@ -18,6 +18,13 @@ urlpatterns = [
     path('add-tutor/', TutorRegisterView.as_view(), name='add-tutor'),
     path("tutors/<int:tutor_id>/", TutorDetailView.as_view(), name="tutor-detail"),
     path('students/', StudentRegisterView.as_view(), name='studentcreate'),
+    path('parents/', ParentCreateView.as_view(), name='parent-list-create'),
+    path('parents/<int:pk>/', ParentDetailView.as_view(), name='parent-detail'),
+
+    path('branch-count/', BranchCountView.as_view(), name='branch-count'),
+    path('hod-user-counts/<int:hod_id>/', HODUserCountsView.as_view(), name='hod-user-counts'),
+    path('tutor-user-counts/<int:tutor_id>/', TutorUserCountsView.as_view(), name='tutor-user-counts'),
+
 
     path("faculties-under-hod/<int:hod_id>/", FacultyUnderHODView.as_view()),
     path('tutors-under-hod/<int:hod_id>/', TutorsUnderHODView.as_view(), name='tutors-under-hod'),
@@ -35,7 +42,12 @@ urlpatterns = [
     path('timetables/', AllTimetablesView.as_view(), name='all-timetables'),
     path('request-hour-change/<int:request_id>/', ApproveTimetableChangeRequestView.as_view(), name='approve-timetable-change-request'),
 
-    # path('students/', StudentRegisterView.as_view(), name='stdregister'),
-    # path('mark-attendance/', MarkAttendance.as_view(), name='mark-attendance'),
-    # path('student-attendance/', StudentAttendanceListView.as_view(), name='student-attendance-list'),
+    path('students/', StudentRegisterView.as_view(), name='stdregister'),
+    path('mark-attendance/', MarkAttendance.as_view(), name='mark-attendance'),
+    path('student-attendance/', StudentAttendanceListView.as_view(), name='student-attendance-list'),
+    path('attendance-edit-requests/', SubmitAttendanceEditRequestsView.as_view(), name='attendance-edit-requests'),
+    path('notifications/<int:hod_id>/', HodNotificationView.as_view(), name='hod_notifications'),
+    path('facultyhourreq/<int:faculty_id>/', FacultyNotificationStatusView.as_view(), name='faculty-notification-status'),
+    path('approve-attendance-edit/<int:request_id>/', ApproveAttendanceEditRequestView.as_view(), name='approve-attendance-edit'),
+    
 ]

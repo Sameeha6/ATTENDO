@@ -248,32 +248,6 @@ class TutorRegisterView(APIView):
         tutor.delete()
         return Response({"message": "Tutor deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
     
-# class TutorDetailView(APIView):
-#     def get(self, request, tutor_id):
-#         """Retrieve tutor details."""
-#         tutor = get_object_or_404(Tutor, id=tutor_id)
-#         serializer = TutorRegisterSerializer(tutor)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-#     def put(self, request, tutor_id):
-#         """Update tutor details."""
-#         tutor = get_object_or_404(Tutor, id=tutor_id)
-#         serializer = TutorRegisterSerializer(tutor, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def delete(self, request, tutor_id):
-#         """Delete a tutor."""
-#         tutor = get_object_or_404(Tutor, id=tutor_id)
-#         try:
-#             with transaction.atomic():
-#                 tutor.delete()
-#             return Response({"message": "Tutor deleted successfully!"}, status=status.HTTP_204_NO_CONTENT)
-#         except Exception as e:
-#             return Response({"error": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
 class TutorDetailView(APIView):
     def get(self, request, tutor_id):
         """Retrieve tutor details."""
@@ -538,9 +512,7 @@ class TutorSubjectsAndSemestersView(APIView):
         })
     
 class TimetableDetailView(APIView):
-   
     permission_classes = [] 
-
     def get(self, request, pk):
         try:
             timetable = Timetable.objects.get(pk=pk)
@@ -695,33 +667,7 @@ class ApproveTimetableChangeRequestView(APIView):
 #         except Exception as e:
 #             return Response({"error": f"Error retrieving attendance data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-# class StudentAttendanceListView(APIView):
-#     def get(self, request):
-#         try:
-#             students = Student.objects.select_related('branch').all()
-#             data = []
 
-#             for student in students:
-#                 attendance_records = Attendance.objects.filter(student=student).values('date', 'status').order_by('-date')
-
-#                 student_data = {
-#                     "student_id": student.student_id,
-#                     "username": student.username,
-#                     "email": student.email,
-#                     "phone_number": student.phone_number,
-#                     "academic_year": student.academic_year,
-#                     "semester": student.semester,
-#                     "branch_name": student.branch.name if student.branch else None,
-#                     "branch_code": student.branch.code if student.branch else None,
-#                     "attendance": list(attendance_records)  
-#                 }
-
-#                 data.append(student_data)
-
-#             return Response({"students": data}, status=status.HTTP_200_OK)
-
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FacultyUnderHODView(APIView):
     def get(self, request, hod_id):
@@ -778,8 +724,393 @@ class StudentsUnderTutorView(APIView):
         try:
             tutor = Tutor.objects.get(id=tutor_id,role="tutor")
             branch = tutor.branch
-            Students = Student.objects.filter(branch=branch)
+            academic_year=tutor.academic_year
+            Students = Student.objects.filter(branch=branch,academic_year=academic_year)
             serializer = StudentRegisterSerializer(Students, many=True)
             return Response(serializer.data)
         except Faculty.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=404)
+        
+
+
+class BranchCountView(APIView):
+    def get(self, request):
+        data = {
+            'branch_count': Branch.objects.count(),
+            'hod_count': HOD.objects.count(),
+            'tutor_count': Tutor.objects.count(),
+            'faculty_count': Faculty.objects.count(),
+            'student_count': Student.objects.count(),
+            'parent_count': Parent.objects.count(),
+        }
+        return Response(data)
+    
+class HODUserCountsView(APIView):
+    def get(self, request, hod_id):
+        hod = get_object_or_404(HOD, id=hod_id)
+        branch = hod.branch
+        if not branch:
+            return Response({
+                "error": "This HOD is not assigned to any branch."
+            }, status=400)
+        faculty_count = Faculty.objects.filter(branch=branch).count()
+        tutor_count = Tutor.objects.filter(branch=branch).count()
+        parent_count = Parent.objects.filter(branch=branch).count()
+        student_count = Student.objects.filter(branch=branch).count()
+        return Response({
+            "branch": branch.name,
+            "faculty_count": faculty_count,
+            "tutor_count": tutor_count,
+            "parent_count": parent_count,
+            "student_count": student_count
+        })
+    
+class TutorUserCountsView(APIView):
+    def get(self, request, tutor_id):
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+        branch = tutor.branch
+        academic_year = tutor.academic_year
+        faculty_count = Faculty.objects.filter(branch=branch).count()
+        student_count = Student.objects.filter(branch=branch, academic_year=academic_year).count()
+        parent_count = Parent.objects.filter(branch=branch, academic_year=academic_year).count()
+        return Response({
+            "tutor": tutor.username,
+            "branch": branch.name,
+            "academic_year": academic_year,
+            "faculty_count": faculty_count,
+            "student_count": student_count,
+            "parent_count": parent_count
+        })
+
+
+class ParentCreateView(APIView):
+    def get(self, request):
+        parents = Parent.objects.all()
+        
+        serializer = ParentSerializer(parents, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ParentSerializer(data=request.data)
+        if serializer.is_valid():
+            parent = serializer.save()
+            return Response({"message": "Parent created successfully", "parent_id": parent.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ParentDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            parent = Parent.objects.get(pk=pk)
+        except Parent.DoesNotExist:
+            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ParentSerializer(parent)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    def put(self, request, pk):
+        try:
+            parent = Parent.objects.get(pk=pk)
+        except Parent.DoesNotExist:
+            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ParentSerializer(parent, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_parent = serializer.save()
+            return Response({"message": "Parent updated successfully", "parent_id": updated_parent.id}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk):
+        try:
+            parent = Parent.objects.get(pk=pk)
+        except Parent.DoesNotExist:
+            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+        parent.delete()
+        return Response({"message": "Parent deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+    
+class ParentsUnderHODView(APIView):
+    def get(self, request, hod_id):
+        try:
+            hod = HOD.objects.get(id=hod_id, role="HOD")
+            parents = Parent.objects.filter(branch=hod.branch)
+            serializer = ParentSerializer(parents, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Faculty.DoesNotExist:
+            return Response({"error": "HOD not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class ParentsUnderTutorView(APIView):
+    def get(self, request, tutor_id):
+        try:
+            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            branch = tutor.branch
+            parents = Parent.objects.filter(branch=branch)
+            serializer = FacultySerializer(parents, many=True)
+            return Response(serializer.data)
+        except Faculty.DoesNotExist:
+            return Response({'error': 'Tutor not found'}, status=404)
+        
+class MarkAttendance(APIView):
+    def post(self, request):
+        attendance_data = request.data
+        updated_attendance = []
+
+        for entry in attendance_data:
+            student_id = entry.get('student_id')
+            attendance_status = entry.get('status')
+            date_str = entry.get('date')  
+            academic_year = entry.get('academic_year')  
+            hour = entry.get('hour')    
+
+            if not student_id or not attendance_status or not date_str:
+                return Response(
+                    {"error": "Missing required fields: student_id, status, or date."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if attendance_status not in ['Present', 'Absent']:
+                return Response(
+                    {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            try:
+                date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                student = get_object_or_404(Student, student_id=student_id)
+                attendance, created = Attendance.objects.get_or_create(
+                    student=student,
+                    date=date,
+                    defaults={
+                        'status': attendance_status,
+                        'academic_year': academic_year,
+                        'hour': hour
+                    }
+                )
+                if not created:
+                    attendance.status = attendance_status
+                    attendance.academic_year = academic_year
+                    attendance.hour = hour
+                    attendance.save()
+                updated_attendance.append(attendance)
+
+                if attendance_status == 'Absent':
+                    parents = student.parents.all()
+                    for parent in parents:
+                        Notification.objects.create(
+                            parent=parent,
+                            message=f"{student.username} was absent on {date}"
+                        )
+                    previous_dates = [
+                        date - timedelta(days=1),
+                        date - timedelta(days=2)
+                    ]
+                    absents = Attendance.objects.filter(
+                        student=student,
+                        date__in=previous_dates + [date],
+                        status='Absent'
+                    ).values_list('date', flat=True)
+
+                    if all(d in absents for d in [date] + previous_dates):
+                        for parent in student.parents.all():
+                            existing = Notification.objects.filter(
+                                parent=parent,
+                                message__icontains="3 consecutive days",
+                            ).filter(
+                                message__icontains=str(date)
+                            )
+                            if not existing.exists():
+                                date_str = date.strftime("%Y-%m-%d")
+                                Notification.objects.create(
+                                    parent=parent,
+                                    message=f"{student.username} was absent for 3 consecutive days including {date_str}"
+                                )
+            except ValidationError as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response({"message": "Success"}, status=status.HTTP_200_OK)
+    
+class StudentAttendanceListView(APIView):
+    def get(self, request):
+        try:
+            students = Student.objects.select_related('branch').all()
+            data = []
+
+            for student in students:
+                attendance_records = Attendance.objects.filter(student=student).values('date', 'status').order_by('-date')
+
+                student_data = {
+                    "student_id": student.student_id,
+                    "username": student.username,
+                    "email": student.email,
+                    "phone_number": student.phone_number,
+                    "academic_year": student.academic_year,
+                    "semester": student.semester,
+                    "branch_name": student.branch.name if student.branch else None,
+                    "branch_code": student.branch.code if student.branch else None,
+                    "attendance": list(attendance_records)  
+                }
+
+                data.append(student_data)
+
+            return Response({"students": data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class SubmitAttendanceEditRequestsView(APIView):
+    def post(self, request):
+        requests_data = request.data.get('requests', [])
+        hod_id = request.data.get('hod_id')
+        notifications = []
+        data = []
+        for req_data in requests_data:
+            try:
+                student = Student.objects.get(student_id=req_data['student_id'])
+                branch = Branch.objects.get(name=req_data['branch'])
+                faculty = Faculty.objects.get(id=req_data['requested_by'])
+                hod = HOD.objects.get(id=hod_id)
+                edit_request = AttendanceEditRequest.objects.create(
+                    student=student,
+                    date=req_data['date'],
+                    hour=req_data['hour'],
+                    new_status=req_data['new_status'],
+                    branch=branch,
+                    requested_by=faculty,
+                    hod=hod
+                )
+                message = (
+                    f"{faculty.username} requested to change attendance for "
+                    f"{student.username} on {edit_request.date} (Hour {edit_request.hour}) "
+                    f"to '{edit_request.new_status}'."
+                )
+                notification = HodNotification(
+                    recipient=hod,
+                    message=message,
+                    related_request=edit_request
+                )
+                notifications.append(notification)
+                request_data = {
+                    "request_id": edit_request.id,
+                    "student_id": student.student_id,
+                    "student_name": student.username,
+                    "requested_by": faculty.username,
+                    "branch_name": branch.name,
+                    "hod_name": hod.username,
+                    "date": edit_request.date,
+                    "hour": edit_request.hour,
+                    "new_status": edit_request.new_status,
+                    "status": edit_request.status
+                }
+                data.append(request_data)
+            except (Student.DoesNotExist, Branch.DoesNotExist, Faculty.DoesNotExist, HOD.DoesNotExist) as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        HodNotification.objects.bulk_create(notifications)
+
+        return Response({"message": "Attendance edit requests and notifications sent successfully.", "requests": data}, status=status.HTTP_200_OK)
+    
+class HodNotificationView(APIView):
+    def get(self, request, hod_id):
+        try:
+            hod = HOD.objects.get(id=hod_id)
+            branch = hod.branch  
+            notifications = HodNotification.objects.filter(recipient=hod)
+            relevant_notifications = []
+
+            for notification in notifications:
+                related_request = notification.related_request
+                if related_request and related_request.branch == branch:
+                    relevant_notifications.append(notification)
+
+            notification_data = [
+                {
+                    "id": notification.id,
+                    "message": notification.message,
+                    "is_read": notification.is_read,
+                    "created_at": notification.created_at,
+                    "related_request": {
+                        "student_name": notification.related_request.student.username,
+                        "student_id": notification.related_request.student.student_id,
+                        "date": notification.related_request.date,
+                        "hour": notification.related_request.hour,
+                        "new_status": notification.related_request.new_status,
+                        "status": notification.related_request.status,
+                        "requested_by": notification.related_request.requested_by.username,
+                    }
+                }
+                for notification in relevant_notifications
+            ]
+            return Response({"notifications": notification_data}, status=status.HTTP_200_OK)
+
+        except HOD.DoesNotExist:
+            return Response({"error": "HOD not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class FacultyNotificationStatusView(APIView):
+    def get(self, request, faculty_id):
+        try:
+            faculty = Faculty.objects.get(id=faculty_id)
+            requests = AttendanceEditRequest.objects.filter(
+                requested_by=faculty,
+                status__in=['Approved', 'Rejected']
+            ).order_by('-date', '-hour')
+            data = [
+                {
+                    "id": req.id,
+                    "student": req.student.username,
+                    "date": req.date,
+                    "hour": req.hour,
+                    "new_status": req.new_status,
+                    "status": req.status,
+                    "responded_by": req.hod.username if req.hod else None
+                }
+                for req in requests
+            ]
+            return Response({"notifications": data}, status=status.HTTP_200_OK)
+
+        except Faculty.DoesNotExist:
+            return Response({"error": "Faculty not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class ApproveAttendanceEditRequestView(APIView):
+    def post(self, request, request_id):
+        try:
+           
+            edit_request = get_object_or_404(AttendanceEditRequest, id=request_id)
+            
+          
+            if edit_request.status != 'Pending':
+                return Response({"error": "Request has already been processed."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if 'approve' in request.data:
+               
+                edit_request.status = 'Approved'
+                edit_request.save()
+
+              
+                student_attendance = get_object_or_404(Attendance, student=edit_request.student, date=edit_request.date, hour=edit_request.hour)
+
+               
+                student_attendance.status = edit_request.new_status
+                student_attendance.save()
+
+                return Response({"message": "Attendance edit request approved and attendance updated successfully."}, status=status.HTTP_200_OK)
+
+            elif 'reject' in request.data:
+                
+                edit_request.status = 'Rejected'
+                edit_request.save()
+
+                return Response({"message": "Attendance edit request rejected."}, status=status.HTTP_200_OK)
+
+            else:
+                return Response({"error": "No action specified."}, status=status.HTTP_400_BAD_REQUEST)
+
+        except AttendanceEditRequest.DoesNotExist:
+            return Response({"error": "Attendance edit request not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Attendance.DoesNotExist:
+            return Response({"error": "Student attendance record not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
