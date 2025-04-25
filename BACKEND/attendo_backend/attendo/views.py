@@ -8,13 +8,15 @@ from .models import *
 from django.db import transaction
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from datetime import datetime, timedelta
+
 
 
 class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
-
         if serializer.is_valid():
             return Response({
                 "message": "Login successful",
@@ -381,37 +383,37 @@ class ContactMessageView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class RegisterParentView(APIView):
-    def get(self, request):
-        parents = Parent.objects.all()
-        serializer = ParentSerializer(parents, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class RegisterParentView(APIView):
+#     def get(self, request):
+#         parents = Parent.objects.all()
+#         serializer = ParentSerializer(parents, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def post(self, request):
-        serializer = ParentSerializer(data=request.data)
-        if serializer.is_valid():
-            parent = serializer.save()
-            return Response({"message": "Parent registered successfully", "parent_id": parent.id}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         serializer = ParentSerializer(data=request.data)
+#         if serializer.is_valid():
+#             parent = serializer.save()
+#             return Response({"message": "Parent registered successfully", "parent_id": parent.id}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk):
-        try:
-            parent = Parent.objects.get(pk=pk)
-        except Parent.DoesNotExist:
-            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ParentSerializer(parent, data=request.data, partial=True)
-        if serializer.is_valid():
-            updated_parent = serializer.save()
-            return Response({"message": "Parent updated successfully", "parent_id": updated_parent.id}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def put(self, request, pk):
+#         try:
+#             parent = Parent.objects.get(pk=pk)
+#         except Parent.DoesNotExist:
+#             return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+#         serializer = ParentSerializer(parent, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             updated_parent = serializer.save()
+#             return Response({"message": "Parent updated successfully", "parent_id": updated_parent.id}, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self, request, pk):
-        try:
-            parent = Parent.objects.get(pk=pk)
-        except Parent.DoesNotExist:
-            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ParentSerializer(parent)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#     def get(self, request, pk):
+#         try:
+#             parent = Parent.objects.get(pk=pk)
+#         except Parent.DoesNotExist:
+#             return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+#         serializer = ParentSerializer(parent)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 
@@ -786,9 +788,7 @@ class TutorUserCountsView(APIView):
 class ParentCreateView(APIView):
     def get(self, request):
         parents = Parent.objects.all()
-        
         serializer = ParentSerializer(parents, many=True)
-        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -842,10 +842,10 @@ class ParentsUnderHODView(APIView):
 class ParentsUnderTutorView(APIView):
     def get(self, request, tutor_id):
         try:
-            tutor = Tutor.objects.get(id=tutor_id,role="TUTOR")
+            tutor = Tutor.objects.get(id=tutor_id,role="tutor")
             branch = tutor.branch
             parents = Parent.objects.filter(branch=branch)
-            serializer = FacultySerializer(parents, many=True)
+            serializer = ParentSerializer(parents, many=True)
             return Response(serializer.data)
         except Faculty.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=404)
@@ -878,11 +878,11 @@ class MarkAttendance(APIView):
                 attendance, created = Attendance.objects.get_or_create(
                     student=student,
                     date=date,
-                    defaults={
+                    hour= hour,
+                   defaults={
                         'status': attendance_status,
                         'academic_year': academic_year,
-                        'hour': hour
-                    }
+                        }
                 )
                 if not created:
                     attendance.status = attendance_status
@@ -936,7 +936,7 @@ class StudentAttendanceListView(APIView):
             data = []
 
             for student in students:
-                attendance_records = Attendance.objects.filter(student=student).values('date', 'status').order_by('-date')
+                attendance_records = Attendance.objects.filter(student=student).values('date', 'status','academic_year','hour','student').order_by('-date')
 
                 student_data = {
                     "student_id": student.student_id,

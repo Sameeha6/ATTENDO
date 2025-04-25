@@ -80,7 +80,7 @@ const ManageStudents = () => {
       branch_id: student.branch?.id || "",
       semester: student.semester || "",
     });
-    setEditStudentId(student.id);  // <- Make sure `student.id` exists
+    setEditStudentId(student.id); 
     setIsModalOpen(true);
   };
   
@@ -140,7 +140,7 @@ const ManageStudents = () => {
 
       {/* Filter UI */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 text-gray-600">Academic year</label>
             <input type="text" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} className="w-full p-2 border rounded-md"/>

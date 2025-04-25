@@ -131,29 +131,29 @@ class Attendance(models.Model):
     def _str_(self):
         return f"{self.student.username} - {self.date} - {self.hour} - {self.status}"
     
-# class Notification(models.Model):
-#     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
-#     message = models.TextField()
-#     timestamp = models.DateTimeField(auto_now_add=True)
-#     is_read = models.BooleanField(default=False)
+class Notification(models.Model):
+    parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
 
-#     def _str_(self):
-#         return f"{self.parent.username} - {self.message[:20]}"
+    def _str_(self):
+        return f"{self.parent.username} - {self.message[:20]}"
     
-# class AttendanceEditRequest(models.Model):
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-#     date = models.DateField()
-#     hour = models.CharField(max_length=10)
-#     new_status = models.CharField(max_length=10, choices=[("Present", "Present"), ("Absent", "Absent")])
-#     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-#     requested_by = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="edit_requests")
-#     hod = models.ForeignKey(HOD, on_delete=models.CASCADE)
-#     status = models.CharField(max_length=10, choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected")], default="Pending")
-#     created_at = models.DateTimeField(auto_now_add=True)
+class AttendanceEditRequest(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    date = models.DateField()
+    hour = models.CharField(max_length=10)
+    new_status = models.CharField(max_length=10, choices=[("Present", "Present"), ("Absent", "Absent")])
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    requested_by = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name="edit_requests")
+    hod = models.ForeignKey(HOD, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected")], default="Pending")
+    created_at = models.DateTimeField(auto_now_add=True)
 
-# class HodNotification(models.Model):
-#     recipient = models.ForeignKey(HOD, on_delete=models.CASCADE)
-#     related_request = models.ForeignKey(AttendanceEditRequest, on_delete=models.CASCADE, null=True, blank=True)
-#     message = models.TextField()
-#     is_read = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
+class HodNotification(models.Model):
+    recipient = models.ForeignKey(HOD, on_delete=models.CASCADE)
+    related_request = models.ForeignKey(AttendanceEditRequest, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)

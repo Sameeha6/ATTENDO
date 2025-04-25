@@ -1,134 +1,223 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-function FacHistory() {
-  const branches = ["IT", "EC", "EEE", "CS", "PT", "ME"];
-  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
-  const students = [
-    { RegNo: "IEAWEIT01", name: "Sameeha", status: "Present" },
-    { RegNo: "IEAWEIT02", name: "Sangeetha", status: "Absent" },
+const Attendancehistory = () => {
+  const [allStudents, setAllStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [semester, setSemester] = useState('');
+  const [academicYear, setAcademicYear] = useState('');
+  const [branch, setBranch] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [hour, setHour] = useState('');
+  const [editedStatuses, setEditedStatuses] = useState({});
+  const [showPopup, setShowPopup] = useState(false);
 
-  ];
-  const [attendance, setAttendance] = useState(students);
-  const [date, setDate] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/student-attendance/')
+      .then((response) => {
+        setAllStudents(response.data.students);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
-  // Toggle attendance status
-  const toggleAttendance = (RegNo) => {
-    setAttendance((prev) =>
-      prev.map((student) =>
-        student.RegNo === RegNo
-          ? { ...student, status: student.status === "Present" ? "Absent" : "Present" }
-          : student
-      )
+  useEffect(() => {
+    const filtered = allStudents.filter(student =>
+      (!semester || student.semester === semester) &&
+      (!academicYear || student.academic_year === academicYear) &&
+      (!branch || student.branch_name === branch) &&
+      (!selectedDate || student.attendance.some(a => a.date === selectedDate)) &&
+      (!hour || student.attendance.some(a => a.date === selectedDate && a.hour === hour))
     );
+    setFilteredStudents(filtered);
+  }, [semester, academicYear, branch, selectedDate, hour, allStudents]);
+
+  const uniqueValues = (key) => [...new Set(allStudents.map(student => student[key]))];
+
+  const uniqueDates = () => {
+    const dates = allStudents.flatMap(student =>
+      student.attendance.map(a => a.date)
+    );
+    return [...new Set(dates)];
+  };
+
+  const uniqueHours = () => {
+    if (!selectedDate) return [];
+    const hours = allStudents.flatMap(student =>
+      student.attendance
+        .filter(a => a.date === selectedDate)
+        .map(a => a.hour)
+    );
+    return [...new Set(hours)];
+  };
+
+  const getStatusByDate = (student, date, hour) => {
+    const editedKey = `${student.student_id}_${hour}`;
+    if (editedStatuses[editedKey]) return editedStatuses[editedKey];
+    const entry = student.attendance.find(a => a.date === date && a.hour === hour);
+    return entry ? entry.status : 'No Record';
+  };
+
+  const handleEditClick = (studentId, currentStatus) => {
+    const toggledStatus = currentStatus === 'Present' ? 'Absent' : 'Present';
+    setEditedStatuses(prev => ({
+      ...prev,
+      [`${studentId}_${hour}`]: toggledStatus
+    }));
+  };
+
+  const handleConfirmSubmit = () => {
+    const facultyId = localStorage.getItem('faculty_id');
+
+    axios.get(`http://localhost:8000/api/get-hod-for-branch/${branch}/`)
+      .then(response => {
+        console.log(response)
+        const hodId = response.data.hod_id;
+
+        const editRequests = Object.entries(editedStatuses).map(([key, newStatus]) => {
+          const [studentId, hour] = key.split('_');
+          const student = allStudents.find(s => s.student_id === studentId);
+          return {
+            student_id: studentId,
+            date: selectedDate,
+            hour,
+            new_status: newStatus,
+            branch: student.branch_name,
+            requested_by: facultyId,
+          };
+        });
+
+        axios.post('http://localhost:8000/api/attendance-edit-requests/', {
+          requests: editRequests,
+          hod_id: hodId,
+        })
+          .then((response) => {
+            console.log('Attendance edit request sent to HOD:', response.data);
+            setEditedStatuses({});
+            setShowPopup(false);
+          })
+          .catch((error) => {
+            console.error('Error submitting attendance edit request:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error fetching HOD:', error);
+      });
   };
 
   return (
-    <div className="flex flex-col p-4 mt-14">
-      {/* Filters Section */}
-      <div className="bg-white shadow-md p-4 rounded-lg mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-        <div>
-          <label className="block text-gray-600 font-semibold">Academic Year</label>
-          <input type="text" className="w-full p-2 border rounded-md" />
-        </div>
-        <div>
-          <label className="block text-gray-600 font-semibold">Branch</label>
-          <select className="w-full p-2 border rounded-md" required>
-            <option value="branch">Select Branch</option>
-            {branches.map((branch) => (
-              <option key={branch} value={branch}>{branch}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-600 font-semibold">Semester</label>
-          <select className="w-full p-2 border rounded-md" required>
-            <option value="sem">Select Semester</option>
-            {semesters.map((semester) => (
-              <option key={semester} value={semester}>{semester}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-600 font-semibold">Hour</label>
-          <input type="text" className="w-full p-2 border rounded-md" />
-        </div>
-        <div>
-          <label className="block text-gray-600 font-semibold">Date</label>
-          <input
-            type="date"
-            className="w-full p-2 border rounded-md"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+    <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">Attendance History</h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-8">
+        <select onChange={(e) => setSemester(e.target.value)} className="border border-gray-300 p-2 rounded-md shadow-sm">
+          <option value="">Select Semester</option>
+          {uniqueValues('semester').map((sem, idx) => (
+            <option key={idx} value={sem}>{sem}</option>
+          ))}
+        </select>
+
+        <select onChange={(e) => setAcademicYear(e.target.value)} className="border border-gray-300 p-2 rounded-md shadow-sm">
+          <option value="">Select Academic Year</option>
+          {uniqueValues('academic_year').map((year, idx) => (
+            <option key={idx} value={year}>{year}</option>
+          ))}
+        </select>
+
+        <select onChange={(e) => setBranch(e.target.value)} className="border border-gray-300 p-2 rounded-md shadow-sm">
+          <option value="">Select Branch</option>
+          {uniqueValues('branch_name').map((branch, idx) => (
+            <option key={idx} value={branch}>{branch}</option>
+          ))}
+        </select>
+
+        <select onChange={(e) => setSelectedDate(e.target.value)} className="border border-gray-300 p-2 rounded-md shadow-sm">
+          <option value="">Select Date</option>
+          {uniqueDates().map((date, idx) => (
+            <option key={idx} value={date}>{date}</option>
+          ))}
+        </select>
+
+        <select onChange={(e) => setHour(e.target.value)} className="border border-gray-300 p-2 rounded-md shadow-sm">
+          <option value="">Select Hour</option>
+          {uniqueHours().map((h, idx) => (
+            <option key={idx} value={h}>{h}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Attendance History</h2>
+      {filteredStudents.length > 0 && selectedDate && hour ? (
+        <div className="space-y-6">
+          {filteredStudents.map((student, index) => {
+            const currentStatus = getStatusByDate(student, selectedDate, hour);
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2 text-black font-semibold">Reg No</th>
-                <th className="p-2 text-black font-semibold">Name</th>
-                <th className="p-2 text-black font-semibold text-center">Status</th>
-                <th className="p-2 text-black font-semibold text-center">Edit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendance.map((student) => (
-                <tr key={student.RegNo} className="border-b border-gray-200">
-                  <td className="p-2 text-gray-700">{student.RegNo}</td>
-                  <td className="p-2 text-gray-700">{student.name}</td>
-                  <td className="p-2 text-center text-gray-700">{student.status}</td>
-                  <td className="p-2 text-center">
+            return (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-5 shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div className="text-sm text-gray-700 mb-3">
+                  <p><strong>Id:</strong> {student.student_id}</p>
+                  <p><strong>Name:</strong> {student.username}</p>
+                </div>
+
+                <div className="pt-2 border-t flex justify-between items-center">
+                  <span className={`font-medium ${currentStatus === 'Present' ? 'text-green-600' : currentStatus === 'Absent' ? 'text-red-500' : 'text-gray-400'}`}>
+                    {selectedDate} - Hour {hour}: {currentStatus}
+                  </span>
+                  {currentStatus !== 'No Record' && (
                     <button
-                      onClick={() => toggleAttendance(student.RegNo)}
-                      className={`px-4 py-1 rounded-full font-semibold transition-all ${
-                        student.status === "Present"
-                          ? "text-green-500 hover:text-green-600"
-                          : "text-red-500 hover:text-red-600"
-                      }`}
+                      onClick={() => handleEditClick(student.student_id, currentStatus)}
+                      className="text-blue-600 hover:underline text-sm ml-4"
                     >
                       Edit
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
 
-        {/* Submit Button */}
-        <div className="flex justify-center items-center mt-6">
-          <button
-            className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full"
-            onClick={() => setShowModal(true)}
-          >
-            Submit
-          </button>
+          {Object.keys(editedStatuses).length > 0 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={() => setShowPopup(true)}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700"
+              >
+                Submit Changes
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="text-center text-gray-500 mt-10">
+          <p>Select date and hour to view attendance.</p>
+        </div>
+      )}
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">Confirm Attendance Submission</h2>
-            <p className="mb-4 text-center">
-              Are you sure you want to change the attendance record for the selected date and hour?
-            </p>
+   
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out">
+          <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-8 text-center animate-fade-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Confirm Attendance Changes</h2>
+            <p className="text-sm text-gray-600 mb-6">You have edited attendance statuses. Do you want to save these changes?</p>
             <div className="flex justify-center gap-4">
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onClick={() => { alert("Attendance submitted successfully!"); setShowModal(false); }}>Confirm</button>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 hover:border-gray-400 transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                className="px-6 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 hover:shadow-lg transition-all duration-200"
+              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-}
+};
 
-export default FacHistory;
+export default Attendancehistory;

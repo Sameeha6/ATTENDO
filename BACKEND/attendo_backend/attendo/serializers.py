@@ -71,6 +71,21 @@ class UserLoginSerializer(serializers.Serializer):
                 "academic_year": tutor.academic_year,
                 "message": "Tutor login successful",
             }
+        
+        parent = Parent.objects.filter(username=username).first()
+        if parent:
+            if not check_password(password, parent.password):
+                raise serializers.ValidationError("Invalid Parent credentials.")
+            return {
+                "parent_id": parent.id,
+                "username": parent.username,
+                "role": "parent",
+                "branch": parent.branch.name if parent.branch else None,
+                "academic_year": parent.academic_year,
+                "ward_name": parent.ward_name,
+                "ward_id": parent.ward_id,
+                "message": "Parent login successful",
+            }
 
         raise serializers.ValidationError("User not found or invalid credentials.")
 
@@ -488,80 +503,148 @@ class ContactMessageSerializer(serializers.Serializer):
 
         return contact_message
 
-class ParentSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
+# class ParentSerializer(serializers.Serializer):
+#     id = serializers.IntegerField(read_only=True)
+#     username = serializers.CharField(max_length=150)
+#     password = serializers.CharField(max_length=128, required=False, write_only=True)
+#     student_id = serializers.CharField(write_only=True)
+#     branch_id = serializers.IntegerField(write_only=True)
+#     email = serializers.EmailField()
+#     phone_number = serializers.CharField(max_length=15)
+#     ward_name = serializers.CharField(max_length=20)
+#     ward_id = serializers.CharField(max_length=20)
+#     academic_year = serializers.CharField(max_length=20)
+#     semester = serializers.CharField(max_length=10)
+#     output_student_id = serializers.CharField(source='student.student_id')
+#     branch_name = serializers.CharField(source='branch.name', read_only=True)
+#     role = serializers.CharField(read_only=True)
 
-    # Input fields
-    username = serializers.CharField(max_length=150)
-    password = serializers.CharField(max_length=128, required=False, write_only=True)
-    student_id = serializers.CharField(write_only=True)
-    branch_id = serializers.IntegerField(write_only=True)
+#     def create(self, validated_data):
+#         student_id_value = validated_data.pop('student_id')
+#         branch_id = validated_data.pop('branch_id')
+#         try:
+#             student = Student.objects.get(student_id=student_id_value)
+#         except Student.DoesNotExist:
+#             raise serializers.ValidationError({"student_id": "Student with this ID does not exist."})
+#         try:
+#             branch = Branch.objects.get(id=branch_id)
+#         except Branch.DoesNotExist:
+#             raise serializers.ValidationError({"branch_id": "Branch with this ID does not exist."})
+#         if not validated_data.get('password'):
+#             validated_data['password'] = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+#         parent = Parent.objects.create(
+#             student=student,
+#             branch=branch,
+#             **validated_data
+#         )
+#         send_mail(
+#             subject='Parent Account Created',
+#             message=f"Hi {parent.username},\n\nYour parent account has been created.\nUsername: {parent.username}\nPassword: {validated_data['password']}",
+#             from_email='noreply@yourdomain.com',
+#             recipient_list=[parent.email],
+#             fail_silently=True
+#         )
+#         return parent
+    
+#     def update(self, instance, validated_data):
+#         student_id_value = validated_data.pop('student_id', None)
+#         branch_id = validated_data.pop('branch_id', None)
+#         if student_id_value:
+#             try:
+#                 student = Student.objects.get(student_id=student_id_value)
+#                 instance.student = student
+#             except Student.DoesNotExist:
+#                 raise serializers.ValidationError({"student_id": "Student with this ID does not exist."})
+#         if branch_id:
+#             try:
+#                 branch = Branch.objects.get(id=branch_id)
+#                 instance.branch = branch
+#             except Branch.DoesNotExist:
+#                 raise serializers.ValidationError({"branch_id": "Branch with this ID does not exist."})
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+#         instance.save()
+#         return instance
+    
+class ParentSerializer(serializers.ModelSerializer):
+    student_ids = serializers.ListField(
+        child=serializers.CharField(max_length=20), write_only=True
+    )
+    associated_student_ids = serializers.SerializerMethodField(read_only=True)
 
-    # Common fields
-    email = serializers.EmailField()
-    phone_number = serializers.CharField(max_length=15)
-    ward_name = serializers.CharField(max_length=20)
-    ward_id = serializers.CharField(max_length=20)
-    academic_year = serializers.CharField(max_length=20)
-    semester = serializers.CharField(max_length=10)
+    class Meta:
+        model = Parent
+        fields = [
+            'id', 'username', 'password', 'email', 'phone_number', 'ward_name', 'ward_id',
+            'academic_year', 'branch', 'semester', 'student_ids', 'associated_student_ids', 'role'
+        ]
 
-    # Output fields
-    output_student_id = serializers.CharField(source='student.student_id')
-    branch_name = serializers.CharField(source='branch.name', read_only=True)
-    role = serializers.CharField(read_only=True)
+    def get_associated_student_ids(self, obj):
+        return list(obj.students.values_list('student_id', flat=True))
 
     def create(self, validated_data):
-        student_id_value = validated_data.pop('student_id')
-        branch_id = validated_data.pop('branch_id')
+        student_ids = validated_data.pop('student_ids')
+        
+        # Check if parent already exists
+        existing_parent = Parent.objects.filter(email=validated_data['email']).first()
+        if existing_parent:
+            students = []
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(student_id=student_id)
+                    students.append(student)
+                except Student.DoesNotExist:
+                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
 
-        try:
-            student = Student.objects.get(student_id=student_id_value)
-        except Student.DoesNotExist:
-            raise serializers.ValidationError({"student_id": "Student with this ID does not exist."})
+            existing_parent.students.add(*students)
+            return existing_parent
 
-        try:
-            branch = Branch.objects.get(id=branch_id)
-        except Branch.DoesNotExist:
-            raise serializers.ValidationError({"branch_id": "Branch with this ID does not exist."})
+        # Generate password if not provided
+        raw_password = validated_data.get('password')
+        if not raw_password:
+            raw_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        validated_data['password'] = make_password(raw_password)
 
-        # Generate random password if not provided
-        if not validated_data.get('password'):
-            validated_data['password'] = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        # Fetch student objects
+        students = []
+        for student_id in student_ids:
+            try:
+                student = Student.objects.get(student_id=student_id)
+                students.append(student)
+            except Student.DoesNotExist:
+                raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
 
-        parent = Parent.objects.create(
-            student=student,
-            branch=branch,
-            **validated_data
-        )
+        parent = Parent.objects.create(**validated_data)
+        parent.students.set(students)
 
-      
+        # Send email to parent
         send_mail(
-            subject='Parent Account Created',
-            message=f"Hi {parent.username},\n\nYour parent account has been created.\nUsername: {parent.username}\nPassword: {validated_data['password']}",
+            subject='Your Parent Account Details',
+            message=(
+                f'Hello {parent.username},\n\n'
+                f'Username: {parent.username}\n'
+                f'Password: {raw_password}\n\n'
+                'Please keep this information secure.'
+            ),
             from_email='noreply@yourdomain.com',
             recipient_list=[parent.email],
-            fail_silently=True
         )
 
         return parent
 
     def update(self, instance, validated_data):
-        student_id_value = validated_data.pop('student_id', None)
-        branch_id = validated_data.pop('branch_id', None)
+        student_ids = validated_data.pop('student_ids', None)
 
-        if student_id_value:
-            try:
-                student = Student.objects.get(student_id=student_id_value)
-                instance.student = student
-            except Student.DoesNotExist:
-                raise serializers.ValidationError({"student_id": "Student with this ID does not exist."})
+        if student_ids is not None:
+            students = []
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(student_id=student_id)
+                    students.append(student)
+                except Student.DoesNotExist:
+                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
 
-        if branch_id:
-            try:
-                branch = Branch.objects.get(id=branch_id)
-                instance.branch = branch
-            except Branch.DoesNotExist:
-                raise serializers.ValidationError({"branch_id": "Branch with this ID does not exist."})
+            instance.students.set(students)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -684,74 +767,7 @@ class TimetableChangeRequestSerializer(serializers.Serializer):
             'created_at': instance.created_at
         }
     
-class ParentSerializer(serializers.ModelSerializer):
-    student_ids = serializers.ListField(
-        child=serializers.CharField(max_length=20), write_only=True
-    )
-    associated_student_ids = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = Parent
-        fields = [
-            'id', 'username', 'password', 'email', 'phone_number', 'ward_name', 'ward_id',
-            'academic_year', 'branch', 'semester', 'student_ids', 'associated_student_ids', 'role'
-        ]
-
-    def get_associated_student_ids(self, obj):
-        return list(obj.students.values_list('student_id', flat=True))  
-
-    def create(self, validated_data):
-        student_ids = validated_data.pop('student_ids')  
-
-       
-        existing_parent = Parent.objects.filter(email=validated_data['email']).first()
-        if existing_parent:
-           
-            students = []
-            for student_id in student_ids:
-                try:
-                    student = Student.objects.get(student_id=student_id)
-                    students.append(student)
-                except Student.DoesNotExist:
-                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
-
-            existing_parent.students.add(*students)  
-            return existing_parent
-
-      
-        students = []
-        for student_id in student_ids:
-            try:
-                student = Student.objects.get(student_id=student_id)
-                students.append(student)
-            except Student.DoesNotExist:
-                raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
-
-        parent = Parent.objects.create(**validated_data)
-        parent.students.set(students)  
-        return parent
-
-    def update(self, instance, validated_data):
-        student_ids = validated_data.pop('student_ids', None)  
-
-        if student_ids is not None:  
-            students = []
-            for student_id in student_ids:
-                try:
-                    student = Student.objects.get(student_id=student_id)
-                    students.append(student)
-                except Student.DoesNotExist:
-                    raise serializers.ValidationError({"student_id": f"Student with ID {student_id} does not exist."})
-
-           
-            instance.students.set(students)
-
-      
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
-        return instance
     
 # class AttendanceSerializer(serializers.Serializer):
 #     student_id = serializers.IntegerField()

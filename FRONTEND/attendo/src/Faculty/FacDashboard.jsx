@@ -50,7 +50,6 @@ const FacultyDashboard = () => {
 
   const handleSubjectClick = (entry) => {
     if (entry.faculty.id === facultyId) {
-      // Faculty is already assigned → go to attendance
       window.location.href = "/faculty/take-attendance";
       return;
     }
@@ -136,8 +135,11 @@ const FacultyDashboard = () => {
       <p className="text-base text-center text-gray-600 mb-8">
         View your scheduled classes for the selected branch and semester. Click on your allocated hour to mark attendance.
       </p>
+      <p className='font-semibold text-gray-900 text-center mb-2'>
+        NB : Filter by branch and semester before selecting your scheduled class.
+      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 shadow-md bg-gray-50 rounded-md p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 shadow-md bg-gray-50 rounded-md p-4 ">
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">Filter by Branch</label>
           <select className="w-full px-4 py-2 border border-gray-300 rounded-lg"
