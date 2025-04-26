@@ -63,7 +63,7 @@ class Tutor(models.Model):
         return f"{self.username} ({self.branch.name})"
     
 class Student(models.Model):
-    username = models.CharField(max_length=150, unique=True, null=True)
+    username = models.CharField(max_length=150, null=True)
     password = models.CharField(max_length=128, null=True) 
     student_id = models.CharField(max_length=20, null=True, unique=True)
     email = models.EmailField(unique=True, null=True)

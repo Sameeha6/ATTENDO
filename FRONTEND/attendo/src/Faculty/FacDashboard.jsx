@@ -207,19 +207,32 @@ const FacultyDashboard = () => {
 
       {/* Modal */}
       {showModal && selectedEntry && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-semibold mb-4">Request Hour Change</h2>
-            <p><strong>Day:</strong> {selectedEntry.day}</p>
-            <p><strong>Time:</strong> {selectedEntry.time}</p>
-            <p><strong>Subject:</strong> {selectedEntry.subject.name}</p>
-            <div className="mt-6 flex justify-end gap-4">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
-              <button onClick={handleConfirmRequest} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Confirm</button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
+    <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-8 text-center">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Request Hour Change</h2>
+      <div className="text-sm text-gray-600 space-y-2 mb-6">
+        <p><strong>Day:</strong> {selectedEntry.day}</p>
+        <p><strong>Time:</strong> {selectedEntry.time}</p>
+        <p><strong>Subject:</strong> {selectedEntry.subject.name}</p>
+      </div>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirmRequest}
+          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

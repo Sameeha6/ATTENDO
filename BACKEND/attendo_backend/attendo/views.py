@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
+from django.db.models import Q
 
 
 
@@ -946,7 +947,6 @@ class StudentAttendanceListView(APIView):
                     "academic_year": student.academic_year,
                     "semester": student.semester,
                     "branch_name": student.branch.name if student.branch else None,
-                    "branch_code": student.branch.code if student.branch else None,
                     "attendance": list(attendance_records)  
                 }
 
@@ -956,7 +956,25 @@ class StudentAttendanceListView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+class GetHodByBranchAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        branch_name = kwargs.get('branch_name')
+        if not branch_name:
+            return Response({'error': 'Branch name is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            branch = Branch.objects.get(name=branch_name)
+            hod = branch.hods.first()  
+            if hod:
+                return Response({'hod_id': hod.id}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'No HOD assigned to this branch'}, status=status.HTTP_404_NOT_FOUND)
+        except Branch.DoesNotExist:
+            return Response({'error': 'Branch not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class SubmitAttendanceEditRequestsView(APIView):
     def post(self, request):
         requests_data = request.data.get('requests', [])
@@ -1074,35 +1092,33 @@ class FacultyNotificationStatusView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+class DeleteAttendanceEditRequestView(APIView):
+    def delete(self, request, pk):
+        try:
+            request_obj = AttendanceEditRequest.objects.get(pk=pk)
+            request_obj.delete()
+            return Response({"message": "Notification deleted."}, status=204)
+        except AttendanceEditRequest.DoesNotExist:
+            return Response({"error": "Not found."}, status=404)
+
+        
 class ApproveAttendanceEditRequestView(APIView):
     def post(self, request, request_id):
         try:
-           
             edit_request = get_object_or_404(AttendanceEditRequest, id=request_id)
-            
-          
             if edit_request.status != 'Pending':
                 return Response({"error": "Request has already been processed."}, status=status.HTTP_400_BAD_REQUEST)
-
             if 'approve' in request.data:
-               
                 edit_request.status = 'Approved'
                 edit_request.save()
-
-              
                 student_attendance = get_object_or_404(Attendance, student=edit_request.student, date=edit_request.date, hour=edit_request.hour)
-
-               
                 student_attendance.status = edit_request.new_status
                 student_attendance.save()
-
                 return Response({"message": "Attendance edit request approved and attendance updated successfully."}, status=status.HTTP_200_OK)
 
             elif 'reject' in request.data:
-                
                 edit_request.status = 'Rejected'
                 edit_request.save()
-
                 return Response({"message": "Attendance edit request rejected."}, status=status.HTTP_200_OK)
 
             else:
@@ -1114,3 +1130,65 @@ class ApproveAttendanceEditRequestView(APIView):
             return Response({"error": "Student attendance record not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class ParentStudentsView(APIView):
+    def get(self, request):
+        parent_id = request.query_params.get("parent_id")  
+        if not parent_id:
+            return Response({"error": "Parent ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            parent = Parent.objects.get(id=parent_id)
+            students = parent.students.all()
+            serialized_students = StudentRegisterSerializer(students, many=True)
+            return Response(serialized_students.data, status=status.HTTP_200_OK)
+        except Parent.DoesNotExist:
+            return Response({"error": "Parent not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+class NotificationsUnderParentView(APIView):
+    def get(self, request, parent_id):
+        try:
+            parent = get_object_or_404(Parent, id=parent_id)
+            student_id = request.query_params.get("student_id")
+            notifications = Notification.objects.filter(parent=parent)
+            if student_id:
+                student = parent.students.filter(student_id=student_id).first()
+                if student:
+                    notifications = notifications.filter(message__icontains=student.username)
+                else:
+                    return Response({"error": "Student not associated with this parent"}, status=403)
+            serializer = NotificationSerializer(notifications.order_by('-timestamp'), many=True)
+            return Response(serializer.data)
+        except Parent.DoesNotExist:
+            return Response({'error': 'Parent not found'}, status=404)
+        
+class HourlyAttendanceView(APIView):
+    def get(self, request):
+        # Get the month parameter (format "YYYY-MM")
+        month_str = request.GET.get('month')  # e.g., "2025-01"
+        academic_year = request.GET.get('academic_year')  # Optional: e.g., "2025-2026"
+
+        if not month_str:
+            return Response({"error": "Month parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Convert the string to a datetime object
+            date_obj = datetime.strptime(month_str, '%Y-%m')
+        except ValueError:
+            return Response({"error": "Invalid month format. Use YYYY-MM."}, status=status.HTTP_400_BAD_REQUEST)
+
+        start_date = date_obj.replace(day=1)  # First day of the month
+        end_date = (start_date.replace(month=start_date.month % 12 + 1, day=1) - timedelta(days=1))  # Last day of the month
+
+        # Build the query
+        query = Q(date__range=[start_date, end_date])
+
+        if academic_year:
+            query &= Q(academic_year=academic_year)
+
+        # Fetch attendance records for the given month
+        attendance_records = Attendance.objects.filter(query).order_by('date', 'hour')
+
+        # Serialize the data
+        serializer = AttendanceSerializer(attendance_records, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

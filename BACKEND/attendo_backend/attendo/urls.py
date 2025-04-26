@@ -52,6 +52,13 @@ urlpatterns = [
     path('attendance-edit-requests/', SubmitAttendanceEditRequestsView.as_view(), name='attendance-edit-requests'),
     path('notifications/<int:hod_id>/', HodNotificationView.as_view(), name='hod_notifications'),
     path('facultyhourreq/<int:faculty_id>/', FacultyNotificationStatusView.as_view(), name='faculty-notification-status'),
+    path('facultyhourreq-delete/<int:pk>/', DeleteAttendanceEditRequestView.as_view(), name='facultyhourreq-delete'),
     path('approve-attendance-edit/<int:request_id>/', ApproveAttendanceEditRequestView.as_view(), name='approve-attendance-edit'),
+    path('get-hod-for-branch/<str:branch_name>/', GetHodByBranchAPIView.as_view(), name='get_hod_for_branch'),
+
+    path('parent-students/', ParentStudentsView.as_view(), name='parent-students'),
+    path('notifications/parent/<int:parent_id>/', NotificationsUnderParentView.as_view(), name='parent-notifications'),
+
+    path('hourly-attendance/<int:student_id>', HourlyAttendanceView.as_view(), name='hourly-attendance'),
     
 ]

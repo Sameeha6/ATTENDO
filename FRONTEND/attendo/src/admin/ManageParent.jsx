@@ -3,17 +3,19 @@ import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 
 const ManageParents = () => {
-  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
+  
+  const semester= ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
 
+  const [studentsData, setStudentsData] = useState([]);
   const [parents, setParents] = useState([]);
-  const [students, setStudents] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
   const [branches, setBranches] = useState([]);
+  const [semesters, setSemesters] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
 
-  const [filters, setFilters] = useState({
-      academic_year: "",
-      branch_id: "",
-      semester: "",
-    });
 
   const [newParent, setNewParent] = useState({
     parent_name: "",
@@ -29,7 +31,7 @@ const ManageParents = () => {
   const [editParent, setEditParent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch all parents
+
   const fetchParents = async () => {
     try {
       const res = await axios.get("http://127.0.0.1:8000/api/parents/");
@@ -39,22 +41,25 @@ const ManageParents = () => {
     }
   };
 
+
   const fetchBranches = async () => {
     try {
       const res = await axios.get("http://127.0.0.1:8000/api/branches/");
-      setBranches(res.data); // assuming res.data is an array of branch objects
+      setBranches(res.data); 
     } catch (err) {
       console.error("Error fetching branches:", err);
     }
   };
   
-  // Fetch students once on load
+  
   const fetchStudents = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/students/");
-      setStudents(res.data);
-    } catch (err) {
-      console.error("Error fetching students:", err);
+      const response = await axios.get("http://127.0.0.1:8000/api/students/");
+      setStudentsData(response.data);
+      const years = [...new Set(response.data.map(item => item.academic_year))];
+      setAcademicYears(years);
+    } catch (error) {
+      console.error('Error fetching students', error);
     }
   };
 
@@ -64,10 +69,53 @@ const ManageParents = () => {
     fetchBranches();
   }, []);
 
-  const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
-  // Auto-fill ward name when ward_id is entered
+
+
+// console.log("studentsData:", studentsData);
+// console.log("selectedAcademicYear:", selectedAcademicYear);
+// console.log("selectedBranch:", selectedBranch);
+
+
+useEffect(() => {
+  if (selectedAcademicYear) {
+    const filteredBranchIds = [...new Set(
+      studentsData
+        .filter(item => item.academic_year === selectedAcademicYear)
+        .map(item => item.branch.id)
+    )];
+
+    const filteredBranchObjects = branches.filter(branch =>
+      filteredBranchIds.includes(branch.id)
+    );
+
+    setBranches(filteredBranchObjects);
+    setSelectedBranch('');    // (optional) clear selectedBranch
+    setSemesters([]);         // (optional) clear semesters
+    setSelectedSemester('');  // (optional) clear selectedSemester
+    setStudents([]);          // (optional) clear students
+  }
+}, [selectedAcademicYear, studentsData]);
+
+
+useEffect(() => {
+  if (selectedAcademicYear && selectedBranch) {
+    const filteredSemesters = [...new Set(
+      studentsData
+        .filter(item => 
+          item.academic_year === selectedAcademicYear && 
+          item.branch?.id == selectedBranch
+        )
+        .map(item => item.semester)
+    )];
+
+    setSemesters(filteredSemesters);
+    setSelectedSemester('');
+    setStudents([]);
+  }
+}, [selectedAcademicYear, selectedBranch, studentsData]);
+
+
+
   const handleWardIdChange = (e, isEdit = false) => {
     const wardId = e.target.value;
     const student = students.find((s) => s.student_id === wardId);
@@ -87,7 +135,7 @@ const ManageParents = () => {
     }
   };
 
-  // Create parent
+
   const handleAddParent = async () => {
     try {
       const payload = {
@@ -99,7 +147,7 @@ const ManageParents = () => {
         academic_year: newParent.year,
         semester: newParent.semester,
         branch: newParent.branch_id,
-        student_ids: [newParent.ward_id], // from the Student model
+        student_ids: [newParent.ward_id], 
       };
   
       const response = await axios.post(
@@ -124,7 +172,7 @@ const ManageParents = () => {
     }
   };
   
-  // Edit modal
+  
   const openModal = (parent) => {
     setEditParent({ ...parent });
     setIsModalOpen(true);
@@ -134,7 +182,7 @@ const ManageParents = () => {
     setIsModalOpen(false);
   };
 
-  // Update parent
+
   const handleUpdateParent = async () => {
     try {
       const payload = {
@@ -145,7 +193,7 @@ const ManageParents = () => {
         ward_name: editParent.ward_name,
         academic_year: editParent.academic_year,
         semester: editParent.semester,
-        branch: editParent.branch, // should be ID
+        branch: editParent.branch,
         student_ids: [editParent.ward_id],
       };
   
@@ -162,7 +210,7 @@ const ManageParents = () => {
   };
   
 
-  // Delete parent
+  
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this parent?")) return;
     try {
@@ -173,13 +221,16 @@ const ManageParents = () => {
     }
   };
 
-const filteredParents = parents.filter((p) => {
-  return (
-    (!filters.academic_year || p.academic_year === filters.academic_year) &&
-    (!filters.branch_id || p.branch?.id === filters.branch_id) && // Fixed branch filtering
-    (!filters.semester || p.semester === filters.semester)
-  );
-});
+  
+  const filteredParents = parents.filter((p) => {
+    return (
+      (!selectedAcademicYear || p.academic_year === selectedAcademicYear) &&
+      (!selectedBranch || (p.branch?.id || p.branch) === selectedBranch) && 
+      (!selectedSemester || p.semester == selectedSemester)  
+    );
+  });
+  
+  
 
 
   return (
@@ -191,29 +242,46 @@ const filteredParents = parents.filter((p) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block mb-1 text-gray-600">Academic year</label>
-            <input type="text" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} className="w-full p-2 border rounded-md"/>
+            <input
+              type="text"
+              value={selectedAcademicYear}
+              onChange={(e) => setSelectedAcademicYear(e.target.value)}
+              list="academic-years"
+            />
+            <datalist id="academic-years">
+              {academicYears.map((year, index) => (
+                <option key={index} value={year} />
+              ))}
+            </datalist>
           </div>
           <div>
             <label className="block mb-1 text-gray-600">Branch</label>
-            <select name="branch_id" value={filters.branch_id} onChange={handleFilterChange} className="w-full p-2 border rounded-md" >
-              <option value="">Select Branch</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
-                </option>
-              ))}
+            <select
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(Number(e.target.value))} 
+            >
+            <option value="">Select Branch</option>
+            {branches.map((branch) => (
+            <option key={branch.id} value={branch.id}>
+              {branch.name}
+            </option>
+            ))}
+
             </select>
+
           </div>
           <div>
             <label className="block mb-1 text-gray-600">Semester</label>
-            <select name="semester" value={filters.semester} onChange={handleFilterChange} className="w-full p-2 border rounded-md">
+            <select
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+            >
               <option value="">Select Semester</option>
-              {semesters.map((semester) => (
-                <option key={semester} value={semester}>
-                  {semester}
-                </option>
+              {semesters.map((sem, index) => (
+                <option key={index} value={sem}>{sem}</option>
               ))}
             </select>
+
           </div>
         </div>
       </div>
@@ -326,8 +394,9 @@ const filteredParents = parents.filter((p) => {
                 <td className="border p-1">{parent.ward_name}</td>
                 <td className="border p-1">{parent.academic_year}</td>
                 <td className="border p-1">
-                  {branches.find(b => b.id === parent.branch)?.name || parent.branch}
+                  {branches.find(b => b.id === (parent.branch?.id || parent.branch))?.name || (parent.branch?.name || parent.branch)}
                 </td>
+
 
                 <td className="border p-1">{parent.semester}</td>
                 <td className="border p-1">
@@ -421,7 +490,7 @@ const filteredParents = parents.filter((p) => {
                 className="p-2 border rounded-md"
               >
                 <option value="">Select Semester</option>
-                {semesters.map((sem) => (
+                {semester.map((sem) => (
                   <option key={sem} value={sem}>
                     {sem}
                   </option>

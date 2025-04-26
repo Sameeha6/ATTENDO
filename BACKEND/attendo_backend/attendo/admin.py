@@ -17,8 +17,9 @@ admin.site.register(Parent)
 admin.site.register(Timetable)
 admin.site.register(TimetableChangeRequest)
 admin.site.register(Attendance)
-
-
+admin.site.register(Notification)
+admin.site.register(HodNotification)
+admin.site.register(AttendanceEditRequest)
 class StuAdmin(admin.ModelAdmin):
     list_display = ["role"]
     

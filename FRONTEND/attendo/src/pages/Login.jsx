@@ -25,6 +25,7 @@ function Login() {
         localStorage.setItem("tutor_id",response.data.data.tutor_id);
         localStorage.setItem("faculty_id",response.data.data.faculty_id);
         localStorage.setItem("parent_id",response.data.data.parent_id);
+        localStorage.setItem("student_id",response.data.data.student_id);
         
         console.log("User Role:", role);
 
@@ -40,16 +41,13 @@ function Login() {
         else if(role === "tutor"){
           navigate("/tutor/tutorDash");
         }
-        else if(role === "student"){
-          navigate("/tutor/tutorDash");
-        }
-        else if(role === "tutor"){
-          navigate("/tutor/tutorDash");
-        }
         else if(role === "parent"){
           navigate("/parent/Dash");
         }
-         else {
+        else if(role === "student"){
+          navigate("/student/student/studentDash");
+        }
+        else {
           setError("Access Denied!");
         }
       }

@@ -123,8 +123,7 @@ const ManageStudents = () => {
 
   const filteredStudents = students.filter((student) => {
     return (
-      (!filters.academic_year ||
-        student.academic_year === filters.academic_year) &&
+      (!filters.academic_year || student.academic_year === filters.academic_year) &&
       (!filters.branch_id || student.branch?.id == filters.branch_id) &&
       (!filters.semester || student.semester === filters.semester)
     );

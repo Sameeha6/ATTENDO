@@ -8,31 +8,92 @@ const ManageRequests = () => {
   const [error, setError] = useState(null);
 
   // Function to fetch requests from the backend
+  // useEffect(() => {
+  //   const fetchRequests = async () => {
+  //     try {
+  //       const response = await axios.get("http://127.0.0.1:8000/api/request-hour-change/");
+  //       setRequests(response.data);
+  //     } catch (error) {
+  //       setError("Error fetching requests.");
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   fetchRequests();
+  // }, []);
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/request-hour-change/");
-        setRequests(response.data);
+        const hod_id = localStorage.getItem("hod_id");
+        const [hourRes, editRes] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/api/request-hour-change/"),
+          axios.get(`http://127.0.0.1:8000/api/notifications/${hod_id}/`)
+        ]);
+        console.log("Edit Notifications Response: ", editRes.data.notifications);
+
+        // Format the edit requests to match the existing UI shape
+        const editRequests = editRes.data.notifications.map((n) => ({
+          id: n.id,
+          requester: { username: n.related_request.requested_by },
+          timetable_entry: {
+            subject: `Edit: ${n.related_request.student_name}`,
+            day: n.related_request.date,
+            time: `Hour ${n.related_request.hour}`,
+          },
+          status: n.related_request.status,
+          isEditRequest: true,
+          new_status: n.related_request.new_status,
+        }));
+  
+        // Combine both
+        setRequests([...hourRes.data, ...editRequests]);
       } catch (error) {
         setError("Error fetching requests.");
         console.error(error);
       }
     };
-
+  
     fetchRequests();
   }, []);
+  
 
   // Function to handle approving or rejecting a request
-  const handleRequestAction = async (requestId, action) => {
-    try {
-      const response = await axios.put(`http://127.0.0.1:8000/api/request-hour-change/${requestId}/`, {
-        status: action,
-      });
+  // const handleRequestAction = async (requestId, action) => {
+  //   try {
+  //     const response = await axios.put(`http://127.0.0.1:8000/api/request-hour-change/${requestId}/`, {
+  //       status: action,
+  //     });
 
-      // Update the requests in the UI after the status change
-      setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.id === requestId ? { ...request, status: action } : request
+  //     // Update the requests in the UI after the status change
+  //     setRequests((prevRequests) =>
+  //       prevRequests.map((request) =>
+  //         request.id === requestId ? { ...request, status: action } : request
+  //       )
+  //     );
+  //   } catch (error) {
+  //     setError("Error updating request status.");
+  //     console.error(error);
+  //   }
+  // };
+
+  const handleRequestAction = async (requestId, action, isEditRequest = false) => {
+    try {
+      if (isEditRequest) {
+        const response = await axios.post(
+          `http://127.0.0.1:8000/api/approve-attendance-edit/${requestId}/`,
+          { [action === "Approved" ? "approve" : "reject"]: true }
+        );
+      } else {
+        await axios.put(
+          `http://127.0.0.1:8000/api/request-hour-change/${requestId}/`,
+          { status: action }
+        );
+      }
+  
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId ? { ...r, status: action } : r
         )
       );
     } catch (error) {
@@ -40,6 +101,7 @@ const ManageRequests = () => {
       console.error(error);
     }
   };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -88,16 +150,17 @@ const ManageRequests = () => {
                   <div className="mt-3 flex space-x-2">
                     <button
                       className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1"
-                      onClick={() => handleRequestAction(request.id, "Approved")}
+                      onClick={() => handleRequestAction(request.id, "Approved", request.isEditRequest)}
                     >
                       Approve
                     </button>
                     <button
                       className="border border-gray-700 py-1 text-red-700 rounded-md hover:border-red-800 flex-1"
-                      onClick={() => handleRequestAction(request.id, "Rejected")}
+                      onClick={() => handleRequestAction(request.id, "Rejected", request.isEditRequest)}
                     >
                       Reject
                     </button>
+
                   </div>
                 )}
 

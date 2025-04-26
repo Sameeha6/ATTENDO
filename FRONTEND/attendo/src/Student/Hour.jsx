@@ -1,44 +1,65 @@
-import React, { useState } from "react";
-import HistoryNav from "./HistoryNav";
+import React, { useState, useEffect } from "react";
 
-const attendanceData = [
-  { date: "Monday 01", status: ["✅", "❌", "❌", "✅", "✅", "✅"] },
-  { date: "Tuesday 02", status: ["✅", "✅", "✅", "✅", "✅", "✅"] },
-  { date: "Wednesday 03", status: ["✅", "✅", "✅", "✅", "✅", "✅"] },
-  { date: "Thursday 04", status: ["✅", "✅", "✅", "✅", "✅", "✅"] },
-  { date: "Friday 05", status: ["✅", "❌", "✅", "✅", "✅", "✅"] },
-  { date: "Monday 08", status: ["✅", "✅", "✅", "✅", "✅", "✅"] },
-  { date: "Tuesday 09", status: ["✅", "✅", "✅", "✅", "❌", "✅"] },
-];
+const HourlyAttendance = () => {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const Hourly = () => {
-  const [selectedMonth, setSelectedMonth] = useState("January");
+  // Fetch attendance data based on the selected month
+  const fetchAttendanceData = async () => {
+    setLoading(true);
+    setError(null);
+    const student_id = localStorage.getItem("student_id");
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/hourly-attendance/${student_id}/?month=${selectedMonth}&academic_year=2025-2026`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      setAttendanceData(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch attendance when the component mounts or when selectedMonth changes
+  useEffect(() => {
+    fetchAttendanceData();
+  }, [selectedMonth]);
 
   return (
-    <div className="p-2  w-full min-h-screen">
+    <div className="p-4 w-full min-h-screen">
       {/* Header and Month Selector */}
-      <div className="flex justify-between items-center bg-white text-black mb-6 p-4 rounded-lg  font-bold shadow-md gap-3">
+      <div className="flex justify-between items-center bg-white text-black mb-6 p-4 rounded-lg font-bold shadow-md gap-3">
         <h1 className="text-xl">Hourly Attendance</h1>
         <select
           className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         >
-          <option value="January">January</option>
-          <option value="February">February</option>
-          <option value="March">March</option>
-          <option value="March">April</option>
-          <option value="March">May</option>
-          <option value="March">June</option>
-          <option value="March">July</option>
-          <option value="March">August</option>
-          <option value="March">September</option>
-          <option value="March">October</option>
-          <option value="March">November</option>
-          <option value="March">December</option>
-          
+          <option value="2025-01">January 2025</option>
+          <option value="2025-02">February 2025</option>
+          <option value="2025-03">March 2025</option>
+          <option value="2025-04">April 2025</option>
+          <option value="2025-05">May 2025</option>
+          <option value="2025-06">June 2025</option>
+          <option value="2025-07">July 2025</option>
+          <option value="2025-08">August 2025</option>
+          <option value="2025-09">September 2025</option>
+          <option value="2025-10">October 2025</option>
+          <option value="2025-11">November 2025</option>
+          <option value="2025-12">December 2025</option>
         </select>
       </div>
+
+      {/* Loading or Error State */}
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
       {/* Attendance Table */}
       <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
@@ -62,21 +83,24 @@ const Hourly = () => {
                 } hover:bg-gray-100 transition-colors`}
               >
                 <td className="p-4 text-gray-700 font-medium">{entry.date}</td>
-                {entry.status.map((status, i) => (
-                  <td key={i} className="p-4 text-center">
-                    <span
-                      className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-                        status === "✅"
-                          ? " text-green-600"
-                          : status === "❌"
-                          ? " text-red-600"
-                          : " text-yellow-600"
-                      }`}
-                    >
-                      {status}
-                    </span>
-                  </td>
-                ))}
+                {[...Array(6)].map((_, hourIndex) => {
+                  const status = entry.status[hourIndex] || "Absent"; // Handle missing status
+                  return (
+                    <td key={hourIndex} className="p-4 text-center">
+                      <span
+                        className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
+                          status === "Present"
+                            ? "text-green-600"
+                            : status === "Absent"
+                            ? "text-red-600"
+                            : "text-yellow-600"
+                        }`}
+                      >
+                        {status === "Present" ? "✅" : "❌"}
+                      </span>
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
@@ -86,20 +110,20 @@ const Hourly = () => {
       {/* Legend */}
       <div className="flex justify-center space-x-6 mt-8">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full ">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-green-600">
             ✅
           </span>
           <span className="text-gray-700">Present</span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-red-600">
             ❌
           </span>
-          <span className="text-gray-700">Leave</span>
+          <span className="text-gray-700">Absent</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default Hourly;
+export default HourlyAttendance;
