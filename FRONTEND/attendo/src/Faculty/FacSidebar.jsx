@@ -45,15 +45,21 @@ function Facultybar() {
       {/* Mobile Menu */}
       {sidebarOpen && (
         <div className="absolute top-16 h-screen w-64 left-0  bg-blue-950 text-white flex flex-col py-10 px-4 space-y-4 shadow-md lg:hidden">
-          <Link to="/faculty/facultyDash" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
+          <Link to="/faculty/Dash" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
             <FaChartBar className="mr-2" /> Dashboard
           </Link>
-          <Link to="/faculty/reports" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
+          <Link to="/faculty/notification" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
+            <FaBell className="mr-2" /> Notifications
+          </Link>
+          <Link to="/faculty/history" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
+            <FaHistory className="mr-2" /> History
+          </Link>
+          <Link to="/faculty/reports" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
             <FaChartBar className="mr-2" /> Reports
           </Link>
-          <Link to="/faculty/alerts" className="hover:text-black rounded flex items-center py-3 px-4 hover:bg-gray-400">
+          {/* <Link to="/faculty/alerts" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
             <FaExclamationTriangle className="mr-2" /> Alerts
-          </Link>
+          </Link> */}
           <button className="bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold">
             Log Out
         </button>

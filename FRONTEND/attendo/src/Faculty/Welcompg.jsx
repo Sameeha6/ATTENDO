@@ -1,11 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaUserCircle } from 'react-icons/fa';
-import { motion } from 'framer-motion'; // For animations
+import { motion } from 'framer-motion';
 import { useNavigate} from 'react-router-dom';
+import axios from "axios";
 
 export default function WelcomePg() {
-  const studentName = "abcd"; 
+  const [facultyName, setFacultyName] = useState("");
   const navigate = useNavigate();
+  const facultyId = localStorage.getItem("faculty_id");
+
+  useEffect(() => {
+    const fetchFacultyName = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/faculty/${facultyId}/`);
+        console.log(response)
+        setFacultyName(response.data.username);
+      } catch (error) {
+        console.error("Error fetching faculty details:", error);
+      }
+    };
+
+    if (facultyId) {
+      fetchFacultyName();
+    }
+  }, [facultyId]);
 
   const handleAttendance=()=>{
       navigate('/faculty/Dashboard')
@@ -38,7 +56,7 @@ export default function WelcomePg() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-2xl md:text-3xl font-semibold text-gray-700 mb-2"
         >
-          Hello, <span className="text-blue-950">{studentName}</span>!
+          Hello, <span className="text-blue-950">{facultyName || "Loading"}</span>!
         </motion.h2>
 
         {/* Welcome Text with Motion */}

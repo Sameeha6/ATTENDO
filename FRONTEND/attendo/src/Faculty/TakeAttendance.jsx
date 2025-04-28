@@ -52,6 +52,29 @@ const TakeAttendance = () => {
     }));
   };
 
+  // const toggleAttendance = (studentId) => {
+  //   const newStatus = attendance[studentId] === 'Present' ? 'Absent' : 'Present';
+  //   setAttendance(prev => ({
+  //     ...prev,
+  //     [studentId]: newStatus
+  //   }));
+
+  //   if (newStatus === 'Absent') {
+  //     axios.post(`http://127.0.0.1:8000/api/notifications/parent/?parent_id=${parentId}`, {
+  //       student_id: studentId,
+  //       status: 'Absent',
+  //       date: selectedDate,
+  //       hour: selectedHour,
+  //     })
+  //       .then(response => {
+  //         console.log('Notification sent:', response.data);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error sending notification:', error);
+  //       });
+  //   }
+  // };
+
   const submitAttendance = () => {
     const submissionData = Object.entries(attendance).map(([studentId, status]) => ({
       student_id: studentId,
@@ -171,7 +194,7 @@ const TakeAttendance = () => {
   const filteredStudents = students.filter(student =>
     student.branch.id === parseInt(selectedBranch) &&
     student.semester === selectedSemester &&
-    student.academic_year === selectedAcademicYear // <-- NEW
+    student.academic_year === selectedAcademicYear
   );
 
   // const presentCount = filteredStudents.filter(student => attendance[student.student_id] === 'Present').length;

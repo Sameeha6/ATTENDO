@@ -19,8 +19,8 @@ function Login() {
       });
       console.log("Login Response:", response.data); 
       if (response.status === 200) {
-        const role = response.data.role || response.data.data?.role; // Handle API response structure
-        localStorage.setItem('role',response.data.data.role)
+        const role = response.data.role || response.data.data?.role;
+        localStorage.setItem('role',response.data.data.role);
         localStorage.setItem("hod_id",response.data.data.hod_id);
         localStorage.setItem("tutor_id",response.data.data.tutor_id);
         localStorage.setItem("faculty_id",response.data.data.faculty_id);
@@ -58,25 +58,25 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-3xl flex mt-14">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 mt-6">
+      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-md sm:max-w-xl md:max-w-3xl flex flex-col md:flex-row">
         
-        {/* Left Side - Welcome Message */}
-        <div className="w-1/2 flex flex-col justify-center items-start px-6">
+        {/* Welcome Message */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center mb-8 md:mb-0">
           <img
             src="https://cdn-icons-png.flaticon.com/512/18747/18747599.png"
             alt="Logo"
-            className="w-20"
+            className="w-16 md:w-20"
           />
-          <h2 className="text-3xl font-bold text-gray-800">Welcome to AttenDo</h2>
-          <p className="text-gray-500 text-sm">Please login to continue</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mt-4">
+            Welcome to AttenDo
+          </h2>
+          <p className="text-gray-500 text-sm mt-2">Please login to continue</p>
         </div>
 
-        {/* Right Side - Login Form */}
-        <div className="w-1/2 border-l pl-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Username Input */}
+        {/* Login Form */}
+        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+          <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs sm:max-w-none">
             <div>
               <label className="block text-gray-700 font-medium">Username</label>
               <input
@@ -89,7 +89,6 @@ function Login() {
               />
             </div>
 
-            {/* Password Input */}
             <div>
               <label className="block text-gray-700 font-medium">Password</label>
               <input
@@ -102,16 +101,13 @@ function Login() {
               />
             </div>
 
-            {/* Error Message */}
-            {error && <p className="text-red-500">{error}</p>}
-
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-950 text-white font-bold py-2 rounded-lg hover:bg-blue-900 transition duration-200"
-            >
-              Login
-            </button>
+            {error && <p className="text-red-500 text-sm md:text-base">{error}</p>}
+            <div className="mt-5">
+              <button type="submit"
+                className="w-full  bg-blue-950 text-white font-bold py-2 rounded-lg hover:bg-blue-900 transition duration-200">
+                Login
+              </button>
+            </div>
           </form>
         </div>
       </div>

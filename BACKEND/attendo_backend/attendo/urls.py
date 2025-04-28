@@ -18,6 +18,7 @@ urlpatterns = [
     path('add-tutor/', TutorRegisterView.as_view(), name='add-tutor'),
     path("tutors/<int:tutor_id>/", TutorDetailView.as_view(), name="tutor-detail"),
     path('students/', StudentRegisterView.as_view(), name='studentcreate'),
+    path('students/<int:student_id>/', StudentRegisterView.as_view(), name='student-detail'),
     path('parents/', ParentCreateView.as_view(), name='parent-list-create'),
     path('parents/<int:pk>/', ParentDetailView.as_view(), name='parent-detail'),
 
@@ -59,6 +60,6 @@ urlpatterns = [
     path('parent-students/', ParentStudentsView.as_view(), name='parent-students'),
     path('notifications/parent/<int:parent_id>/', NotificationsUnderParentView.as_view(), name='parent-notifications'),
 
-    path('hourly-attendance/<int:student_id>', HourlyAttendanceView.as_view(), name='hourly-attendance'),
+    # path('hourly-attendance/<int:student_id>', HourlyAttendanceView.as_view(), name='hourly-attendance'),
     
 ]

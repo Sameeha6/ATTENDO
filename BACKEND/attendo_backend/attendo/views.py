@@ -974,7 +974,6 @@ class GetHodByBranchAPIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class SubmitAttendanceEditRequestsView(APIView):
     def post(self, request):
         requests_data = request.data.get('requests', [])
@@ -1071,7 +1070,7 @@ class FacultyNotificationStatusView(APIView):
             faculty = Faculty.objects.get(id=faculty_id)
             requests = AttendanceEditRequest.objects.filter(
                 requested_by=faculty,
-                status__in=['Approved', 'Rejected']
+                status__in=['Approved', 'Rejected','Pending']
             ).order_by('-date', '-hour')
             data = [
                 {
@@ -1161,34 +1160,34 @@ class NotificationsUnderParentView(APIView):
         except Parent.DoesNotExist:
             return Response({'error': 'Parent not found'}, status=404)
         
-class HourlyAttendanceView(APIView):
-    def get(self, request):
-        # Get the month parameter (format "YYYY-MM")
-        month_str = request.GET.get('month')  # e.g., "2025-01"
-        academic_year = request.GET.get('academic_year')  # Optional: e.g., "2025-2026"
+# class HourlyAttendanceView(APIView):
+#     def get(self, request):
+#         # Get the month parameter (format "YYYY-MM")
+#         month_str = request.GET.get('month')  # e.g., "2025-01"
+#         academic_year = request.GET.get('academic_year')  # Optional: e.g., "2025-2026"
 
-        if not month_str:
-            return Response({"error": "Month parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+#         if not month_str:
+#             return Response({"error": "Month parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            # Convert the string to a datetime object
-            date_obj = datetime.strptime(month_str, '%Y-%m')
-        except ValueError:
-            return Response({"error": "Invalid month format. Use YYYY-MM."}, status=status.HTTP_400_BAD_REQUEST)
+#         try:
+#             # Convert the string to a datetime object
+#             date_obj = datetime.strptime(month_str, '%Y-%m')
+#         except ValueError:
+#             return Response({"error": "Invalid month format. Use YYYY-MM."}, status=status.HTTP_400_BAD_REQUEST)
 
-        start_date = date_obj.replace(day=1)  # First day of the month
-        end_date = (start_date.replace(month=start_date.month % 12 + 1, day=1) - timedelta(days=1))  # Last day of the month
+#         start_date = date_obj.replace(day=1)  # First day of the month
+#         end_date = (start_date.replace(month=start_date.month % 12 + 1, day=1) - timedelta(days=1))  # Last day of the month
 
-        # Build the query
-        query = Q(date__range=[start_date, end_date])
+#         # Build the query
+#         query = Q(date__range=[start_date, end_date])
 
-        if academic_year:
-            query &= Q(academic_year=academic_year)
+#         if academic_year:
+#             query &= Q(academic_year=academic_year)
 
-        # Fetch attendance records for the given month
-        attendance_records = Attendance.objects.filter(query).order_by('date', 'hour')
+#         # Fetch attendance records for the given month
+#         attendance_records = Attendance.objects.filter(query).order_by('date', 'hour')
 
-        # Serialize the data
-        serializer = AttendanceSerializer(attendance_records, many=True)
+#         # Serialize the data
+#         serializer = AttendanceSerializer(attendance_records, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,26 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";  // Import axios for making API requests
-import { FiClock } from "react-icons/fi"; // React Icon for clock
+import axios from "axios";
+import { FiClock } from "react-icons/fi";
 
 const ManageRequests = () => {
-  // State to hold the list of requests
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState(null);
-
-  // Function to fetch requests from the backend
-  // useEffect(() => {
-  //   const fetchRequests = async () => {
-  //     try {
-  //       const response = await axios.get("http://127.0.0.1:8000/api/request-hour-change/");
-  //       setRequests(response.data);
-  //     } catch (error) {
-  //       setError("Error fetching requests.");
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchRequests();
-  // }, []);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -32,7 +16,6 @@ const ManageRequests = () => {
         ]);
         console.log("Edit Notifications Response: ", editRes.data.notifications);
 
-        // Format the edit requests to match the existing UI shape
         const editRequests = editRes.data.notifications.map((n) => ({
           id: n.id,
           requester: { username: n.related_request.requested_by },
@@ -45,42 +28,21 @@ const ManageRequests = () => {
           isEditRequest: true,
           new_status: n.related_request.new_status,
         }));
-  
-        // Combine both
+
         setRequests([...hourRes.data, ...editRequests]);
       } catch (error) {
         setError("Error fetching requests.");
         console.error(error);
       }
     };
-  
+
     fetchRequests();
   }, []);
-  
-
-  // Function to handle approving or rejecting a request
-  // const handleRequestAction = async (requestId, action) => {
-  //   try {
-  //     const response = await axios.put(`http://127.0.0.1:8000/api/request-hour-change/${requestId}/`, {
-  //       status: action,
-  //     });
-
-  //     // Update the requests in the UI after the status change
-  //     setRequests((prevRequests) =>
-  //       prevRequests.map((request) =>
-  //         request.id === requestId ? { ...request, status: action } : request
-  //       )
-  //     );
-  //   } catch (error) {
-  //     setError("Error updating request status.");
-  //     console.error(error);
-  //   }
-  // };
 
   const handleRequestAction = async (requestId, action, isEditRequest = false) => {
     try {
       if (isEditRequest) {
-        const response = await axios.post(
+        await axios.post(
           `http://127.0.0.1:8000/api/approve-attendance-edit/${requestId}/`,
           { [action === "Approved" ? "approve" : "reject"]: true }
         );
@@ -90,7 +52,7 @@ const ManageRequests = () => {
           { status: action }
         );
       }
-  
+
       setRequests((prev) =>
         prev.map((r) =>
           r.id === requestId ? { ...r, status: action } : r
@@ -101,22 +63,20 @@ const ManageRequests = () => {
       console.error(error);
     }
   };
-  
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="w-full bg-white shadow-md rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Manage Requests</h1>
+    <div className="bg-gray-100 min-h-screen sm:p-2">
+      <div className="w-full bg-white shadow-md rounded-lg p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Manage Requests</h1>
 
-        {/* Display error message if there's an error */}
         {error && <p className="text-red-500">{error}</p>}
 
         <div className="divide-y">
           {requests.map((request) => (
-            <div key={request.id} className="py-4 flex items-start gap-3">
+            <div key={request.id} className="py-4 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
               {/* Status Indicator */}
               <div
-                className={`w-2 h-2 mt-2 rounded-full ${
+                className={`w-2 h-2 rounded-full ${
                   request.status === "Pending"
                     ? "bg-yellow-500"
                     : request.status === "Approved"
@@ -127,14 +87,14 @@ const ManageRequests = () => {
 
               {/* Request Details */}
               <div className="flex-1">
-                <p className="font-semibold text-gray-800">{request.requester.username}</p>
-                <p className="text-sm text-gray-600">
+                <p className="font-semibold text-gray-800 text-sm sm:text-base">{request.requester.username}</p>
+                <p className="text-xs sm:text-sm text-gray-600">
                   {request.type} - {request.timetable_entry.subject}
                 </p>
 
                 {/* Status Badge */}
                 <span
-                  className={`mt-2 inline-block px-3 py-1 text-xs font-semibold rounded-md text-white ${
+                  className={`mt-2 inline-block px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-md text-white ${
                     request.status === "Pending"
                       ? "bg-yellow-500"
                       : request.status === "Approved"
@@ -145,35 +105,34 @@ const ManageRequests = () => {
                   {request.status}
                 </span>
 
-                {/* Action Buttons (Only for Pending Requests) */}
+                {/* Action Buttons */}
                 {request.status === "Pending" && (
-                  <div className="mt-3 flex space-x-2">
+                  <div className="mt-3 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <button
-                      className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1"
+                      className="border border-gray-700 py-1 text-green-700 hover:border-green-800 rounded-md flex-1 text-sm"
                       onClick={() => handleRequestAction(request.id, "Approved", request.isEditRequest)}
                     >
                       Approve
                     </button>
                     <button
-                      className="border border-gray-700 py-1 text-red-700 rounded-md hover:border-red-800 flex-1"
+                      className="border border-gray-700 py-1 text-red-700 hover:border-red-800 rounded-md flex-1 text-sm"
                       onClick={() => handleRequestAction(request.id, "Rejected", request.isEditRequest)}
                     >
                       Reject
                     </button>
-
                   </div>
                 )}
 
                 {request.status !== "Pending" && (
-                  <p className="text-gray-500 mt-3 text-sm">Action Taken</p>
+                  <p className="text-gray-500 mt-3 text-xs sm:text-sm">Action Taken</p>
                 )}
               </div>
 
               {/* Date & Time */}
-              <div className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="text-xs text-gray-500 flex items-center gap-1 sm:mt-0 mt-2">
                 <FiClock size={14} />
-                <span>
-                {request.timetable_entry.day} - {request.timetable_entry.time}
+                <span className="break-words">
+                  {request.timetable_entry.day} - {request.timetable_entry.time}
                 </span>
               </div>
             </div>

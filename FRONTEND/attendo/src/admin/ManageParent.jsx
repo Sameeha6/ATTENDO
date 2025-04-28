@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
@@ -351,7 +352,7 @@ useEffect(() => {
             onChange={(e) => setNewParent({ ...newParent, semester: e.target.value })}
           >
             <option value="">Select Semester</option>
-            {semesters.map((semester) => (
+            {semester.map((semester) => (
               <option key={semester} value={semester}>{semester}</option>
             ))}
           </select>
@@ -414,6 +415,7 @@ useEffect(() => {
           </tbody>
         </table>
       </div>
+
 
       {/* Edit Modal */}
       {isModalOpen && editParent && (
@@ -490,7 +492,7 @@ useEffect(() => {
                 className="p-2 border rounded-md"
               >
                 <option value="">Select Semester</option>
-                {semester.map((sem) => (
+                {semesters.map((sem) => (
                   <option key={sem} value={sem}>
                     {sem}
                   </option>

@@ -13,7 +13,7 @@ function ParentRoutes() {
       <ParentNav />
 
       {/* Main Content */}
-      <div className="flex-grow overflow-hidden p-6 bg-gray-100 pt-20">
+      <div className="flex-grow p-6 bg-gray-100 pt-20">
         {/* Added pt-20 to prevent content from being hidden under fixed navbar */}
         <Routes>
           <Route path="/Dash" element={<ParentDashboard />} />

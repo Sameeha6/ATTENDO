@@ -18,8 +18,6 @@ class UserLoginSerializer(serializers.Serializer):
         username = data.get("username")
         password = data.get("password")
 
-        # Admin login via Django User model
-        # from django.contrib.auth.models import User
         user = User.objects.filter(username=username).first()
         if user and user.is_superuser:
             if not user.check_password(password):
@@ -74,17 +72,17 @@ class UserLoginSerializer(serializers.Serializer):
         
         parent = Parent.objects.filter(username=username).first()
         if parent:
-            if not check_password(password, parent.password):
+            if parent.password != password:
                 raise serializers.ValidationError("Invalid Parent credentials.")
             return {
-                "parent_id": parent.id,
                 "username": parent.username,
                 "role": "parent",
-                "branch": parent.branch.name if parent.branch else None,
+                "parent_id":parent.id,
+                "branch": parent.branch.name,
                 "academic_year": parent.academic_year,
                 "ward_name": parent.ward_name,
                 "ward_id": parent.ward_id,
-                "message": "Parent login successful",
+                "message": "parent login successful",
             }
         
         student = Student.objects.filter(username=username).first()
@@ -748,10 +746,10 @@ class AttendanceEditRequestSerializer(serializers.Serializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['id', 'message']
+        fields = ['id', 'message', 'timestamp']
 
 
-class AttendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = ['student', 'date', 'hour', 'status']
+# class AttendanceSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Attendance
+#         fields = ['student', 'date', 'hour', 'status']

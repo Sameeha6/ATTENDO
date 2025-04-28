@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaUserCircle } from 'react-icons/fa';
-import { motion } from 'framer-motion'; // For animations
-import { useNavigate} from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Make sure axios is installed and imported
 
 export default function StudentDashboard() {
-  const studentName = "Jhon"; 
+  const [studentName, setStudentName] = useState(""); 
   const navigate = useNavigate();
 
-  const handleHistory=()=>{
-      navigate('/student/student/student/attendance-history/hour')
-  }
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const studentId = localStorage.getItem("student_id");
+        if (studentId) {
+          const response = await axios.get(`http://127.0.0.1:8000/api/students/${studentId}/`);
+          setStudentName(response.data.username); 
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+
+    fetchStudentData();
+  }, []);
+
+  const handleHistory = () => {
+    navigate('/student/student/student/attendance-history/hour');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center text-center p-6">
@@ -38,7 +55,7 @@ export default function StudentDashboard() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-2xl md:text-3xl font-semibold text-gray-700 mb-2"
         >
-          Hello, <span className="text-blue-950">{studentName}</span>!
+          Hello, <span className="text-blue-950">{studentName || "Student"}..</span>!
         </motion.h2>
 
         {/* Welcome Text with Motion */}
