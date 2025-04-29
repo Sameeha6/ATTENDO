@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -51,9 +53,11 @@ function Login() {
           setError("Access Denied!");
         }
       }
+      toast.success('Login successfull.');
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       setError("Invalid credentials. Please try again.");
+      toast.error('Error login.'+ JSON.stringify(error.response.data));
     }
   };
 

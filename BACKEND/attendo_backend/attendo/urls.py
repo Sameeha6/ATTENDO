@@ -59,7 +59,11 @@ urlpatterns = [
 
     path('parent-students/', ParentStudentsView.as_view(), name='parent-students'),
     path('notifications/parent/<int:parent_id>/', NotificationsUnderParentView.as_view(), name='parent-notifications'),
+    
 
-    # path('hourly-attendance/<int:student_id>', HourlyAttendanceView.as_view(), name='hourly-attendance'),
+
+    path('facultybranchstds/<int:faculty_id>/', FacultySubjectsBranchesStudentsView.as_view(), name='faculty-students'),     
+    path('attendance-report/<int:faculty_id>/', AttendanceReportPerSubjectView.as_view(), name='attendance-report-per-subject'),
+    path('student-hour-attendance/<int:student_id>/', GetStudentAttendance.as_view(), name='student_attendance_details'),
     
 ]

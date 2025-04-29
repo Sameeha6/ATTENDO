@@ -135,6 +135,8 @@ class Notification(models.Model):
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=50, default="absent")
+    hour = models.CharField(max_length=10,null=True, blank=True) 
     is_read = models.BooleanField(default=False)
 
     def _str_(self):
@@ -157,3 +159,23 @@ class HodNotification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Alert(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    message = models.CharField(max_length=255)
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"Notification for {self.user.username}: {self.message}"
+   
+class AttendanceSummary(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    semester = models.CharField(max_length=10)
+    total_hours = models.IntegerField(default=0)
+    present_hours = models.IntegerField(default=0)
+    percentage = models.FloatField(default=0.0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def _str_(self):
+        return f"{self.student} - Sem {self.semester} - {self.percentage}%"

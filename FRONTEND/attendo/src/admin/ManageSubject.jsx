@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageSubject = () => {
   const [subjects, setSubjects] = useState([]);
@@ -71,12 +73,10 @@ const ManageSubject = () => {
         subject_code: "",
         subject_name: "",
       });
+      toast.success('Subject added successfully.');
     } catch (error) {
-      if (error.response) {
-        console.error("Error adding subject:", error.response.data);
-      } else {
         console.error("Error adding subject:", error.message);
-      }
+        toast.error('Error adding subject.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -101,13 +101,15 @@ const ManageSubject = () => {
       await axios.put(`http://127.0.0.1:8000/api/subjects/${editData.id}/`, editData);
       fetchSubjects();
       setIsModalOpen(false);
+      toast.success("Subject updated successfully!");
     } catch (error) {
       if (error.response && error.response.data) {
         console.error("Validation Errors:", error.response.data);
-        alert("Update failed: " + JSON.stringify(error.response.data));
+        toast.error("Update failed: " + JSON.stringify(error.response.data));
       } else {
         console.error("Error updating subject:", error.message);
-      }
+        toast.error("Update failed. Please try again."+ JSON.stringify(error.response.data));
+      }      
     }
   };
 
@@ -117,10 +119,10 @@ const ManageSubject = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/subjects/${id}/`);
       fetchSubjects();
-      alert("Subject deleted successfully.");
+      toast.success("Subject deleted successfully.");
     } catch (error) {
       console.error("Error deleting subject:", error);
-      alert("Failed to delete subject. Please try again.");
+      toast.error("Failed to delete subject. Please try again."+ JSON.stringify(error.response.data));
     }
   };
   
@@ -193,7 +195,7 @@ const ManageSubject = () => {
 
       {/* Edit Modal */}
       {isModalOpen && editData && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-xl">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold">Edit Subject</h3>
@@ -215,10 +217,13 @@ const ManageSubject = () => {
               <input type="text" name="subject_code" value={editData.subject_code} onChange={handleEditChange} className="p-2 border rounded-md" />
               <input type="text" name="subject_name" value={editData.subject_name} onChange={handleEditChange} className="p-2 border rounded-md" />
             </div>
-            <button onClick={updateSubject} className="mt-4 bg-blue-950 text-white px-4 py-2 rounded-md">Save</button>
+            <div className="flex justify-end">
+            <button onClick={updateSubject} className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+            </div>
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

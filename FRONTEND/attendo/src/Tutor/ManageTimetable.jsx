@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const times = [
@@ -63,7 +66,6 @@ const ManageTimetable = ({ tutorId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const tutor_id = localStorage.getItem("tutor_id")
-     // build payload matching your serializer
      const payload = {
       semester: form.semester,
       day: form.day,
@@ -79,7 +81,7 @@ const ManageTimetable = ({ tutorId }) => {
         { headers: { 'Content-Type': 'application/json' } }
       );
       console.log(res.data);
-      alert('Timetable added successfully!');
+      toast.success('Timetable added successfully.');
       setForm({
         semester: '',
         day: '',
@@ -90,7 +92,7 @@ const ManageTimetable = ({ tutorId }) => {
       });
     } catch (err) {
       console.error(err.response?.data || err);
-      alert('Failed to add timetable; see console for details.');
+      toast.error('Error adding timetable.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -104,7 +106,7 @@ const ManageTimetable = ({ tutorId }) => {
       time: entry.time,
       subject_id: entry.subject.id,
       faculty_id: entry.faculty.id,
-      branch_id: form.branch_id,  // Keep current branch
+      branch_id: form.branch_id,
     });
   };
 
@@ -138,21 +140,23 @@ const ManageTimetable = ({ tutorId }) => {
   
       alert("Updated successfully!");
       closeModal();
-      fetchTimetable(); // refresh table
+      fetchTimetable();
+      toast.success('Timetable updated successfully.');
     } catch (err) {
       console.error(err);
-      alert("Failed to update");
+      toast.error('Error updating timetable.'+ JSON.stringify(err.response.data));
     }
   };
   
-
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/delete-timetable/${id}/`);
       fetchTimetable();
+      toast.success("Timetable deleted successfully.");
     } catch (err) {
       console.error(err);
+      toast.error("Failed to delete timetable. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -269,7 +273,7 @@ const ManageTimetable = ({ tutorId }) => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between mb-3">
               <h3 className="text-xl font-semibold">Edit Timetable</h3>
@@ -348,6 +352,7 @@ const ManageTimetable = ({ tutorId }) => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

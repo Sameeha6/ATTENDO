@@ -1,7 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageParents = () => {
   
@@ -70,11 +71,6 @@ const ManageParents = () => {
     fetchBranches();
   }, []);
 
-
-
-// console.log("studentsData:", studentsData);
-// console.log("selectedAcademicYear:", selectedAcademicYear);
-// console.log("selectedBranch:", selectedBranch);
 
 
 useEffect(() => {
@@ -150,13 +146,7 @@ useEffect(() => {
         branch: newParent.branch_id,
         student_ids: [newParent.ward_id], 
       };
-  
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/parents/",
-        payload
-      );
-  
-      console.log("Parent added:", response.data);
+      const response = await axios.post("http://127.0.0.1:8000/api/parents/",payload);
       fetchParents();
       setNewParent({
         parent_name: "",
@@ -168,8 +158,10 @@ useEffect(() => {
         branch_id: "",
         semester: "",
       });
+      toast.success('Parent added successfully.');
     } catch (error) {
       console.error("Error adding parent:", error.response?.data || error);
+      toast.error('Error adding parent.'+ JSON.stringify(error.response.data));
     }
   };
   
@@ -197,16 +189,13 @@ useEffect(() => {
         branch: editParent.branch,
         student_ids: [editParent.ward_id],
       };
-  
-      await axios.put(
-        `http://127.0.0.1:8000/api/parents/${editParent.id}/`,
-        payload
-      );
-  
+      await axios.put(`http://127.0.0.1:8000/api/parents/${editParent.id}/`,payload);
       fetchParents();
       closeModal();
+      toast.success('Parent updated successfully.');
     } catch (err) {
       console.error("Error updating parent:", err.response?.data || err);
+       toast.error('Error updating parent.'+ JSON.stringify(err.response.data));
     }
   };
   
@@ -217,8 +206,10 @@ useEffect(() => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/parents/${id}/`);
       fetchParents();
+      toast.success("Parent deleted successfully.");
     } catch (err) {
       console.error("Error deleting parent:", err);
+      toast.error("Failed to delete parent. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -282,12 +273,10 @@ useEffect(() => {
                 <option key={index} value={sem}>{sem}</option>
               ))}
             </select>
-
           </div>
         </div>
       </div>
 
-      {/* Create Parent Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Create Parent</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -328,7 +317,6 @@ useEffect(() => {
               setNewParent({ ...newParent, ward_name: e.target.value })
             }
           />
-
           <input
             type="text"
             className="w-full p-2 border rounded-md"
@@ -365,7 +353,6 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Parent List Table */}
       <h3 className="text-xl font-semibold mb-3">Parent List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
@@ -416,10 +403,8 @@ useEffect(() => {
         </table>
       </div>
 
-
-      {/* Edit Modal */}
       {isModalOpen && editParent && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 rounded-md shadow-md w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Edit Parent</h3>
@@ -499,15 +484,18 @@ useEffect(() => {
                 ))}
               </select>
             </div>
-            <button
-              className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md justify-end"
-              onClick={handleUpdateParent}
-            >
-              Save
-            </button>
+            <div className="flex justify-end">
+              <button
+                className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md"
+                onClick={handleUpdateParent}
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

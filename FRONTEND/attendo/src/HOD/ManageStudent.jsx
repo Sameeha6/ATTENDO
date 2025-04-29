@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import axios from "axios";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageStudents = () => {
   const [students, setStudents] = useState([]);
@@ -65,8 +67,10 @@ const ManageStudents = () => {
         semester: "",
       });
       fetchStudents();
+      toast.success('Student added successfully.');
     } catch (err) {
       console.error("POST Error:", err.response?.data || err.message);
+      toast.error('Error adding student.'+ JSON.stringify(err.response.data));
     }
   };
 
@@ -80,7 +84,7 @@ const ManageStudents = () => {
       branch_id: student.branch?.id || "",
       semester: student.semester || "",
     });
-    setEditStudentId(student.id);  // <- Make sure `student.id` exists
+    setEditStudentId(student.id);
     setIsModalOpen(true);
   };
   
@@ -101,14 +105,13 @@ const ManageStudents = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(
-        `http://127.0.0.1:8000/api/students/${editStudentId}/`,
-        form
-      );
+      await axios.put(`http://127.0.0.1:8000/api/students/${editStudentId}/`,form);
       closeModal();
       fetchStudents();
+      toast.success('Student updated successfully.');
     } catch (err) {
       console.error(err);
+      toast.error('Error updating student.'+ JSON.stringify(err.response.data));
     }
   };
 
@@ -118,10 +121,10 @@ const ManageStudents = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/students/${id}/`);
       fetchStudents();
-      alert("Student deleted successfully.");
+      toast.success("Student deleted successfully.");
     } catch (err) {
       console.error("Error deleting student:", err);
-      alert("Failed to delete student. Please try again.");
+      toast.error("Failed to delete student. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -129,7 +132,6 @@ const ManageStudents = () => {
     return (
       (!filters.academic_year ||
         student.academic_year === filters.academic_year) &&
-      // (!filters.branch_id || student.branch?.id == filters.branch_id) &&
       (!filters.semester || student.semester === filters.semester)
     );
   });
@@ -138,7 +140,6 @@ const ManageStudents = () => {
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Students</h2>
 
-      {/* Filter UI */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -170,7 +171,6 @@ const ManageStudents = () => {
         </div>
       </div>
 
-      {/* Add Student */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Create Student</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,7 +203,6 @@ const ManageStudents = () => {
         </button>
       </div>
 
-      {/* Student List */}
       <h3 className="text-xl font-semibold mb-3">Student List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
@@ -254,9 +253,8 @@ const ManageStudents = () => {
         </table>
       </div>
 
-      {/* Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between mb-3">
               <h3 className="text-xl font-semibold">Edit Student</h3>
@@ -293,6 +291,7 @@ const ManageStudents = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react"; 
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageFaculties = () => {
   const [faculties, setFaculties] = useState([]);
@@ -35,9 +37,10 @@ const ManageFaculties = () => {
       const response = await axios.post("http://127.0.0.1:8000/api/addfaculty/", formData);
       setFaculties([...faculties, response.data]);
       setFormData({ username: "", email: "", phone_number: "", branch: "" });
+      toast.success('Faculty added successfully.');
     } catch (error) {
       console.error("Error adding faculty:", error.response?.data || error.message);
-      alert("Error adding faculty: " + (error.response?.data?.error || error.message));
+      toast.error('Error adding faculty.'+ JSON.stringify(error.response.data));
     }
   };
   
@@ -62,8 +65,10 @@ const ManageFaculties = () => {
       const response = await axios.put(`http://127.0.0.1:8000/api/faculty/${editData.id}/`, editData);
       setFaculties(faculties.map(faculty => faculty.id === editData.id ? response.data : faculty));
       closeModal();
+      toast.success('Faculty updated successfully.');
     } catch (error) {
       console.error("Error saving edited faculty:", error);
+      toast.error('Error updating faculty.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -73,10 +78,10 @@ const ManageFaculties = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/faculty/${id}/`);
       setFaculties(faculties.filter(faculty => faculty.id !== id));
-      alert("Faculty deleted successfully.");
+      toast.success("Faculty deleted successfully.");
     } catch (error) {
       console.error("Error deleting faculty:", error);
-      alert("Failed to delete faculty. Please try again.");
+      toast.error("Failed to delete faculty. Please try again."+ JSON.stringify(error.response.data));
     }
   };
   
@@ -137,7 +142,7 @@ const ManageFaculties = () => {
         </table>
       </div>
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-xl font-semibold">Edit Faculty</h3>
@@ -163,6 +168,7 @@ const ManageFaculties = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

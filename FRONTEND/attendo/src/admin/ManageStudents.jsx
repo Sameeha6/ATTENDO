@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import axios from "axios";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageStudents = () => {
   const [students, setStudents] = useState([]);
@@ -62,8 +64,10 @@ const ManageStudents = () => {
         semester: "",
       });
       fetchStudents();
+      toast.success('Student added successfully.');
     } catch (err) {
       console.error("POST Error:", err.response?.data || err.message);
+      toast.error('Error adding student.'+ JSON.stringify(err.response.data));
     }
   };
 
@@ -97,14 +101,13 @@ const ManageStudents = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(
-        `http://127.0.0.1:8000/api/students/${editStudentId}/`,
-        form
-      );
+      await axios.put(`http://127.0.0.1:8000/api/students/${editStudentId}/`,form);
       closeModal();
       fetchStudents();
+      toast.success('Student updated successfully.');
     } catch (err) {
       console.error(err);
+      toast.error('Error updating student.'+ JSON.stringify(err.response.data));
     }
   };
 
@@ -114,10 +117,10 @@ const ManageStudents = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/students/${id}/`);
       fetchStudents();
-      alert("Student deleted successfully.");
+      toast.success("Student deleted successfully.");
     } catch (err) {
       console.error("Error deleting student:", err);
-      alert("Failed to delete student. Please try again.");
+      toast.error("Failed to delete student. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -251,7 +254,7 @@ const ManageStudents = () => {
 
       {/* Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between mb-3">
               <h3 className="text-xl font-semibold">Edit Student</h3>
@@ -288,6 +291,7 @@ const ManageStudents = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

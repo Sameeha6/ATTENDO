@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageBranch = () => {
   const [branches, setBranches] = useState([]);
@@ -18,6 +20,7 @@ const ManageBranch = () => {
       setBranches(response.data);
     } catch (error) {
       console.error('Error fetching branches:', error);
+      toast.error('Error fetching branches.');
     }
   };
 
@@ -27,8 +30,10 @@ const ManageBranch = () => {
       const response = await axios.post('http://127.0.0.1:8000/api/branches/', { name: branchName});
       setBranches([...branches, response.data]);
       setBranchName('');
+      toast.success('Branch added successfully.');
     } catch (error) {
       console.error('Error adding branch:', error);
+      toast.error('Error adding branch.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -44,8 +49,10 @@ const ManageBranch = () => {
       await axios.put(`http://127.0.0.1:8000/api/editbranches/${selectedBranch.id}/`, { name: branchName });
       setBranches(branches.map(b => (b.id === selectedBranch.id ? { ...b, name: branchName } : b)));
       setIsModalOpen(false);
+      toast.success('Branch updated successfully.');
     } catch (error) {
       console.error('Error updating branch:', error);
+      toast.error('Error updating branch.'+ JSON.stringify(error.response.data));
     }
   };
   
@@ -55,10 +62,10 @@ const ManageBranch = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/editbranches/${id}/`);
       setBranches(branches.filter(b => b.id !== id));
-      alert("Branch deleted successfully.");
+      toast.success("Branch deleted successfully.");
     } catch (error) {
       console.error('Error deleting branch:', error);
-      alert("Failed to delete branch. Please try again.");
+      toast.error("Failed to delete branch. Please try again."+ JSON.stringify(error.response.data));
     }
   };
   
@@ -101,12 +108,12 @@ const ManageBranch = () => {
                   <span className="text-red-600">Not Assigned</span>)}</td>
                 <td className="border p-1">
                   <button className="text-blue-600" 
-                      onClick={() => handleEdit(branch)}>
+                      onClick={() => handleEdit(branch)} >
                     <FaEdit size={18} />
                   </button>
                 </td>
                 <td className="border p-1">
-                  <button className="text-red-600" onClick={() => handleDelete(branch.id)}>
+                  <button className="text-red-600" onClick={() => handleDelete(branch.id)} >
                     <FaTrash size={18} />
                   </button>
                 </td>
@@ -117,7 +124,7 @@ const ManageBranch = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 rounded-md w-1/3 relative">
             <button
               className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
@@ -143,6 +150,8 @@ const ManageBranch = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };

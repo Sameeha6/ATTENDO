@@ -746,7 +746,7 @@ class AttendanceEditRequestSerializer(serializers.Serializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['id', 'message', 'timestamp']
+        fields = ['id', 'message', 'timestamp','type','hour']
 
 
 # class AttendanceSerializer(serializers.ModelSerializer):

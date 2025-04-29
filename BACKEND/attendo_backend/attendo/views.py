@@ -851,6 +851,98 @@ class ParentsUnderTutorView(APIView):
         except Faculty.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=404)
         
+# class MarkAttendance(APIView):
+#     def post(self, request):
+#         attendance_data = request.data
+#         updated_attendance = []
+
+#         for entry in attendance_data:
+#             student_id = entry.get('student_id')
+#             attendance_status = entry.get('status')
+#             date_str = entry.get('date')  
+#             academic_year = entry.get('academic_year')  
+#             hour = entry.get('hour')    
+
+#             if not student_id or not attendance_status or not date_str:
+#                 return Response(
+#                     {"error": "Missing required fields: student_id, status, or date."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#             if attendance_status not in ['Present', 'Absent']:
+#                 return Response(
+#                     {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#             try:
+#                 date = datetime.strptime(date_str, '%Y-%m-%d').date()
+#                 student = get_object_or_404(Student, student_id=student_id)
+#                 attendance, created = Attendance.objects.get_or_create(
+#                     student=student,
+#                     date=date,
+#                     hour= hour,
+#                    defaults={
+#                         'status': attendance_status,
+#                         'academic_year': academic_year,
+#                         }
+#                 )
+#                 if not created:
+#                     attendance.status = attendance_status
+#                     attendance.academic_year = academic_year
+#                     attendance.hour = hour
+#                     attendance.save()
+#                 updated_attendance.append(attendance)
+
+#                 if attendance_status == 'Absent':
+#                     parents = student.parents.all()
+#                     for parent in parents:
+#                         # Notification.objects.create(
+#                         #     parent=parent,
+#                         #     message=f"{student.username} was absent on {date}"
+#                         # )
+#                         Notification.objects.create(
+#                             parent=parent,
+#                             message=f"{student.username} was absent on {date} ({hour})",
+#                             type="absent",
+#                             hour=hour
+#                         )
+
+#                     previous_dates = [
+#                         date - timedelta(days=1),
+#                         date - timedelta(days=2)
+#                     ]
+#                     absents = Attendance.objects.filter(
+#                         student=student,
+#                         date__in=previous_dates + [date],
+#                         status='Absent'
+#                     ).values_list('date', flat=True)
+
+#                     if all(d in absents for d in [date] + previous_dates):
+#                         for parent in student.parents.all():
+#                             existing = Notification.objects.filter(
+#                                 parent=parent,
+#                                 message__icontains="3 consecutive days",
+#                             ).filter(
+#                                 message__icontains=str(date)
+#                             )
+#                             if not existing.exists():
+#                                 date_str = date.strftime("%Y-%m-%d")
+#                                 # Notification.objects.create(
+#                                 #     parent=parent,
+#                                 #     message=f"{student.username} was absent for 3 consecutive days including {date_str}"
+#                                 # )
+#                                 Notification.objects.create(
+#                                     parent=parent,
+#                                     message=f"{student.username} was absent for 3 consecutive days including {date_str}",
+#                                     type="absent_3_days",
+#                                     hour=None
+#                                 )
+#             except ValidationError as e:
+#                 return Response(
+#                     {"error": str(e)},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#         return Response({"message": "Success"}, status=status.HTTP_200_OK)
+    
 class MarkAttendance(APIView):
     def post(self, request):
         attendance_data = request.data
@@ -861,67 +953,120 @@ class MarkAttendance(APIView):
             attendance_status = entry.get('status')
             date_str = entry.get('date')  
             academic_year = entry.get('academic_year')  
-            hour = entry.get('hour')    
+            hour = entry.get('hour')                    
+            subject_id = entry.get('subject_id')
+            branch_id = entry.get('branch')
+            semester = entry.get('semester')  
 
-            if not student_id or not attendance_status or not date_str:
+            if not student_id or not attendance_status or not date_str or not subject_id:
                 return Response(
-                    {"error": "Missing required fields: student_id, status, or date."},
+                    {"error": "Missing required fields: student_id, status, date, or subject_id."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             if attendance_status not in ['Present', 'Absent']:
                 return Response(
                     {"error": "Invalid status value. It should be 'Present' or 'Absent'."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             try:
                 date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                student = get_object_or_404(Student, student_id=student_id)
+                student = get_object_or_404(Student, student_id=student_id, semester=semester)
+                subject = get_object_or_404(Subject, id=subject_id)
+                branch = get_object_or_404(Branch, id=branch_id)
+
                 attendance, created = Attendance.objects.get_or_create(
                     student=student,
                     date=date,
-                    hour= hour,
-                   defaults={
+                    subject=subject,
+                    hour=hour,
+                    defaults={
                         'status': attendance_status,
                         'academic_year': academic_year,
-                        }
+                        'branch': branch,
+                        'semester': semester,
+                    }
                 )
                 if not created:
                     attendance.status = attendance_status
                     attendance.academic_year = academic_year
                     attendance.hour = hour
+                    attendance.branch = branch
+                    attendance.semester = semester
                     attendance.save()
+
                 updated_attendance.append(attendance)
 
-                if attendance_status == 'Absent':
-                    parents = student.parents.all()
+                attendance_summary, created = AttendanceSummary.objects.get_or_create(
+                    student=student,
+                    semester=semester,
+                    defaults={
+                        'total_hours': 0,
+                        'present_hours': 0,
+                        'percentage': 0.0,
+                    }
+                )
+
+                attendance_summary.total_hours += 1
+                if attendance_status == 'Present':
+                    attendance_summary.present_hours += 1
+
+                attendance_summary.percentage = (
+                    attendance_summary.present_hours / attendance_summary.total_hours
+                ) * 100
+                attendance_summary.save()
+                parents = student.parents.all()
+                if 70 <= attendance_summary.percentage < 75:
                     for parent in parents:
                         Notification.objects.create(
                             parent=parent,
-                            message=f"{student.username} was absent on {date}"
+                            message=f"Alert: {student.username}'s attendance for Semester {semester} is below 75%. Current: {attendance_summary.percentage:.2f}%"
                         )
-                    previous_dates = [
-                        date - timedelta(days=1),
-                        date - timedelta(days=2)
-                    ]
+
+                elif 76 <= attendance_summary.percentage <= 80:
+                    for parent in parents:
+                        Notification.objects.create(
+                            parent=parent,
+                            message=f"Warning: {student.username}'s attendance for Semester {semester} is close to 75%. Current: {attendance_summary.percentage:.2f}%"
+                        )
+                if attendance_status == 'Absent':
+                    for parent in parents:
+                        # Notification.objects.create(
+                        #     parent=parent,
+                        #     message=f"{student.username} was absent on {date} for {subject}"
+                        # )
+                        Notification.objects.create(
+                            parent=parent,
+                            message=f"{student.username} was absent on {date} ({hour})",
+                            type="absent",
+                            hour=hour
+                        )
+
+                    previous_dates = [date - timedelta(days=1), date - timedelta(days=2)]
                     absents = Attendance.objects.filter(
                         student=student,
+                        subject=subject,
                         date__in=previous_dates + [date],
                         status='Absent'
                     ).values_list('date', flat=True)
-
                     if all(d in absents for d in [date] + previous_dates):
-                        for parent in student.parents.all():
+                        for parent in parents:
                             existing = Notification.objects.filter(
                                 parent=parent,
-                                message__icontains="3 consecutive days",
-                            ).filter(
-                                message__icontains=str(date)
-                            )
+                                message__icontains="3 consecutive days"
+                            ).filter(message__icontains=str(date))
+
                             if not existing.exists():
-                                date_str = date.strftime("%Y-%m-%d")
+                                # Notification.objects.create(
+                                #     parent=parent,
+                                #     message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}"
+                                # )
                                 Notification.objects.create(
                                     parent=parent,
-                                    message=f"{student.username} was absent for 3 consecutive days including {date_str}"
+                                    message=f"{student.username} was absent for 3 consecutive days including {date_str}",
+                                    type="absent_3_days",
+                                    hour=None
                                 )
             except ValidationError as e:
                 return Response(
@@ -1160,34 +1305,119 @@ class NotificationsUnderParentView(APIView):
         except Parent.DoesNotExist:
             return Response({'error': 'Parent not found'}, status=404)
         
-# class HourlyAttendanceView(APIView):
-#     def get(self, request):
-#         # Get the month parameter (format "YYYY-MM")
-#         month_str = request.GET.get('month')  # e.g., "2025-01"
-#         academic_year = request.GET.get('academic_year')  # Optional: e.g., "2025-2026"
+class FacultySubjectsBranchesStudentsView(APIView):
+    def get(self, request, faculty_id):
+        try:
+            faculty = Faculty.objects.get(id=faculty_id)
+            subjects = Subject.objects.filter(faculty=faculty)
+            if not subjects.exists():
+                return Response({"message": "No subjects assigned to this faculty."}, status=status.HTTP_404_NOT_FOUND)
+            branches = Branch.objects.filter(subject__in=subjects).distinct()
+            if not branches.exists():
+                return Response({"message": "No branches found for faculty's subjects."}, status=status.HTTP_404_NOT_FOUND)
+            students = Student.objects.filter(branch__in=branches)
+            subject_data = SubjectSerializer(subjects, many=True).data
+            branch_data = BranchSerializer(branches, many=True).data
+            student_data = StudentRegisterSerializer(students, many=True).data
+            return Response({
+                "subjects": subject_data,
+                "branches": branch_data,
+                "students": student_data,
+            }, status=status.HTTP_200_OK)
+        except Faculty.DoesNotExist:
+            return Response({"error": "Faculty not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class AttendanceReportPerSubjectView(APIView):
+    def get(self, request, faculty_id):
+        try:
+            branch_name = request.query_params.get('branch_name')
+            academic_year = request.query_params.get('academic_year')
+            semester = request.query_params.get('semester')
+            subject_name = request.query_params.get('subject_name')
 
-#         if not month_str:
-#             return Response({"error": "Month parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+          
+            attendance_records = Attendance.objects.filter(
+                subject__faculty__id=faculty_id,  # <-- fixed this line
+                student__branch__name=branch_name,   # <-- notice student__branch__name
+                academic_year=academic_year,
+                # semester=semester,
+                subject__subject_name=subject_name
+            )
 
-#         try:
-#             # Convert the string to a datetime object
-#             date_obj = datetime.strptime(month_str, '%Y-%m')
-#         except ValueError:
-#             return Response({"error": "Invalid month format. Use YYYY-MM."}, status=status.HTTP_400_BAD_REQUEST)
+            student_data = {}
 
-#         start_date = date_obj.replace(day=1)  # First day of the month
-#         end_date = (start_date.replace(month=start_date.month % 12 + 1, day=1) - timedelta(days=1))  # Last day of the month
+            for record in attendance_records:
+                student_id = record.student.student_id
+                if student_id not in student_data:
+                    student_data[student_id] = {
+                        "student_id": student_id,
+                        "student_name": record.student.username,
+                        "present_hours": 0,
+                        "total_hours": 0,
+                    }
 
-#         # Build the query
-#         query = Q(date__range=[start_date, end_date])
+                student_data[student_id]["total_hours"] += 1
+                if record.status == 'Present':
+                    student_data[student_id]["present_hours"] += 1
 
-#         if academic_year:
-#             query &= Q(academic_year=academic_year)
+            # Prepare the final result
+            result = []
+            for student in student_data.values():
+                if student["total_hours"] > 0:
+                    attendance_percentage = (student["present_hours"] / student["total_hours"]) * 100
+                else:
+                    attendance_percentage = 0
 
-#         # Fetch attendance records for the given month
-#         attendance_records = Attendance.objects.filter(query).order_by('date', 'hour')
+                student["attendance_percentage"] = round(attendance_percentage, 2)
+                result.append(student)
 
-#         # Serialize the data
-#         serializer = AttendanceSerializer(attendance_records, many=True)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+class GetStudentAttendance(APIView):
+    def get(self, request, student_id):
+        print(f"Looking for student_id: {student_id}")
 
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        student = get_object_or_404(Student, id=student_id)
+
+    
+        attendance_records = Attendance.objects.filter(student=student)
+
+    
+        semester = request.GET.get('semester')
+        month = request.GET.get('month')
+
+    
+        if semester:
+            attendance_records = attendance_records.filter(semester=semester)
+
+     
+        if month:
+            attendance_records = attendance_records.filter(date__month=month)
+
+     
+        attendance_data = []
+        for record in attendance_records:
+            attendance_data.append({
+                "student_id": record.student.student_id,
+                "status": record.status,
+                "date": record.date,
+                "hour": record.hour,
+                "academic_year": record.academic_year,
+                "branch": record.branch.name,
+                "semester": record.semester,
+                "subject": record.subject.subject_name,
+            })
+
+        if attendance_data:
+            return Response({"attendance": attendance_data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "No attendance records found for this student."}, status=status.HTTP_404_NOT_FOUND)
+        

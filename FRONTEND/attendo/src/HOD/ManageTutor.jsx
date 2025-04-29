@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageTutor = () => {
   const [tutors, setTutors] = useState([]);
@@ -15,8 +17,6 @@ const ManageTutor = () => {
   const [editTutorId, setEditTutorId] = useState(null);
   const [branches, setBranches] = useState([]);
 
-
-  // 🔃 Fetch Tutors
   const fetchTutors = async () => {
     const hod_id = localStorage.getItem("hod_id");
     console.log("HOD ID:", hod_id);
@@ -45,33 +45,35 @@ const ManageTutor = () => {
     fetchBranches();
   }, []);
 
-  // 🆕 Handle Form Changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ➕ Add Tutor
   const handleAdd = async () => {
     try {
       await axios.post("http://127.0.0.1:8000/api/add-tutor/", { ...formData });
       setFormData({ username: "", email: "", phone_number: "", branch: "", academic_year: "" });
       fetchTutors();
+      toast.success('Tutor added successfully.');
     } catch (error) {
       console.error("Error adding tutor:", error);
+      toast.error('Error adding tutor.'+ JSON.stringify(err.response.data));
     }
   };
 
-  // 🗑️ Delete Tutor
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this Tutor?");
+    if (!confirmDelete) return;
     try {
       await axios.delete(`http://127.0.0.1:8000/api/tutors/${id}/`);
       fetchTutors();
+      toast.success("Tutor deleted successfully.");
     } catch (error) {
       console.error("Error deleting tutor:", error);
+      toast.error("Failed to delete tutor. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
-  // 📝 Edit Tutor - open modal
   const openModal = (tutor) => {
     setEditTutorId(tutor.id);
     setFormData({
@@ -84,7 +86,6 @@ const ManageTutor = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Update Tutor
   const handleUpdate = async () => {
     try {
       await axios.put(`http://127.0.0.1:8000//api/tutors/${editTutorId}/`, { ...formData });
@@ -92,8 +93,10 @@ const ManageTutor = () => {
       setFormData({ username: "", email: "", phone_number: "", branch: "", academic_year: "" });
       setEditTutorId(null);
       fetchTutors();
+      toast.success('Tutor updated successfully.');
     } catch (error) {
       console.error("Error updating tutor:", error);
+      toast.error('Error updating tutor.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -101,7 +104,6 @@ const ManageTutor = () => {
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Tutor</h2>
 
-      {/* Add Tutor Form */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Add Tutor</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,7 +122,6 @@ const ManageTutor = () => {
         <button onClick={handleAdd} className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
       </div>
 
-      {/* Tutor Table */}
       <h3 className="text-xl font-semibold mb-3">Tutors List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
@@ -161,9 +162,8 @@ const ManageTutor = () => {
         </table>
       </div>
 
-      {/* Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between mb-3">
               <h3 className="text-xl font-semibold">Edit Tutor</h3>
@@ -190,6 +190,7 @@ const ManageTutor = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

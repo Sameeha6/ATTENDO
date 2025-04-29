@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageHOD = () => {
   const [branches, setBranches] = useState([]);
@@ -37,8 +39,10 @@ const ManageHOD = () => {
       await axios.post("http://127.0.0.1:8000/api/hod/", formData);
       setFormData({ username: "", email: "", phone: "", branch: "" });
       fetchBranches();
+      toast.success('HOD added successfully.');
     } catch (error) {
       console.error("Error adding HOD:", error);
+      toast.error('Error adding HOD.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -69,8 +73,10 @@ const ManageHOD = () => {
       await axios.put(`http://127.0.0.1:8000/api/gethod/${editData.id}/`, editData);
       setIsModalOpen(false);
       fetchBranches();
+      toast.success('HOD updated successfully.');
     } catch (error) {
       console.error("Error updating HOD:", error);
+      toast.error('Error updating HOD.'+ JSON.stringify(error.response.data));
     }
   };
 
@@ -80,10 +86,10 @@ const ManageHOD = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/gethod/${id}/`);
       fetchBranches();
-      alert("HOD deleted successfully.");
+      toast.success("HOD deleted successfully.");
     } catch (error) {
       console.error("Error deleting HOD:", error);
-      alert("Failed to delete HOD. Please try again.");
+      toast.error("Failed to delete HOD. Please try again."+ JSON.stringify(error.response.data));
     }
   };
   console.log(editData)
@@ -165,7 +171,7 @@ const ManageHOD = () => {
       </div>
 
       {isModalOpen && editData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <form onSubmit={updateHOD}>
               <div className="flex justify-between items-center mb-3">
@@ -182,11 +188,14 @@ const ManageHOD = () => {
                   <option key={branch.id} value={branch.id}>{branch.name}</option>
                 ))}
               </select> */}
-              <button type="submit" className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+              <div className="flex justify-end">
+                <button type="submit" className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
+              </div>
             </form>
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

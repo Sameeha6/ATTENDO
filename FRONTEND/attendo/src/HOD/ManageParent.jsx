@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageParents = () => {
   const semesters = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
@@ -29,7 +31,6 @@ const ManageParents = () => {
   const [editParent, setEditParent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch all parents
   const fetchParents = async () => {
     try {
       const hod_id = localStorage.getItem("hod_id");
@@ -44,13 +45,12 @@ const ManageParents = () => {
   const fetchBranches = async () => {
     try {
       const res = await axios.get("http://127.0.0.1:8000/api/branches/");
-      setBranches(res.data); // assuming res.data is an array of branch objects
+      setBranches(res.data); 
     } catch (err) {
       console.error("Error fetching branches:", err);
     }
   };
   
-  // Fetch students once on load
   const fetchStudents = async () => {
     try {
       const res = await axios.get("http://127.0.0.1:8000/api/students/");
@@ -69,7 +69,7 @@ const ManageParents = () => {
   const handleFilterChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
-  // Auto-fill ward name when ward_id is entered
+  
   const handleWardIdChange = (e, isEdit = false) => {
     const wardId = e.target.value;
     const student = students.find((s) => s.student_id === wardId);
@@ -89,7 +89,6 @@ const ManageParents = () => {
     }
   };
 
-  // Create parent
   const handleAddParent = async () => {
     try {
       const payload = {
@@ -101,7 +100,7 @@ const ManageParents = () => {
         academic_year: newParent.year,
         semester: newParent.semester,
         branch: newParent.branch_id,
-        student_ids: [newParent.ward_id], // from the Student model
+        student_ids: [newParent.ward_id],
       };
   
       const response = await axios.post(
@@ -121,12 +120,13 @@ const ManageParents = () => {
         branch_id: "",
         semester: "",
       });
+      toast.success('Parent added successfully.');
     } catch (error) {
       console.error("Error adding parent:", error.response?.data || error);
+      toast.error('Error adding parent.'+ JSON.stringify(error.response.data));
     }
   };
   
-  // Edit modal
   const openModal = (parent) => {
     setEditParent({ ...parent });
     setIsModalOpen(true);
@@ -136,7 +136,6 @@ const ManageParents = () => {
     setIsModalOpen(false);
   };
 
-  // Update parent
   const handleUpdateParent = async () => {
     try {
       const payload = {
@@ -147,31 +146,28 @@ const ManageParents = () => {
         ward_name: editParent.ward_name,
         academic_year: editParent.academic_year,
         semester: editParent.semester,
-        branch: editParent.branch, // should be ID
+        branch: editParent.branch,
         student_ids: [editParent.ward_id],
       };
-  
-      await axios.put(
-        `http://127.0.0.1:8000/api/parents/${editParent.id}/`,
-        payload
-      );
-  
+      await axios.put(`http://127.0.0.1:8000/api/parents/${editParent.id}/`,payload);
       fetchParents();
       closeModal();
+      toast.success('Parent updated successfully.');
     } catch (err) {
       console.error("Error updating parent:", err.response?.data || err);
+      toast.error('Error updating parent.'+ JSON.stringify(err.response.data));
     }
   };
   
-
-  // Delete parent
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this parent?")) return;
     try {
       await axios.delete(`http://127.0.0.1:8000/api/parents/${id}/`);
       fetchParents();
+      toast.success("Parent deleted successfully.");
     } catch (err) {
       console.error("Error deleting parent:", err);
+      toast.error("Failed to delete parent. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -188,7 +184,6 @@ const filteredParents = parents.filter((p) => {
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Parents</h2>
 
-      {/* Filter Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -220,7 +215,6 @@ const filteredParents = parents.filter((p) => {
         </div>
       </div>
 
-      {/* Create Parent Section */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Create Parent</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -298,7 +292,6 @@ const filteredParents = parents.filter((p) => {
         </button>
       </div>
 
-      {/* Parent List Table */}
       <h3 className="text-xl font-semibold mb-3">Parent List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
@@ -348,9 +341,8 @@ const filteredParents = parents.filter((p) => {
         </table>
       </div>
 
-      {/* Edit Modal */}
       {isModalOpen && editParent && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 rounded-md shadow-md w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Edit Parent</h3>
@@ -440,15 +432,18 @@ const filteredParents = parents.filter((p) => {
                 ))}
               </select>
             </div>
+            <div className="flex justify-end">
             <button
-              className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md justify-end"
+              className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md"
               onClick={handleUpdateParent}
             >
               Save
             </button>
+            </div>
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import axios from "axios";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageTutor = () => {
   const [tutors, setTutors] = useState([]);
@@ -79,8 +81,10 @@ const ManageTutor = () => {
       await axios.post("http://127.0.0.1:8000/api/add-tutor/", formData);
       fetchTutors();
       setFormData({ username: "", email: "", phone_number: "", branch: "", academic_year: "" });
+      toast.success('Tutor added successfully.');
     } catch (err) {
       console.error("Error adding tutor:", err.response?.data || err);
+      toast.error('Error adding tutor.'+ JSON.stringify(err.response.data));
     }
   };
 
@@ -100,8 +104,10 @@ const ManageTutor = () => {
         tutor.id === editData.id ? response.data : tutor
       ));
       closeModal();
+      toast.success('Tutor updated successfully.');
     } catch (error) {
       console.error("Error saving edited tutor:", error.response?.data || error);
+      toast.error('Error updating tutor.'+ JSON.stringify(error.response.data));
     }
   };
   
@@ -112,10 +118,10 @@ const ManageTutor = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/tutors/${id}/`);
       fetchTutors();
-      alert("Tutor deleted successfully.");
+      toast.success("Tutor deleted successfully.");
     } catch (err) {
       console.error("Error deleting tutor:", err);
-      alert("Failed to delete tutor. Please try again.");
+      toast.error("Failed to delete tutor. Please try again."+ JSON.stringify(err.response.data));
     }
   };
 
@@ -181,7 +187,7 @@ const ManageTutor = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 top-12">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 shadow-md w-11/12 max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between mb-3">
               <h3 className="text-xl font-semibold">Edit Tutor</h3>
@@ -225,6 +231,7 @@ const ManageTutor = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };
