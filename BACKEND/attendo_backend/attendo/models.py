@@ -127,9 +127,12 @@ class Attendance(models.Model):
     academic_year = models.CharField(max_length=10, null=True)
     hour = models.CharField(max_length=10, null=True) 
     status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')])
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE,null=True)
+    branch = models.ForeignKey('Branch', on_delete=models.CASCADE, null=True)
+    semester = models.CharField(max_length=10, null=True)
 
-    def _str_(self):
-        return f"{self.student.username} - {self.date} - {self.hour} - {self.status}"
+    class Meta:
+       unique_together = ('student', 'date', 'subject', 'hour')
     
 class Notification(models.Model):
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
@@ -152,6 +155,7 @@ class AttendanceEditRequest(models.Model):
     hod = models.ForeignKey(HOD, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=[("Pending", "Pending"), ("Approved", "Approved"), ("Rejected", "Rejected")], default="Pending")
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 class HodNotification(models.Model):
     recipient = models.ForeignKey(HOD, on_delete=models.CASCADE)

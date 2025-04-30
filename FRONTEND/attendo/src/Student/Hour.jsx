@@ -1,25 +1,77 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const HourlyAttendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [semester, setSemester] = useState("");
+  const [month, setMonth] = useState("");
 
-  // Fetch attendance data based on the selected month
+  const reshapeAttendance = (attendanceList) => {
+    const groupedByDate = {};
+
+    attendanceList.forEach((record) => {
+      const { date, hour, status } = record;
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = { date };
+      }
+
+      switch (hour) {
+        case "Hour 1":
+          groupedByDate[date].hour1 = status || "-";
+          break;
+        case "Hour 2":
+          groupedByDate[date].hour2 = status || "-";
+          break;
+        case "Hour 3":
+          groupedByDate[date].hour3 = status || "-";
+          break;
+        case "Hour 4":
+          groupedByDate[date].hour4 = status || "-";
+          break;
+        case "Hour 5":
+          groupedByDate[date].hour5 = status || "-";
+          break;
+        case "Hour 6":
+          groupedByDate[date].hour6 = status || "-";
+          break;
+        default:
+          break;
+      }
+    });
+
+    return Object.values(groupedByDate);
+  };
+
   const fetchAttendanceData = async () => {
+    const student_id = localStorage.getItem("student_id");
+
+    if (!student_id) {
+      setError("Student is not logged in");
+      setLoading(false);
+      return;
+    }
+
+    if (!semester || !month) {
+      setAttendanceData([]);
+      setLoading(false);
+      return;
+    }
+    const filters={semester,month}
+    console.log("Semester:", semester);
+    console.log("Month:", month);
     setLoading(true);
     setError(null);
-    const student_id = localStorage.getItem("student_id");
+    console.log(localStorage.getItem("student_id"))
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/hourly-attendance/${student_id}/?month=${selectedMonth}&academic_year=2025-2026`
+      const response = await axios.get(
+        `http://localhost:8000/api/student-hour-attendance/${student_id}/`,
+        { params: filters }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      const data = await response.json();
-      setAttendanceData(data);
+      console.log(response.data)
+      const reshapedData = reshapeAttendance(response.data.attendance || []);
+      setAttendanceData(reshapedData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -27,85 +79,108 @@ const HourlyAttendance = () => {
     }
   };
 
-  // Fetch attendance when the component mounts or when selectedMonth changes
   useEffect(() => {
     fetchAttendanceData();
-  }, [selectedMonth]);
+  }, [semester, month]);
+
+  const renderStatus = (status) => {
+    if (status === "Present") {
+      return <span className="text-green-600">✅</span>;
+    } else if (status === "Absent") {
+      return <span className="text-red-600">❌</span>;
+    }
+    return <span>-</span>;
+  };
 
   return (
-    <div className="p-4 w-full min-h-screen">
-      {/* Header and Month Selector */}
-      <div className="flex justify-between items-center bg-white text-black mb-6 p-4 rounded-lg font-bold shadow-md gap-3">
+    <div className="p-4 w-full min-h-screen bg-gray-50">
+      {/* Header + Filters */}
+      <div className="flex flex-col md:flex-row justify-between items-center bg-white text-black mb-6 p-4 rounded-lg font-bold shadow-md gap-3">
         <h1 className="text-xl">Hourly Attendance</h1>
-        <select
-          className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        >
-          <option value="2025-01">January 2025</option>
-          <option value="2025-02">February 2025</option>
-          <option value="2025-03">March 2025</option>
-          <option value="2025-04">April 2025</option>
-          <option value="2025-05">May 2025</option>
-          <option value="2025-06">June 2025</option>
-          <option value="2025-07">July 2025</option>
-          <option value="2025-08">August 2025</option>
-          <option value="2025-09">September 2025</option>
-          <option value="2025-10">October 2025</option>
-          <option value="2025-11">November 2025</option>
-          <option value="2025-12">December 2025</option>
-        </select>
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <select
+            className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          >
+            <option value="">Select Semester</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            <option value="4">Semester 4</option>
+            <option value="5">Semester 5</option>
+            <option value="6">Semester 6</option>
+            <option value="7">Semester 7</option>
+            <option value="8">Semester 8</option>
+            {/* Add more semesters as needed */}
+          </select>
+          <select
+            className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+          >
+            <option value="">Select Month</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
       </div>
 
-      {/* Loading or Error State */}
-      {loading && <p>Loading...</p>}
+      {/* Loading / Error */}
+      {loading && <p className="text-gray-600">Loading attendance data...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       {/* Attendance Table */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-white">
-            <tr>
-              <th className="p-4 text-left text-black font-semibold">Date</th>
-              {[...Array(6)].map((_, i) => (
-                <th key={i} className="p-4 text-center text-black font-semibold">
-                  H{i + 1}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {attendanceData.map((entry, index) => (
-              <tr
-                key={index}
-                className={`${
-                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                } hover:bg-gray-100 transition-colors`}
-              >
-                <td className="p-4 text-gray-700 font-medium">{entry.date}</td>
-                {[...Array(6)].map((_, hourIndex) => {
-                  const status = entry.status[hourIndex] || "Absent"; // Handle missing status
-                  return (
-                    <td key={hourIndex} className="p-4 text-center">
-                      <span
-                        className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-                          status === "Present"
-                            ? "text-green-600"
-                            : status === "Absent"
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                        }`}
-                      >
-                        {status === "Present" ? "✅" : "❌"}
-                      </span>
-                    </td>
-                  );
-                })}
+      {!loading && !error && attendanceData.length > 0 && (
+        <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-white">
+              <tr>
+                <th className="p-4 text-left text-black font-semibold">Date</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 1</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 2</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 3</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 4</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 5</th>
+                <th className="p-4 text-center text-black font-semibold">Hour 6</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {attendanceData.map((record, index) => (
+                <tr
+                  key={index}
+                  className={`${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  } hover:bg-gray-100 transition-colors`}
+                >
+                  <td className="p-4 text-gray-700 font-medium">{record.date}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour1)}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour2)}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour3)}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour4)}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour5)}</td>
+                  <td className="p-4 text-center">{renderStatus(record.hour6)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* No Records */}
+      {!loading && !error && attendanceData.length === 0 && semester && month && (
+        <p className="text-gray-600">No attendance records for selected filters.</p>
+      )}
 
       {/* Legend */}
       <div className="flex justify-center space-x-6 mt-8">

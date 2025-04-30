@@ -60,6 +60,10 @@ function Tutorbar() {
             <Link to="/tutor/manage-timetable" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaRegCalendarAlt className="mr-3" />Manage timetable
             </Link>
+            
+            <Link to="/tutor/reports" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
+              <FaUsers className="mr-3" />Reports
+            </Link>
 
             {/* <Link to="/tutor/trackCondonation" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
               <FaRegCalendar className="mr-3" />Track Condonation

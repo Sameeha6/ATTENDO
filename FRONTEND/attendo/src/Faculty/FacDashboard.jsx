@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const FacultyDashboard = () => {
+  const navigate=useNavigate()
+
   const [branches, setBranches] = useState([]);
   const [timetable, setTimetable] = useState([]);
   const [filteredTimetable, setFilteredTimetable] = useState([]);
@@ -181,16 +184,25 @@ const FacultyDashboard = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredTimetable.length > 0 ? filteredTimetable.map((entry) => {
                 const isOwn = entry.faculty.id === facultyId;
+                const subjectClass = isOwn ? 'highlighted-subject' : ''
                 return (
                   <tr key={entry.id} className="hover:bg-gray-50">
                     <td className="px-6 py-3 text-sm text-gray-900">{entry.day}</td>
                     <td className="px-6 py-3 text-sm text-gray-500">{entry.time}</td>
                     <td
-                      onClick={() => handleSubjectClick(entry)}
-                      className={`px-6 py-3 text-sm font-medium cursor-pointer ${isOwn ? 'text-orange-500 bg-orange-100' : 'text-blue-600 hover:underline'}`}
-                    >
-                      {entry.subject.name}
-                    </td>
+      className={subjectClass}
+      style={{ cursor: 'pointer' }}
+      onClick={() => {
+        if (isOwn) {
+          navigate('/faculty/take-attendance', { state: { subject: entry.subject } }); 
+          // 👆 Pass the clicked subject info properly
+        } else {
+          handleSubjectClick(entry); 
+        }
+      }}
+    >
+  {entry.subject.name}
+</td>
                     <td className="px-6 py-3 text-sm text-gray-500">{entry.subject.code}</td>
                     <td className="px-6 py-3 text-sm text-gray-500">{entry.faculty.username}</td>
                   </tr>
@@ -202,6 +214,13 @@ const FacultyDashboard = () => {
               )}
             </tbody>
           </table>
+          <style>{`
+        .highlighted-subject {
+          background-color: #d1e7dd !important;
+          font-weight: bold;
+          border-radius: 4px;
+        }
+      `}</style>
         </div>
       )}
 

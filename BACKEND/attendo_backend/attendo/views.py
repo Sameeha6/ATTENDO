@@ -953,10 +953,10 @@ class MarkAttendance(APIView):
             attendance_status = entry.get('status')
             date_str = entry.get('date')  
             academic_year = entry.get('academic_year')  
-            hour = entry.get('hour')                    
+            hour = entry.get('hour')                     
             subject_id = entry.get('subject_id')
-            branch_id = entry.get('branch')
-            semester = entry.get('semester')  
+            branch_id = entry.get('branch') 
+            semester = entry.get('semester')   
 
             if not student_id or not attendance_status or not date_str or not subject_id:
                 return Response(
@@ -972,10 +972,12 @@ class MarkAttendance(APIView):
 
             try:
                 date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
                 student = get_object_or_404(Student, student_id=student_id, semester=semester)
                 subject = get_object_or_404(Subject, id=subject_id)
                 branch = get_object_or_404(Branch, id=branch_id)
 
+               
                 attendance, created = Attendance.objects.get_or_create(
                     student=student,
                     date=date,
@@ -984,10 +986,12 @@ class MarkAttendance(APIView):
                     defaults={
                         'status': attendance_status,
                         'academic_year': academic_year,
-                        'branch': branch,
+                        'branch': branch, 
                         'semester': semester,
                     }
                 )
+
+             
                 if not created:
                     attendance.status = attendance_status
                     attendance.academic_year = academic_year
@@ -998,6 +1002,7 @@ class MarkAttendance(APIView):
 
                 updated_attendance.append(attendance)
 
+                
                 attendance_summary, created = AttendanceSummary.objects.get_or_create(
                     student=student,
                     semester=semester,
@@ -1016,7 +1021,10 @@ class MarkAttendance(APIView):
                     attendance_summary.present_hours / attendance_summary.total_hours
                 ) * 100
                 attendance_summary.save()
+
+               
                 parents = student.parents.all()
+
                 if 70 <= attendance_summary.percentage < 75:
                     for parent in parents:
                         Notification.objects.create(
@@ -1030,26 +1038,25 @@ class MarkAttendance(APIView):
                             parent=parent,
                             message=f"Warning: {student.username}'s attendance for Semester {semester} is close to 75%. Current: {attendance_summary.percentage:.2f}%"
                         )
+
+              
                 if attendance_status == 'Absent':
                     for parent in parents:
-                        # Notification.objects.create(
-                        #     parent=parent,
-                        #     message=f"{student.username} was absent on {date} for {subject}"
-                        # )
                         Notification.objects.create(
                             parent=parent,
-                            message=f"{student.username} was absent on {date} ({hour})",
-                            type="absent",
-                            hour=hour
+                            message=f"{student.username} was absent on {date} for {subject}"
                         )
 
                     previous_dates = [date - timedelta(days=1), date - timedelta(days=2)]
+
                     absents = Attendance.objects.filter(
                         student=student,
                         subject=subject,
                         date__in=previous_dates + [date],
                         status='Absent'
                     ).values_list('date', flat=True)
+
+                   
                     if all(d in absents for d in [date] + previous_dates):
                         for parent in parents:
                             existing = Notification.objects.filter(
@@ -1058,22 +1065,19 @@ class MarkAttendance(APIView):
                             ).filter(message__icontains=str(date))
 
                             if not existing.exists():
-                                # Notification.objects.create(
-                                #     parent=parent,
-                                #     message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}"
-                                # )
                                 Notification.objects.create(
                                     parent=parent,
-                                    message=f"{student.username} was absent for 3 consecutive days including {date_str}",
-                                    type="absent_3_days",
-                                    hour=None
+                                    message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}"
                                 )
+
             except ValidationError as e:
                 return Response(
                     {"error": str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
         return Response({"message": "Success"}, status=status.HTTP_200_OK)
+
     
 class StudentAttendanceListView(APIView):
     def get(self, request):
@@ -1380,33 +1384,20 @@ class AttendanceReportPerSubjectView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
+
+        
 class GetStudentAttendance(APIView):
     def get(self, request, student_id):
-        print(f"Looking for student_id: {student_id}")
+        print(f"Fetching attendance for student_id: {student_id}")
 
-    
         student = get_object_or_404(Student, id=student_id)
 
-    
         attendance_records = Attendance.objects.filter(student=student)
 
-    
-        semester = request.GET.get('semester')
-        month = request.GET.get('month')
-
-    
-        if semester:
-            attendance_records = attendance_records.filter(semester=semester)
-
-     
-        if month:
-            attendance_records = attendance_records.filter(date__month=month)
-
-     
         attendance_data = []
         for record in attendance_records:
             attendance_data.append({
-                "student_id": record.student.student_id,
+                "student_id": record.student.id,
                 "status": record.status,
                 "date": record.date,
                 "hour": record.hour,
@@ -1416,8 +1407,4 @@ class GetStudentAttendance(APIView):
                 "subject": record.subject.subject_name,
             })
 
-        if attendance_data:
-            return Response({"attendance": attendance_data}, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "No attendance records found for this student."}, status=status.HTTP_404_NOT_FOUND)
-        
+        return Response({"attendance": attendance_data}, status=status.HTTP_200_OK)

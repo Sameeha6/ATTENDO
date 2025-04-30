@@ -1,7 +1,9 @@
 import React, { useState,useEffect } from "react";
 import axios from "axios";
+import {useLocation} from 'react-router-dom'
 
 const TakeAttendance = () => {
+  const location = useLocation();
   const [students, setStudents] = useState([]);
   const [branches, setBranches] = useState([]);
   const [attendance, setAttendance] = useState({});
@@ -11,10 +13,11 @@ const TakeAttendance = () => {
   const [selectedHour, setSelectedHour] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
-
-
+  // const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
 
   useEffect(() => {
+    const { subject } = location.state || {};
     axios.get('http://127.0.0.1:8000/api/students/')
       .then((response) => {
         const data = response.data;
@@ -82,8 +85,15 @@ const TakeAttendance = () => {
       academic_year: selectedAcademicYear,
       hour: selectedHour,
       date: selectedDate,
+      subject_id: location.state.subject.id,
+      branch: selectedBranch,
+      semester: selectedSemester,
+    
     }));
-
+    
+    console.log("Submitting Attendance Data:", submissionData);
+   
+    
     axios.post('http://127.0.0.1:8000/api/mark-attendance/', submissionData)
       .then(response => {
         console.log("Attendance marked:", response.data);
@@ -95,7 +105,16 @@ const TakeAttendance = () => {
       });
   };
 
-
+  // useEffect(() => {
+  //   axios.get('http://127.0.0.1:8000/api/subjects-and-semesters/') // Replace this with your correct API endpoint for subjects
+  //     .then((response) => {
+  //       const data = response.data;
+  //       setSubjects(data); // Set the subjects in the state
+  //     })
+  //     .catch((error) => {
+  //       console.log("Error fetching subjects:", error);
+  //     });
+  // }, []);
   // useEffect(() => {
   //   if (selectedBranch && selectedSemester && selectedAcademicYear) {
   //     const filtered = students.filter(student =>
@@ -233,6 +252,17 @@ const TakeAttendance = () => {
               ))}
             </select>
           </div>
+          {/* <div>
+          <label className="block text-gray-600 font-semibold">Subject</label>
+          <select onChange={(e) => setSelectedSubject(e.target.value)} value={selectedSubject}>
+          <option value="">Select Subject</option>
+          {subjects.map((subject) => (
+            <option key={subject.id} value={subject.id}>
+              {subject.name}
+            </option>
+          ))}
+  </select>
+          </div> */}
           <div>
           <label className="block text-gray-600 font-semibold">Hour</label>
               <select className="w-full p-2 border rounded-md" value={selectedHour} onChange={(e) => setSelectedHour(e.target.value)}>

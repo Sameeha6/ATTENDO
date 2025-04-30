@@ -8,6 +8,7 @@ import ManageFaculties from "../Tutor/ManageFaculty";
 import ManageParents from "../Tutor/ManageParent";
 import ManageStudents from "../Tutor/ManageStudent";
 import Timetable from "../Tutor/ManageTimetable";
+import TutorReport from "../Tutor/Report";
 
 function TutorRoutes() {
   // Sidebar state
@@ -32,6 +33,7 @@ function TutorRoutes() {
             <Route path="/manage-parents" element={<ManageParents />} />
             <Route path="/manage-students" element={<ManageStudents />} />
             <Route path="/manage-timetable" element={<Timetable />} />
+            <Route path="/reports" element={<TutorReport />} />
           </Routes>
         </div>
       </div>
