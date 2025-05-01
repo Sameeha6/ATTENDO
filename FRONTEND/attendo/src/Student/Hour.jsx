@@ -44,43 +44,45 @@ const HourlyAttendance = () => {
     return Object.values(groupedByDate);
   };
 
-  const fetchAttendanceData = async () => {
-    const student_id = localStorage.getItem("student_id");
-
-    if (!student_id) {
-      setError("Student is not logged in");
-      setLoading(false);
-      return;
-    }
-
-    if (!semester || !month) {
-      setAttendanceData([]);
-      setLoading(false);
-      return;
-    }
-    const filters={semester,month}
-    console.log("Semester:", semester);
-    console.log("Month:", month);
-    setLoading(true);
-    setError(null);
-    console.log(localStorage.getItem("student_id"))
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/student-hour-attendance/${student_id}/`,
-        { params: filters }
-      );
-      console.log(response.data)
-      const reshapedData = reshapeAttendance(response.data.attendance || []);
-      setAttendanceData(reshapedData);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   useEffect(() => {
-    fetchAttendanceData();
+    const fetchAttendanceDetails = async () => {
+      const studentId = localStorage.getItem('student_id');
+  
+      if (!studentId) {
+        setError('Student is not logged in');
+        setLoading(false);
+        return;
+      }
+  
+      if (!semester || !month) {
+      
+        setAttendanceData([]); 
+        setLoading(false);
+        return;
+      }
+  
+      const filters = {
+        semester,
+        month,
+      };
+  
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://127.0.0.1:8000/api/student-hour-attendance/${studentId}/`, { params: filters });
+        console.log('Attendance Data:', response.data);     
+        const reshapedData = reshapeAttendance(response.data.attendance || []);
+        setAttendanceData(reshapedData);
+        setError(null); 
+      } catch (err) {
+        setError('Failed to fetch attendance data');
+        console.error(err);  // Log the error correctly
+      } finally {
+        setLoading(false);
+      }
+    }      
+  
+    fetchAttendanceDetails();
   }, [semester, month]);
 
   const renderStatus = (status) => {
@@ -104,14 +106,14 @@ const HourlyAttendance = () => {
             onChange={(e) => setSemester(e.target.value)}
           >
             <option value="">Select Semester</option>
-            <option value="1">Semester 1</option>
-            <option value="2">Semester 2</option>
-            <option value="3">Semester 3</option>
-            <option value="4">Semester 4</option>
-            <option value="5">Semester 5</option>
-            <option value="6">Semester 6</option>
-            <option value="7">Semester 7</option>
-            <option value="8">Semester 8</option>
+            <option value="S1">Semester 1</option>
+            <option value="S2">Semester 2</option>
+            <option value="S3">Semester 3</option>
+            <option value="S4">Semester 4</option>
+            <option value="S5">Semester 5</option>
+            <option value="S6">Semester 6</option>
+            <option value="S7">Semester 7</option>
+            <option value="S8">Semester 8</option>
             {/* Add more semesters as needed */}
           </select>
           <select

@@ -4,10 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { toast,ToastContainer } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
 
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [fpUsername, setFpUsername] = useState("");
+  const [fpEmail, setFpEmail] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -61,6 +65,19 @@ function Login() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      await axios.post("http://127.0.0.1:8000/api/forgot-password/", {
+        username: fpUsername,
+        email: fpEmail,
+      });
+      toast.success("Temporary password sent to email.");
+      setModalIsOpen(false);
+    } catch (err) {
+      toast.error("Error: " + (err.response?.data?.error || "Try again"));
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 sm:p-6 mt-6">
       <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-md sm:max-w-xl md:max-w-3xl flex flex-col md:flex-row">
@@ -111,10 +128,60 @@ function Login() {
                 className="w-full  bg-blue-950 text-white font-bold py-2 rounded-lg hover:bg-blue-900 transition duration-200">
                 Login
               </button>
+              <p
+                className="text-sm text-blue-500 cursor-pointer mt-2 text-center"
+                onClick={() => setModalIsOpen(true)}
+              >
+                Forgot Password?
+              </p>
+              {modalIsOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
+                  <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-8 text-center">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">Forgot Password?</h2>
+                    
+                    <div className="space-y-4">
+                      <input
+                        placeholder="Username"
+                        value={fpUsername}
+                        onChange={(e) => setFpUsername(e.target.value)}
+                        className="border p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      />
+                      <input
+                        placeholder="Email"
+                        value={fpEmail}
+                        onChange={(e) => setFpEmail(e.target.value)}
+                        className="border p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-4 mt-6">
+                      <button
+                        onClick={() => setModalIsOpen(false)}
+                        className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleForgotPassword}
+                        disabled={!fpUsername || !fpEmail}
+                        className={`px-4 py-2 rounded-lg font-semibold ${
+                          (!fpUsername || !fpEmail)
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-cyan-800 hover:bg-cyan-700 text-white"
+                        }`}
+                      >
+                        Send Password
+                      </button>
+
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </form>
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 }

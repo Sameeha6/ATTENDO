@@ -46,28 +46,23 @@ function Navbar() {
           <div className="hidden md:flex space-x-6">
             <ul className="flex space-x-6 mt-6">
               <li>
-                <Link to="/" className="hover:bg-gray-200 px-4 py-2 rounded-md hover:text-gray-900 font-semibold">
+                <Link to="/" className=" px-4 py-2 rounded-md hover:text-orange-200 font-semibold">
                   Home
                 </Link>
               </li>
-              {/* <li>
-                <Link to="/features" className="hover:bg-gray-200 px-4 py-2 rounded-md hover:text-gray-900 font-semibold">
-                  Features
-                </Link>
-              </li> */}
               <li>
-                <Link to="/about" className="hover:bg-gray-200 px-4 py-2 rounded-md hover:text-gray-900 font-semibold">
+                <Link to="/about" className=" px-4 py-2 rounded-md hover:text-orange-200 font-semibold">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:bg-gray-200 px-4 py-2 rounded-md hover:text-gray-900 font-semibold">
+                <Link to="/contact" className=" px-4 py-2 rounded-md hover:text-orange-200 font-semibold">
                   Contact Us
                 </Link>
               </li>
             </ul>
             <button
-              className="bg-white px-4 py-2 text-black my-3 rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold"
+              className="border-2 border-white px-4 py-2 my-3 rounded-md hover:text-orange-200 font-semibold"
               onClick={() => navigate("/login")}
             >
               Login

@@ -26,6 +26,45 @@ class LoginView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        email = request.data.get("email")
+
+        hod = HOD.objects.filter(username=username, email=email).first()
+        if not hod:
+            return Response({"error": "HOD not found with provided username and email"}, status=404)
+
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        hod.password = make_password(temp_password)
+        hod.save()
+
+        send_mail(
+            subject="Password Reset - AttenDo",
+            message=f"Hi {hod.username},\n\nYour temporary password is: {temp_password}\nPlease login and change your password immediately.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[hod.email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "Temporary password sent to your email."}, status=200)
+
+class ChangePasswordView(APIView):   
+    def put(self, request, hod_id):
+            current_password = request.data.get("current_password")
+            new_password = request.data.get("new_password")
+
+            hod = HOD.objects.filter(id=hod_id).first()
+            if not hod:
+                return Response({"error": "HOD not found."}, status=404)
+
+            if not check_password(current_password, hod.password):
+                return Response({"error": "Current password is incorrect."}, status=400)
+
+            hod.password = make_password(new_password)
+            hod.save()
+            return Response({"message": "Password changed successfully."}, status=200)
+        
 class HODRegisterView(APIView):
     def post(self, request):
         serializer = HODRegisterSerializer(data=request.data)
@@ -1044,7 +1083,9 @@ class MarkAttendance(APIView):
                     for parent in parents:
                         Notification.objects.create(
                             parent=parent,
-                            message=f"{student.username} was absent on {date} for {subject}"
+                            message=f"{student.username} was absent on {date} for {hour}",
+                            type="absent",
+                            hour=hour
                         )
 
                     previous_dates = [date - timedelta(days=1), date - timedelta(days=2)]
@@ -1067,7 +1108,8 @@ class MarkAttendance(APIView):
                             if not existing.exists():
                                 Notification.objects.create(
                                     parent=parent,
-                                    message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}"
+                                    message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}",
+                                    type="absent_3_days"
                                 )
 
             except ValidationError as e:
@@ -1388,16 +1430,29 @@ class AttendanceReportPerSubjectView(APIView):
         
 class GetStudentAttendance(APIView):
     def get(self, request, student_id):
-        print(f"Fetching attendance for student_id: {student_id}")
+        print(f"Looking for student_id: {student_id}")
 
         student = get_object_or_404(Student, id=student_id)
 
         attendance_records = Attendance.objects.filter(student=student)
 
+        semester = request.GET.get('semester')
+        month = request.GET.get('month')
+
+        if semester:
+            attendance_records = attendance_records.filter(semester=semester)
+
+        if month:
+            try:
+                month_int = int(month)
+                attendance_records = attendance_records.filter(date__month=month_int)
+            except ValueError:
+                return Response({"error": "Invalid month value"}, status=status.HTTP_400_BAD_REQUEST)
+
         attendance_data = []
         for record in attendance_records:
             attendance_data.append({
-                "student_id": record.student.id,
+                "student_id": record.student.student_id,
                 "status": record.status,
                 "date": record.date,
                 "hour": record.hour,
@@ -1408,3 +1463,50 @@ class GetStudentAttendance(APIView):
             })
 
         return Response({"attendance": attendance_data}, status=status.HTTP_200_OK)
+
+class StudentSubjectReportView(APIView):
+    def get(self, request, student_id):
+        try:
+            academic_year = request.query_params.get('academic_year')
+            semester = request.query_params.get('semester')
+
+            if not academic_year or not semester:
+                return Response(
+                    {"error": "academic_year and semester are required parameters."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            attendance_records = Attendance.objects.filter(
+                student__id=student_id,
+                academic_year=academic_year,
+                semester=semester
+            )
+
+            subjects = attendance_records.values_list('subject__subject_name', flat=True).distinct()
+
+            result = []
+
+            for subject in subjects:
+                subject_records = attendance_records.filter(subject__subject_name=subject)
+                total_hours = subject_records.count()
+                present_hours = subject_records.filter(status='Present').count()
+
+                if total_hours > 0:
+                    attendance_percentage = (present_hours / total_hours) * 100
+                else:
+                    attendance_percentage = 0
+
+                result.append({
+                    "subject_name": subject,
+                    "total_hours": total_hours,
+                    "present_hours": present_hours,
+                    "attendance_percentage": round(attendance_percentage, 2)
+                })
+
+            return Response(result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

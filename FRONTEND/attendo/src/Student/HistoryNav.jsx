@@ -5,9 +5,9 @@ const HistoryNav = () => {
   const [semester, setSemester] = useState("First");
 
   return (
-    <div className=" flex items-center justify-between p-4 bg-white shadow-md ">
+    <div className=" flex justify-end p-4 bg-white shadow-md ">
       {/* Dropdown for Semester Selection */}
-      <select
+      {/* <select
         className="border px-4 py-2 rounded-md"
         value={semester}
         onChange={(e) => setSemester(e.target.value)}
@@ -20,7 +20,7 @@ const HistoryNav = () => {
         <option value="Sixth">Sixth</option>
         <option value="Seventh">Seventh</option>
         <option value="Eighth">Eighth</option>
-      </select>
+      </select> */}
 
       {/* Navigation Tabs */}
       <div className="flex space-x-6">

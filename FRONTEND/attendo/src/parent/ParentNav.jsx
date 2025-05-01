@@ -7,6 +7,11 @@ function ParentNav() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   const handleNotification = (path) => {
     const selectedStudentId = localStorage.getItem("student_id");
     if (!selectedStudentId) {
@@ -27,7 +32,6 @@ function ParentNav() {
 
   return (
     <nav className="bg-blue-950 text-white p-4 px-6 flex justify-between items-center shadow-md w-full fixed top-0 z-50">
-      {/* Logo & Title */}
       <div className="flex items-center space-x-2">
         <img
           src="https://cdn-icons-png.flaticon.com/512/18747/18747599.png"
@@ -36,8 +40,6 @@ function ParentNav() {
         />
         <div className="text-2xl font-sans font-bold">AttenDo</div>
       </div>
-
-      {/* Navbar Links */}
       <div className="hidden lg:flex space-x-6 items-center">
         <Link to="/parent/Dash" className="hover:text-gray-400 flex items-center">
           <MdAdminPanelSettings className="mr-2" /> Dashboard
@@ -54,7 +56,8 @@ function ParentNav() {
         >
           <FaExclamationTriangle className="mr-2" /> Alerts
         </button>
-        <button className="bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold">
+        <button className="hidden lg:block border-2 border-white px-4 py-2 hover:border-orange-200 rounded-md hover:text-orange-200 font-semibold"
+          onClick={handleLogout}>
           Log Out
         </button>
       </div>
@@ -88,7 +91,8 @@ function ParentNav() {
           >
             <FaExclamationTriangle className="mr-2" /> Alerts
           </button>
-          <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200">
+          <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200"
+            onClick={handleLogout}>
             Log Out
           </button>
         </div>

@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import {FaBars,FaTimes,FaHistory,FaChartBar,FaExclamationTriangle, FaBell,} from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 function Facultybar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  
+    const handleLogout = () => {
+      localStorage.clear();
+      navigate("/login");
+    };
 
   return (
     <nav className="bg-blue-950 text-white p-4 px-6 flex justify-between items-center shadow-md w-full fixed top-0 z-50">
@@ -29,7 +35,8 @@ function Facultybar() {
         <Link to="/faculty/reports" className="hover:text-gray-400 flex items-center">
           <FaChartBar className="mr-2" /> Reports
         </Link>
-        <button className="bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold">
+        <button className="hidden lg:block border-2 border-white px-4 py-2 hover:border-orange-200 rounded-md hover:text-orange-200 font-semibold"
+          onClick={handleLogout}>
           Log Out
         </button>
       </div>
@@ -57,10 +64,8 @@ function Facultybar() {
           <Link to="/faculty/reports" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
             <FaChartBar className="mr-2" /> Reports
           </Link>
-          {/* <Link to="/faculty/alerts" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
-            <FaExclamationTriangle className="mr-2" /> Alerts
-          </Link> */}
-          <button className="bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600 font-semibold">
+          <button className="bg-white px-4 py-2 text-black rounded-md hover:bg-gray-200 hover:text-sky-600"
+            onClick={handleLogout}>
             Log Out
         </button>
         </div>

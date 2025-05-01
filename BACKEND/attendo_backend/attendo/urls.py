@@ -6,6 +6,9 @@ urlpatterns = [
     path("contactus/",ContactMessageView.as_view(),name="contactus"),
 
     path("login/", LoginView.as_view(), name="login"),
+    path('forgot-password/', ForgotPasswordView.as_view()),
+    path('hod/change-password/<int:hod_id>/', ChangePasswordView.as_view()),
+
 
     path("branches/",BranchListCreateView.as_view(), name="branches"),
     path("hod/", HODRegisterView.as_view(), name="hod"),
@@ -65,5 +68,6 @@ urlpatterns = [
     path('facultybranchstds/<int:faculty_id>/', FacultySubjectsBranchesStudentsView.as_view(), name='faculty-students'),     
     path('attendance-report/<int:faculty_id>/', AttendanceReportPerSubjectView.as_view(), name='attendance-report-per-subject'),
     path('student-hour-attendance/<int:student_id>/', GetStudentAttendance.as_view(), name='student_attendance_details'),
+    path('student-subject-report/<int:student_id>/', StudentSubjectReportView.as_view(), name='student-subject-report'),
     
 ]

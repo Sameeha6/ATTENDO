@@ -108,115 +108,170 @@ const FacultyReport = () => {
   });
 
   return (
-    <div className="bg-gray-50 font-sans min-h-screen p-4 mt-12">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Subject Report</h1>
+    <div className="bg-gray-50 font-sans min-h-screen p-4 md:p-6 lg:p-8 mt-10 md:mt-10">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl md:text-3xl font-bold text-cyan-950 mb-4 md:mb-6 text-center">
+          Subject Report
+        </h1>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <select
-          className="border p-2 rounded"
-          value={selectedBranch}
-          onChange={(e) => setSelectedBranch(e.target.value)}
-        >
-          <option value="">Select Branch</option>
-          {studentDetails.branches.map((branch) => (
-            <option key={branch.id} value={branch.name}>
-              {branch.name}
-            </option>
-          ))}
-        </select>
+        {/* Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Branch
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-md p-2"
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+            >
+              <option value="">All Branches</option>
+              {studentDetails.branches.map((branch) => (
+                <option key={branch.id} value={branch.name}>
+                  {branch.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <select
-          className="border p-2 rounded"
-          value={selectedAcademicYear}
-          onChange={(e) => setSelectedAcademicYear(e.target.value)}
-        >
-          <option value="">Select Academic Year</option>
-          {[...new Set(studentDetails.students.map((s) => s.academic_year))].map(
-            (year, index) => (
-              <option key={index} value={year}>
-                {year}
-              </option>
-            )
-          )}
-        </select>
-
-        <select
-          className="border p-2 rounded"
-          value={selectedSemester}
-          onChange={(e) => setSelectedSemester(e.target.value)}
-        >
-          <option value="">Select Semester</option>
-          {[...new Set(studentDetails.students.map((s) => s.semester))].map(
-            (sem, index) => (
-              <option key={index} value={sem}>
-                {sem}
-              </option>
-            )
-          )}
-        </select>
-
-        <select
-          className="border p-2 rounded"
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-        >
-          <option value="">Select Subject</option>
-          {studentDetails.subjects.map((subject, index) => (
-            <option key={index} value={subject.subject_name}>
-              {subject.subject_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Student Table */}
-      <div className="space-y-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800">
-            {selectedSubject || "No subject selected"}
-          </h2>
-          <p className="text-gray-600">
-            Students Enrolled:{" "}
-            <span className="font-bold">{filteredStudents.length}</span>
-          </p>
-          <table className="w-full mt-3 border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-2 text-left">RegNo</th>
-                <th className="border p-2 text-left">Name</th>
-                <th className="border p-2 text-left">Attendance %</th>
-                <th className="border p-2 text-left">Mark (out of 5)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student, idx) => {
-                  const attendance = attendanceData[student.student_id];
-                  return (
-                    <tr key={idx}>
-                      <td className="border p-2">{student.student_id}</td>
-                      <td className="border p-2">{student.username}</td>
-                      <td className="border p-2">
-                        {attendance
-                          ? `${attendance.percentage.toFixed(2)}%`
-                          : "N/A"}
-                      </td>
-                      <td className="border p-2">
-                        {attendance ? attendance.marksOutOfFive : "N/A"}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="4" className="text-center p-2">
-                    No students found for the selected filters.
-                  </td>
-                </tr>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Academic Year
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-md p-2"
+              value={selectedAcademicYear}
+              onChange={(e) => setSelectedAcademicYear(e.target.value)}
+            >
+              <option value="">All Years</option>
+              {[...new Set(studentDetails.students.map((s) => s.academic_year))].map(
+                (year, index) => (
+                  <option key={index} value={year}>
+                    {year}
+                  </option>
+                )
               )}
-            </tbody>
-          </table>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Semester
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-md p-2"
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+            >
+              <option value="">All Semesters</option>
+              {[...new Set(studentDetails.students.map((s) => s.semester))].map(
+                (sem, index) => (
+                  <option key={index} value={sem}>
+                    {sem}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Subject
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-md p-2"
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+            >
+              <option value="">All Subjects</option>
+              {studentDetails.subjects.map((subject, index) => (
+                <option key={index} value={subject.subject_name}>
+                  {subject.subject_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Student Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-bold text-gray-800">
+              {selectedSubject || "All Subjects"}
+            </h2>
+            <p className="text-gray-600 mt-1">
+              Students Enrolled:{" "}
+              <span className="font-bold text-blue-600">
+                {filteredStudents.length}
+              </span>
+            </p>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                    RegNo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                    Attendance %
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                    Mark (out of 5)
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map((student, idx) => {
+                    const attendance = attendanceData[student.student_id];
+                    const percentageColor = attendance
+                      ? attendance.percentage >= 75
+                        ? "text-green-600"
+                        : attendance.percentage >= 50
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                      : "";
+                    
+                    return (
+                      <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                        <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-500">
+                          {student.student_id}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {student.username}
+                        </td>
+                        <td className={`px-6 py-2 whitespace-nowrap text-gray-500 text-sm font-medium ${percentageColor}`}>
+                          {attendance
+                            ? `${attendance.percentage.toFixed(2)}%`
+                            : "N/A"}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {attendance ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {attendance.marksOutOfFive}
+                            </span>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                      No students found for the selected filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -31,10 +31,12 @@ class UserLoginSerializer(serializers.Serializer):
         # HOD Login
         hod = HOD.objects.filter(username=username).first()
         if hod:
-            if hod.password != password:
-                raise serializers.ValidationError("Invalid HOD credentials.")
+            # if hod.password != password:
+            #     raise serializers.ValidationError("Invalid HOD credentials.")
             if not hod.branch:
                 raise serializers.ValidationError("No branch assigned to this HOD.")
+            if not check_password(password, hod.password):
+                raise serializers.ValidationError("Invalid HOD credentials.")
             return {
                 "hod_id":hod.id,
                 "username": hod.username,
@@ -46,8 +48,10 @@ class UserLoginSerializer(serializers.Serializer):
         # Faculty Login
         faculty = Faculty.objects.filter(username=username).first()
         if faculty:
-            if faculty.password != password:
-                raise serializers.ValidationError("Invalid Faculty credentials.")
+            # if faculty.password != password:
+            #     raise serializers.ValidationError("Invalid Faculty credentials.")
+            if not check_password(password, faculty.password):
+                raise serializers.ValidationError("Invalid faculty credentials.")
             return {
                 "faculty_id":faculty.id,
                 "username": faculty.username,
@@ -59,8 +63,10 @@ class UserLoginSerializer(serializers.Serializer):
         # Tutor Login
         tutor = Tutor.objects.filter(username=username).first()
         if tutor:
-            if tutor.password != password:
-                raise serializers.ValidationError("Invalid Tutor credentials.")
+            # if tutor.password != password:
+            #     raise serializers.ValidationError("Invalid Tutor credentials.")
+            if not check_password(password, tutor.password):
+                raise serializers.ValidationError("Invalid tutor credentials.")
             return {
                 "tutor_id":tutor.id,
                 "username": tutor.username,
@@ -74,6 +80,8 @@ class UserLoginSerializer(serializers.Serializer):
         if parent:
             if parent.password != password:
                 raise serializers.ValidationError("Invalid Parent credentials.")
+            # if not check_password(password, parent.password):
+            #     raise serializers.ValidationError("Invalid parent credentials.")
             return {
                 "username": parent.username,
                 "role": "parent",
@@ -87,10 +95,12 @@ class UserLoginSerializer(serializers.Serializer):
         
         student = Student.objects.filter(username=username).first()
         if student:
-            if student is None:
-                raise serializers.ValidationError("Invalid Studentttt credentials.")
+            # if student is None:
+            #     raise serializers.ValidationError("Invalid Studentttt credentials.")
             if student.password != password:
                 raise serializers.ValidationError("Invalid Student credentials.")
+            # if not check_password(password, student.password):
+            #     raise serializers.ValidationError("Invalid student credentials.")
             return {
                 "student_id": student.id,
                 "username": student.username,
@@ -254,15 +264,17 @@ class FacultyRegisterSerializer(serializers.Serializer):
         return password
 
     def create(self, validated_data):
-        random_password = make_password(self.generate_random_password())
-
+        # random_password = make_password(self.generate_random_password())
+        random_password = self.generate_random_password()
+        hashed_password = make_password(random_password)
         # Create Faculty directly
+
         faculty = Faculty.objects.create(
             username=validated_data["username"],
             email=validated_data["email"],
             phone_number=validated_data["phone_number"],
             branch=validated_data["branch"],
-            password=random_password
+            password=hashed_password
             # If you later add a password field to Faculty, store random_password here.
         )
 
@@ -378,8 +390,11 @@ class TutorRegisterSerializer(serializers.Serializer):
         return password
 
     def create(self, validated_data):
-        random_password = make_password(self.generate_random_password())
+        # random_password = make_password(self.generate_random_password())
+        plain_password = self.generate_random_password()
 
+    # Hash it for storing
+        hashed_password = make_password(plain_password)
         # Create tutor directly
         tutor = Tutor.objects.create(
             username=validated_data["username"],
@@ -387,7 +402,7 @@ class TutorRegisterSerializer(serializers.Serializer):
             phone_number=validated_data["phone_number"],
             branch=validated_data["branch"],
             academic_year=validated_data['academic_year'],
-            password=random_password,
+            password=hashed_password,
             role="tutor" 
             # If you later add a password field to tutor, store random_password here.
         )
@@ -397,7 +412,7 @@ class TutorRegisterSerializer(serializers.Serializer):
             send_mail(
                 subject="Tutor Registration Successful",
                 message=f"Dear {tutor.username},\n\nYou have been registered as a tutor.\n\n"
-                        f"Username: {tutor.username}\nPassword: {random_password}\n\n"
+                        f"Username: {tutor.username}\nPassword: {plain_password}\n\n"
                         "Please log in and change your password for security reasons.",
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[tutor.email],
@@ -436,10 +451,10 @@ class StudentRegisterSerializer(serializers.Serializer):
     #         raise serializers.ValidationError("This username is already taken.")
     #     return value
 
-    def validate_email(self, value):
-        if Student.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email is already registered.")
-        return value
+    # def validate_email(self, value):
+    #     if Student.objects.filter(email=value).exists():
+    #         raise serializers.ValidationError("This email is already registered.")
+    #     return value
 
     def create(self, validated_data):
         password = validated_data.get('password')
