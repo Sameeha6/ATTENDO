@@ -69,5 +69,6 @@ urlpatterns = [
     path('attendance-report/<int:faculty_id>/', AttendanceReportPerSubjectView.as_view(), name='attendance-report-per-subject'),
     path('student-hour-attendance/<int:student_id>/', GetStudentAttendance.as_view(), name='student_attendance_details'),
     path('student-subject-report/<int:student_id>/', StudentSubjectReportView.as_view(), name='student-subject-report'),
+    path('student-report-semester/', AttendanceReportPerSemesterView.as_view(), name='attendance-semester-report'),
     
 ]

@@ -1431,24 +1431,18 @@ class AttendanceReportPerSubjectView(APIView):
 class GetStudentAttendance(APIView):
     def get(self, request, student_id):
         print(f"Looking for student_id: {student_id}")
-
         student = get_object_or_404(Student, id=student_id)
-
         attendance_records = Attendance.objects.filter(student=student)
-
         semester = request.GET.get('semester')
         month = request.GET.get('month')
-
         if semester:
             attendance_records = attendance_records.filter(semester=semester)
-
         if month:
             try:
                 month_int = int(month)
                 attendance_records = attendance_records.filter(date__month=month_int)
             except ValueError:
                 return Response({"error": "Invalid month value"}, status=status.HTTP_400_BAD_REQUEST)
-
         attendance_data = []
         for record in attendance_records:
             attendance_data.append({
@@ -1461,7 +1455,6 @@ class GetStudentAttendance(APIView):
                 "semester": record.semester,
                 "subject": record.subject.subject_name,
             })
-
         return Response({"attendance": attendance_data}, status=status.HTTP_200_OK)
 
 class StudentSubjectReportView(APIView):
@@ -1469,40 +1462,32 @@ class StudentSubjectReportView(APIView):
         try:
             academic_year = request.query_params.get('academic_year')
             semester = request.query_params.get('semester')
-
             if not academic_year or not semester:
                 return Response(
                     {"error": "academic_year and semester are required parameters."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
             attendance_records = Attendance.objects.filter(
                 student__id=student_id,
                 academic_year=academic_year,
                 semester=semester
             )
-
             subjects = attendance_records.values_list('subject__subject_name', flat=True).distinct()
-
             result = []
-
             for subject in subjects:
                 subject_records = attendance_records.filter(subject__subject_name=subject)
                 total_hours = subject_records.count()
                 present_hours = subject_records.filter(status='Present').count()
-
                 if total_hours > 0:
                     attendance_percentage = (present_hours / total_hours) * 100
                 else:
                     attendance_percentage = 0
-
                 result.append({
                     "subject_name": subject,
                     "total_hours": total_hours,
                     "present_hours": present_hours,
                     "attendance_percentage": round(attendance_percentage, 2)
                 })
-
             return Response(result, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -1510,3 +1495,43 @@ class StudentSubjectReportView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+class AttendanceReportPerSemesterView(APIView):
+    def get(self, request):
+        try:
+            student_id = request.GET.get('student_id')
+            if not student_id:
+                return Response({"error": "Missing student_id in query params."}, status=status.HTTP_400_BAD_REQUEST)
+            print(f"Fetching attendance for student_id: {student_id}")
+            student = get_object_or_404(Student, id=student_id)
+            # Filter out attendance records where semester is None
+            attendance_records = Attendance.objects.filter(student=student, semester__isnull=False)
+            semester_data = {}
+            for record in attendance_records:
+                semester = record.semester
+                if semester not in semester_data:
+                    semester_data[semester] = {
+                        "student_id": student.id,
+                        "semester": semester,
+                        "present_hours": 0,
+                        "total_hours": 0,
+                    }
+
+                semester_data[semester]["total_hours"] += 1
+                if record.status.lower() == "present":
+                    semester_data[semester]["present_hours"] += 1
+
+            # Calculate attendance percentage
+            result = []
+            for data in semester_data.values():
+                total = data["total_hours"]
+                present = data["present_hours"]
+                percentage = (present / total) * 100 if total > 0 else 0
+                data["attendance_percentage"] = round(percentage, 2)
+                result.append(data)
+
+            return Response(result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Server Error: {str(e)}")  # Output the error to terminal/log
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
