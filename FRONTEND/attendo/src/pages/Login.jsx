@@ -22,8 +22,7 @@ function Login() {
       const response = await axios.post("http://127.0.0.1:8000/api/login/", {
         username,
         password,
-      });
-      console.log("Login Response:", response.data); 
+      }); 
       if (response.status === 200) {
         const role = response.data.role || response.data.data?.role;
         localStorage.setItem('role',response.data.data.role);

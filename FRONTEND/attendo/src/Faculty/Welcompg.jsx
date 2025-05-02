@@ -2,12 +2,37 @@ import React, { useState, useEffect } from "react";
 import { FaUserCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useNavigate} from 'react-router-dom';
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 
 export default function WelcomePg() {
   const [facultyName, setFacultyName] = useState("");
   const navigate = useNavigate();
   const facultyId = localStorage.getItem("faculty_id");
+  const [current, setCurrent] = useState("");
+    const [newPass, setNewPass] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+    const handleChangePassword = async () => {
+      if (newPass !== confirm) {
+        toast.error("New passwords do not match.");
+        return;
+      }
+  
+      try {
+        const faculty_id = localStorage.getItem("faculty_id");
+        await axios.put(`http://127.0.0.1:8000/api/faculty/change-password/${faculty_id}/`, {
+          current_password: current,
+          new_password: newPass,
+        });
+        toast.success("Password changed successfully.");
+        setShowPasswordModal(false);
+      } catch (err) {
+        toast.error("Error: " + (err.response?.data || "Try again"));
+      }
+    };
 
   useEffect(() => {
     const fetchFacultyName = async () => {
@@ -31,6 +56,62 @@ export default function WelcomePg() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center text-center p-6">
+      {/* <div className="flex justify-end mb-6"> */}
+      <div className="absolute top-4 mt-20 right-4">
+    <span className="text-black font-normal">Wanna change password? </span>
+    <button
+      onClick={() => setShowPasswordModal(true)}
+      className="text-cyan-800 hover:text-cyan-900 font-semibold transition"
+    >
+      Click me
+    </button>
+  </div>
+      {/* </div> */}
+      {showPasswordModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md">
+              <h3 className="text-xl font-bold mb-4 text-center text-gray-800">Change Password</h3>
+              
+              <input
+                type="password"
+                placeholder="Current Password"
+                value={current}
+                onChange={(e) => setCurrent(e.target.value)}
+                className="mb-2 border p-2 w-full rounded"required
+              />
+              <input
+                type="password"
+                placeholder="New Password"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                className="mb-2 border p-2 w-full rounded"required
+              />
+              <input
+                type="password"
+                placeholder="Confirm New Password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                className="mb-4 border p-2 w-full rounded"required
+              />
+              
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleChangePassword}
+                  className="px-4 py-2 bg-cyan-800 hover:bg-cyan-700 text-white rounded"
+                >
+                  Update Password
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
@@ -91,6 +172,7 @@ export default function WelcomePg() {
           Take attendance
         </motion.button>
       </motion.div>
+      <ToastContainer/>
     </div>
   );
 }

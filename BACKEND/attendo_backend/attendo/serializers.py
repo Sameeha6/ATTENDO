@@ -48,8 +48,6 @@ class UserLoginSerializer(serializers.Serializer):
         # Faculty Login
         faculty = Faculty.objects.filter(username=username).first()
         if faculty:
-            # if faculty.password != password:
-            #     raise serializers.ValidationError("Invalid Faculty credentials.")
             if not check_password(password, faculty.password):
                 raise serializers.ValidationError("Invalid faculty credentials.")
             return {
@@ -63,8 +61,6 @@ class UserLoginSerializer(serializers.Serializer):
         # Tutor Login
         tutor = Tutor.objects.filter(username=username).first()
         if tutor:
-            # if tutor.password != password:
-            #     raise serializers.ValidationError("Invalid Tutor credentials.")
             if not check_password(password, tutor.password):
                 raise serializers.ValidationError("Invalid tutor credentials.")
             return {
@@ -78,10 +74,8 @@ class UserLoginSerializer(serializers.Serializer):
         
         parent = Parent.objects.filter(username=username).first()
         if parent:
-            if parent.password != password:
-                raise serializers.ValidationError("Invalid Parent credentials.")
-            # if not check_password(password, parent.password):
-            #     raise serializers.ValidationError("Invalid parent credentials.")
+            if not check_password(password, parent.password):
+                raise serializers.ValidationError("Invalid parent credentials.")
             return {
                 "username": parent.username,
                 "role": "parent",
@@ -95,12 +89,8 @@ class UserLoginSerializer(serializers.Serializer):
         
         student = Student.objects.filter(username=username).first()
         if student:
-            # if student is None:
-            #     raise serializers.ValidationError("Invalid Studentttt credentials.")
-            if student.password != password:
-                raise serializers.ValidationError("Invalid Student credentials.")
-            # if not check_password(password, student.password):
-            #     raise serializers.ValidationError("Invalid student credentials.")
+            if not check_password(password, student.password):
+                raise serializers.ValidationError("Invalid student credentials.")
             return {
                 "student_id": student.id,
                 "username": student.username,
@@ -461,7 +451,7 @@ class StudentRegisterSerializer(serializers.Serializer):
         if not password:
           
             password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-
+        
         hashed_password = make_password(password)
 
         branch = Branch.objects.get(id=validated_data['branch_id'])

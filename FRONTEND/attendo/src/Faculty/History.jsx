@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const Attendancehistory = () => {
   const [allStudents, setAllStudents] = useState([]);
@@ -78,12 +80,12 @@ const Attendancehistory = () => {
           hod_id: hodId,
         })
           .then((response) => {
-            console.log('Attendance edit request sent to HOD:', response.data);
+            toast.success('Attendance edit request sent to HOD:', response.data);
             setEditedStatuses({});
             setShowPopup(false);
           })
           .catch((error) => {
-            console.error('Error submitting attendance edit request:', error);
+            toast.error('Error submitting attendance edit request:', error);
           });
       })
       .catch(error => {
@@ -237,6 +239,7 @@ const Attendancehistory = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

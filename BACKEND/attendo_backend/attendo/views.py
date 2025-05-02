@@ -53,17 +53,66 @@ class ChangePasswordView(APIView):
     def put(self, request, hod_id):
             current_password = request.data.get("current_password")
             new_password = request.data.get("new_password")
-
             hod = HOD.objects.filter(id=hod_id).first()
             if not hod:
                 return Response({"error": "HOD not found."}, status=404)
-
             if not check_password(current_password, hod.password):
                 return Response({"error": "Current password is incorrect."}, status=400)
-
             hod.password = make_password(new_password)
             hod.save()
             return Response({"message": "Password changed successfully."}, status=200)
+    
+class TutorChangePasswordView(APIView):
+    def put(self, request, tutor_id):
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+        tutor = Tutor.objects.filter(id=tutor_id).first()
+        if not tutor:
+            return Response({"error": "Tutor not found."}, status=404)
+        if not check_password(current_password, tutor.password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+        tutor.password = make_password(new_password)
+        tutor.save()
+        return Response({"message": "Password changed successfully."}, status=200)
+    
+class FacultyChangePasswordView(APIView):
+    def put(self, request, faculty_id):
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+        faculty = Faculty.objects.filter(id=faculty_id).first()
+        if not faculty:
+            return Response({"error": "Faculty not found."}, status=404)
+        if not check_password(current_password, faculty.password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+        faculty.password = make_password(new_password)
+        faculty.save()
+        return Response({"message": "Password changed successfully."}, status=200)
+    
+class StudentChangePasswordView(APIView):
+    def put(self, request, student_id):
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+        student = Student.objects.filter(id=student_id).first()
+        if not student:
+            return Response({"error": "Student not found."}, status=404)
+        if not check_password(current_password, student.password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+        student.password = make_password(new_password)
+        student.save()
+        return Response({"message": "Password changed successfully."}, status=200)
+    
+class ParentChangePasswordView(APIView):
+    def put(self, request, parent_id):
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+        parent = Parent.objects.filter(id=parent_id).first()
+        if not parent:
+            return Response({"error": "Parent not found."}, status=404)
+        if not check_password(current_password, parent.password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+        parent.password = make_password(new_password)
+        parent.save()
+        return Response({"message": "Password changed successfully."}, status=200)
         
 class HODRegisterView(APIView):
     def post(self, request):
@@ -1017,27 +1066,45 @@ class MarkAttendance(APIView):
                 branch = get_object_or_404(Branch, id=branch_id)
 
                
-                attendance, created = Attendance.objects.get_or_create(
-                    student=student,
-                    date=date,
-                    subject=subject,
-                    hour=hour,
-                    defaults={
-                        'status': attendance_status,
-                        'academic_year': academic_year,
-                        'branch': branch, 
-                        'semester': semester,
-                    }
-                )
+                # attendance, created = Attendance.objects.get_or_create(
+                #     student=student,
+                #     date=date,
+                #     subject=subject,
+                #     hour=hour,
+                #     defaults={
+                #         'status': attendance_status,
+                #         'academic_year': academic_year,
+                #         'branch': branch, 
+                #         'semester': semester,
+                #     }
+                # )
 
              
-                if not created:
-                    attendance.status = attendance_status
-                    attendance.academic_year = academic_year
-                    attendance.hour = hour
-                    attendance.branch = branch
-                    attendance.semester = semester
-                    attendance.save()
+                # if not created:
+                #     attendance.status = attendance_status
+                #     attendance.academic_year = academic_year
+                #     attendance.hour = hour
+                #     attendance.branch = branch
+                #     attendance.semester = semester
+                #     attendance.save()
+
+                if Attendance.objects.filter(student=student, date=date, subject=subject, hour=hour).exists():
+                        return Response(
+                            {"error": f"Attendance already marked for {student.username} on {date} for Hour {hour}."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+                attendance = Attendance.objects.create(
+                        student=student,
+                        date=date,
+                        subject=subject,
+                        hour=hour,
+                        status=attendance_status,
+                        academic_year=academic_year,
+                        branch=branch, 
+                        semester=semester,
+                    )
+
 
                 updated_attendance.append(attendance)
 
@@ -1534,4 +1601,51 @@ class AttendanceReportPerSemesterView(APIView):
 
         except Exception as e:
             print(f"Server Error: {str(e)}")  # Output the error to terminal/log
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class TutorAttendanceReportPerSemesterView(APIView):
+    def get(self, request):
+        try:
+            tutor_id = request.GET.get('tutor_id')
+            if not tutor_id:
+                return Response({"error": "Missing tutor_id in query params."}, status=status.HTTP_400_BAD_REQUEST)
+            tutor = get_object_or_404(Tutor, id=tutor_id)
+            # Fetch the students of the tutor's branch and academic year
+            students = Student.objects.filter(branch=tutor.branch, academic_year=tutor.academic_year)
+            # Fetch attendance records for the tutor's branch and academic year
+            attendance_records = Attendance.objects.filter(
+                subject__branch=tutor.branch, 
+                student__in=students,
+                semester__isnull=False
+            )
+            semester_data = {}
+            for record in attendance_records:
+                semester = record.semester
+                student = record.student
+                if semester not in semester_data:
+                    semester_data[semester] = {}
+                if student.id not in semester_data[semester]:
+                    semester_data[semester][student.id] = {
+                        "student_id": student.student_id,
+                        "student_name": student.username,
+                        "semester": semester,
+                        "academic_year": student.academic_year,
+                        "present_hours": 0,
+                        "total_hours": 0,
+                    }
+                semester_data[semester][student.id]["total_hours"] += 1
+                if record.status.lower() == "present":
+                    semester_data[semester][student.id]["present_hours"] += 1
+            # Format result
+            result = []
+            for semester, students in semester_data.items():
+                for student_id, data in students.items():
+                    total = data["total_hours"]
+                    present = data["present_hours"]
+                    percentage = (present / total) * 100 if total > 0 else 0
+                    data["attendance_percentage"] = round(percentage, 2)
+                    result.append(data)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Server Error: {str(e)}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

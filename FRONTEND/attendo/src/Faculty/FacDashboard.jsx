@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
@@ -72,7 +74,7 @@ const FacultyDashboard = () => {
       if (existingRequest.status === 'Approved') {
         navigate('/faculty/take-attendance', { state: { subject: entry.subject } });
       } else if (existingRequest.status === 'Pending') {
-        alert("Your request is still pending approval.");
+        toast.alert("Your request is still pending approval.");
       } else if (existingRequest.status === 'Rejected') {
         setSelectedEntry(entry);
         setShowModal(true);
@@ -92,9 +94,9 @@ const FacultyDashboard = () => {
 
         if (exists) {
           if (exists.status === 'Pending') {
-            alert("Request is already pending.");
+            toast.alert("Request is already pending.");
           } else if (exists.status === 'Approved') {
-            alert("Already approved. Please refresh the page.");
+            toast.alert("Already approved. Please refresh the page.");
           } else if (exists.status === 'Rejected') {
             axios.post("http://127.0.0.1:8000/api/request-hour-change/", {
               faculty_id: facultyId,
@@ -107,7 +109,7 @@ const FacultyDashboard = () => {
               })
               .catch(err => {
                 console.error(err);
-                alert("Error re-sending request.");
+                toast.error("Error re-sending request.");
               });
           }
         } else {
@@ -122,13 +124,13 @@ const FacultyDashboard = () => {
             })
             .catch(err => {
               console.error(err);
-              alert("Error sending request.");
+              toast.error("Error sending request.");
             });
         }
       })
       .catch((err) => {
         console.error(err);
-        alert("Error checking existing requests.");
+        toast.error("Error checking existing requests.");
       });
   };
 

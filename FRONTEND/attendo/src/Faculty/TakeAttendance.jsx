@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from "react";
 import axios from "axios";
 import {useLocation} from 'react-router-dom'
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const TakeAttendance = () => {
   const location = useLocation();
@@ -55,28 +57,6 @@ const TakeAttendance = () => {
     }));
   };
 
-  // const toggleAttendance = (studentId) => {
-  //   const newStatus = attendance[studentId] === 'Present' ? 'Absent' : 'Present';
-  //   setAttendance(prev => ({
-  //     ...prev,
-  //     [studentId]: newStatus
-  //   }));
-
-  //   if (newStatus === 'Absent') {
-  //     axios.post(`http://127.0.0.1:8000/api/notifications/parent/?parent_id=${parentId}`, {
-  //       student_id: studentId,
-  //       status: 'Absent',
-  //       date: selectedDate,
-  //       hour: selectedHour,
-  //     })
-  //       .then(response => {
-  //         console.log('Notification sent:', response.data);
-  //       })
-  //       .catch(error => {
-  //         console.error('Error sending notification:', error);
-  //       });
-  //   }
-  // };
 
   const submitAttendance = () => {
     const submissionData = Object.entries(attendance).map(([studentId, status]) => ({
@@ -90,65 +70,26 @@ const TakeAttendance = () => {
       semester: selectedSemester,
     
     }));
-    
-    console.log("Submitting Attendance Data:", submissionData);
    
-    
     axios.post('http://127.0.0.1:8000/api/mark-attendance/', submissionData)
       .then(response => {
         console.log("Attendance marked:", response.data);
-        alert("Attendance successfully submitted.");
+        toast.success("Attendance successfully submitted.");
       })
       .catch(error => {
         console.error("Failed to submit attendance:", error);
-        alert("Error submitting attendance.");
-      });
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.detail === "Attendance already marked for this date and hour."
+      ) {
+        toast.warning("Attendance already marked for this date and hour.");
+      } else {
+        toast.error("Attendance already marked for this date and hour.");
+        toast.error("Error submitting attendance.");
+      }
+    });
   };
-
-  // useEffect(() => {
-  //   axios.get('http://127.0.0.1:8000/api/subjects-and-semesters/') // Replace this with your correct API endpoint for subjects
-  //     .then((response) => {
-  //       const data = response.data;
-  //       setSubjects(data); // Set the subjects in the state
-  //     })
-  //     .catch((error) => {
-  //       console.log("Error fetching subjects:", error);
-  //     });
-  // }, []);
-  // useEffect(() => {
-  //   if (selectedBranch && selectedSemester && selectedAcademicYear) {
-  //     const filtered = students.filter(student =>
-  //       student.branch.id === parseInt(selectedBranch) &&
-  //       student.semester === selectedSemester &&
-  //       student.academic_year === selectedAcademicYear
-  //     );
-  //     const initialAttendance = filtered.reduce((acc, student) => {
-  //       acc[student.student_id] = "Present";
-  //       return acc;
-  //     }, {});
-  
-  //     setAttendance(initialAttendance);
-  //   }
-  // }, [selectedBranch, selectedSemester, selectedAcademicYear, students]);
-  
-  
-  // useEffect(() => {
-  //   axios.get('http://127.0.0.1:8000/api/students/')
-  //     .then((response) => {
-  //       const data = response.data;
-  //       setStudents(data);
-
-  //       const uniqueBranches = [
-  //         ...new Map(data.map(item => [item.branch.id, item.branch])).values()
-  //       ];
-  //       setBranches(uniqueBranches);
-
-  //       fetchAttendanceData();
-  //     })
-  //     .catch((error) => {
-  //       console.log("Error fetching students:", error);
-  //     });
-  // }, []);
 
   const fetchAttendanceData = () => {
     if (!selectedAcademicYear || !selectedHour || !selectedDate) {
@@ -172,43 +113,11 @@ const TakeAttendance = () => {
       });
   };
 
-  // const toggleAttendance = (studentId) => {
-  //   const newStatus = attendance[studentId] === 'Present' ? 'Absent' : 'Present';
-  //   setAttendance(prev => ({
-  //     ...prev,
-  //     [studentId]: newStatus
-  //   }));
-
-  //   setAttendanceChanges(prev => ({
-  //     ...prev,
-  //     [studentId]: newStatus
-  //   }));
-  // };
 
   const saveAttendance = () => {
-    alert("Attendance changes have been saved temporarily.");
+    toast.success("Attendance changes have been saved temporarily.");
   };
 
-  // const submitAttendance = () => {
-  //   const changesArray = Object.keys(attendanceChanges).map(studentId => ({
-  //   student_id: studentId,
-  //   status: attendanceChanges[studentId],
-  //   academic_year: selectedAcademicYear,
-  //   hour: selectedHour,
-  //   date: selectedDate,
-  // }));
-  //   axios.post('http://127.0.0.1:8000/api/mark-attendance/', changesArray)
-  //     .then(response => {
-  //       console.log(response)
-  //       console.log("Attendance marked:", response.data);
-  //       alert("Attendance successfully submitted.");
-  //       setAttendanceChanges({});
-  //     })
-  //     .catch(error => {
-  //       console.error("Failed to submit attendance:", error);
-  //       alert("Error submitting attendance.");
-  //     });
-  // };
 
   const filteredStudents = students.filter(student =>
     student.branch.id === parseInt(selectedBranch) &&
@@ -216,8 +125,6 @@ const TakeAttendance = () => {
     student.academic_year === selectedAcademicYear
   );
 
-  // const presentCount = filteredStudents.filter(student => attendance[student.student_id] === 'Present').length;
-  // const absentCount = filteredStudents.filter(student => attendance[student.student_id] === 'Absent').length;
 
   return (
     <div className="bg-gray-50 min-h-screen mt-14">
@@ -409,6 +316,7 @@ const TakeAttendance = () => {
         </button>
       </div>
     </div>
+    <ToastContainer/>
   </div>
   );
 };
