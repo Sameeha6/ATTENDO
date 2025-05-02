@@ -1135,14 +1135,16 @@ class MarkAttendance(APIView):
                     for parent in parents:
                         Notification.objects.create(
                             parent=parent,
-                            message=f"Alert: {student.username}'s attendance for Semester {semester} is below 75%. Current: {attendance_summary.percentage:.2f}%"
+                            message=f"Alert: {student.username}'s attendance for Semester {semester} is below 75%. Current: {attendance_summary.percentage:.2f}%",
+                            type="Alert"
                         )
 
                 elif 76 <= attendance_summary.percentage <= 80:
                     for parent in parents:
                         Notification.objects.create(
                             parent=parent,
-                            message=f"Warning: {student.username}'s attendance for Semester {semester} is close to 75%. Current: {attendance_summary.percentage:.2f}%"
+                            message=f"Warning: {student.username}'s attendance for Semester {semester} is close to 75%. Current: {attendance_summary.percentage:.2f}%",
+                            type="Warning"
                         )
 
               
@@ -1408,7 +1410,7 @@ class NotificationsUnderParentView(APIView):
             student_id = request.query_params.get("student_id")
             notifications = Notification.objects.filter(parent=parent)
             if student_id:
-                student = parent.students.filter(student_id=student_id).first()
+                student = parent.students.filter(id=student_id).first()
                 if student:
                     notifications = notifications.filter(message__icontains=student.username)
                 else:
@@ -1417,6 +1419,15 @@ class NotificationsUnderParentView(APIView):
             return Response(serializer.data)
         except Parent.DoesNotExist:
             return Response({'error': 'Parent not found'}, status=404)
+        
+class deleteParentNotificationView(APIView):
+    def delete(self, request, pk):
+        try:
+            notification = Notification.objects.get(pk=pk)
+            notification.delete()
+            return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except Notification.DoesNotExist:
+            return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
         
 class FacultySubjectsBranchesStudentsView(APIView):
     def get(self, request, faculty_id):
@@ -1649,3 +1660,42 @@ class TutorAttendanceReportPerSemesterView(APIView):
         except Exception as e:
             print(f"Server Error: {str(e)}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class AlertsUnderParentView(APIView):
+    def get(self, request, parent_id):
+        try:
+            parent = get_object_or_404(Parent, id=parent_id)
+            student_id = request.query_params.get("student_id")
+            
+            print(f"Fetching alerts for Parent ID: {parent_id} and Student ID: {student_id}")  # Add debug print
+            
+            # Filter notifications of type "alert" and "warning alert" only
+            notifications = Notification.objects.filter(
+                parent=parent,
+                type__in=["alert", "warning alert"]
+            )
+            
+            print(f"Found {notifications.count()} notifications before filtering by student")  # Add debug print
+
+            if student_id:
+                student = parent.students.filter(id=student_id).first()
+                if student:
+                    notifications = notifications.filter(message__icontains=student.username)
+                    print(f"Filtered notifications for student {student.username}, found {notifications.count()} notifications")  # Add debug print
+                else:
+                    return Response({"error": "Student not associated with this parent"}, status=403)
+            
+            serializer = NotificationSerializer(notifications.order_by('-timestamp'), many=True)
+            return Response(serializer.data)
+        
+        except Parent.DoesNotExist:
+            return Response({'error': 'Parent not found'}, status=404)
+        
+class deleteParentAlertView(APIView):
+    def delete(self, request, pk):
+        try:
+            notification = Notification.objects.get(pk=pk)
+            notification.delete()
+            return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except Notification.DoesNotExist:
+            return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)

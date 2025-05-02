@@ -26,21 +26,21 @@ const NotificationPage = () => {
       });
   };
 
-  // const handleDeleteNotification = (id) => {
-  //   const confirmDelete = window.confirm("Are you sure you want to delete this notification?");
-  //   if (confirmDelete) {
-  //     axios
-  //       .delete(`http://127.0.0.1:8000/api/notifications/${id}/`)
-  //       .then(() => {
-  //         setNotifications((prevNotifications) =>
-  //           prevNotifications.filter((notification) => notification.id !== id)
-  //         );
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error deleting notification:", error);
-  //       });
-  //   }
-  // };
+  const handleDeleteNotification = (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this notification?");
+    if (confirmDelete) {
+      axios
+        .delete(`http://127.0.0.1:8000/api/notification-delete/${id}/`)
+        .then(() => {
+          setNotifications((prevNotifications) =>
+            prevNotifications.filter((notification) => notification.id !== id)
+          );
+        })
+        .catch((error) => {
+          console.error("Error deleting notification:", error);
+        });
+    }
+  };
   
 
   return (
@@ -60,7 +60,7 @@ const NotificationPage = () => {
           >
             <button
               className="mr-2 sm:mr-3 text-gray-400 hover:text-gray-600 shrink-0"
-              // onClick={() => handleDeleteNotification(notification.id)}
+              onClick={() => handleDeleteNotification(notification.id)}
             >
               <MdClose size={18} />
             </button>

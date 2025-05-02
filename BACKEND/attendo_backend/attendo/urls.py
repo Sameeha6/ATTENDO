@@ -61,6 +61,7 @@ urlpatterns = [
 
     path('parent-students/', ParentStudentsView.as_view(), name='parent-students'),
     path('notifications/parent/<int:parent_id>/', NotificationsUnderParentView.as_view(), name='parent-notifications'),
+    path('notification-delete/<int:pk>/', deleteParentNotificationView.as_view()),
     
     path('facultybranchstds/<int:faculty_id>/', FacultySubjectsBranchesStudentsView.as_view(), name='faculty-students'),     
     path('attendance-report/<int:faculty_id>/', AttendanceReportPerSubjectView.as_view(), name='attendance-report-per-subject'),
@@ -68,5 +69,7 @@ urlpatterns = [
     path('student-subject-report/<int:student_id>/', StudentSubjectReportView.as_view(), name='student-subject-report'),
     path('student-report-semester/', AttendanceReportPerSemesterView.as_view(), name='attendance-semester-report'),
     path('tutor-report-semester/', TutorAttendanceReportPerSemesterView.as_view(), name='tutor-attendance-semester-report'),
+    path("parent-alerts/<int:parent_id>/", AlertsUnderParentView.as_view(), name="alerts-under-parent"),
+    path('alert-delete/<int:pk>/', deleteParentAlertView.as_view()),
     
 ]
