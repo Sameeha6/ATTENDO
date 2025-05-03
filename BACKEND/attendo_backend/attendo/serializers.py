@@ -40,7 +40,7 @@ class UserLoginSerializer(serializers.Serializer):
             return {
                 "hod_id":hod.id,
                 "username": hod.username,
-                "role": "hod",
+                "role": "HOD",
                 "branch": hod.branch.name,
                 "message": "HOD login successful",
             }

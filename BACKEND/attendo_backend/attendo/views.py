@@ -26,28 +26,69 @@ class LoginView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+# class ForgotPasswordView(APIView):
+#     def post(self, request):
+#         username = request.data.get("username")
+#         email = request.data.get("email")
+
+#         hod = HOD.objects.filter(username=username, email=email).first()
+#         if not hod:
+#             return Response({"error": "HOD not found with provided username and email"}, status=404)
+#         temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+#         hod.password = make_password(temp_password)
+#         hod.save()
+#         send_mail(
+#             subject="Password Reset - AttenDo",
+#             message=f"Hi {hod.username},\n\nYour temporary password is: {temp_password}\nPlease login and change your password immediately.",
+#             from_email=settings.EMAIL_HOST_USER,
+#             recipient_list=[hod.email],
+#             fail_silently=False,
+#         )
+#         return Response({"message": "Temporary password sent to your email."}, status=200)
+
 class ForgotPasswordView(APIView):
     def post(self, request):
         username = request.data.get("username")
-        email = request.data.get("email")
-
-        hod = HOD.objects.filter(username=username, email=email).first()
-        if not hod:
-            return Response({"error": "HOD not found with provided username and email"}, status=404)
-
+        role = request.data.get("role")
+        
+        # Determine which model to query based on role
+        user_model = None
+        if role == "HOD":
+            user_model = HOD
+        elif role == "tutor":
+            user_model = Tutor
+        elif role == "faculty":
+            user_model = Faculty
+        elif role == "parent":
+            user_model = Parent
+        elif role == "student":
+            user_model = Student
+        else:
+            return Response({"error": "Invalid role specified"}, status=400)
+        
+        # Find user by username in the appropriate model
+        user = user_model.objects.filter(username=username).first()
+        if not user:
+            return Response({"error": f"{role.capitalize()} not found with provided username"}, status=404)
+        
+        if not hasattr(user, 'email') or not user.email:
+            return Response({"error": "No email associated with this account"}, status=400)
+        
+        # Generate and set temporary password
         temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-        hod.password = make_password(temp_password)
-        hod.save()
-
+        user.password = make_password(temp_password)
+        user.save()
+        
+        # Send email with temporary password
         send_mail(
             subject="Password Reset - AttenDo",
-            message=f"Hi {hod.username},\n\nYour temporary password is: {temp_password}\nPlease login and change your password immediately.",
+            message=f"Hi {user.username},\n\nYour temporary password is: {temp_password}\nPlease login and change your password immediately.",
             from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[hod.email],
+            recipient_list=[user.email],
             fail_silently=False,
         )
-
-        return Response({"message": "Temporary password sent to your email."}, status=200)
+        
+        return Response({"message": f"Temporary password sent to your registered email for {role}"}, status=200)
 
 class ChangePasswordView(APIView):   
     def put(self, request, hod_id):
@@ -1131,12 +1172,13 @@ class MarkAttendance(APIView):
                
                 parents = student.parents.all()
 
-                if 70 <= attendance_summary.percentage < 75:
+                if 0 <= attendance_summary.percentage < 75:
                     for parent in parents:
                         Notification.objects.create(
                             parent=parent,
                             message=f"Alert: {student.username}'s attendance for Semester {semester} is below 75%. Current: {attendance_summary.percentage:.2f}%",
-                            type="Alert"
+                            type="alert",
+                            related_student=student
                         )
 
                 elif 76 <= attendance_summary.percentage <= 80:
@@ -1144,7 +1186,8 @@ class MarkAttendance(APIView):
                         Notification.objects.create(
                             parent=parent,
                             message=f"Warning: {student.username}'s attendance for Semester {semester} is close to 75%. Current: {attendance_summary.percentage:.2f}%",
-                            type="Warning"
+                            type="warning",
+                            related_student=student
                         )
 
               
@@ -1154,7 +1197,8 @@ class MarkAttendance(APIView):
                             parent=parent,
                             message=f"{student.username} was absent on {date} for {hour}",
                             type="absent",
-                            hour=hour
+                            hour=hour,
+                            related_student=student
                         )
 
                     previous_dates = [date - timedelta(days=1), date - timedelta(days=2)]
@@ -1178,7 +1222,8 @@ class MarkAttendance(APIView):
                                 Notification.objects.create(
                                     parent=parent,
                                     message=f"{student.username} was absent for 3 consecutive days including {date.strftime('%Y-%m-%d')} for {subject}",
-                                    type="absent_3_days"
+                                    type="absent_3_days",
+                                    related_student=student
                                 )
 
             except ValidationError as e:
@@ -1661,35 +1706,61 @@ class TutorAttendanceReportPerSemesterView(APIView):
             print(f"Server Error: {str(e)}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+# class AlertsUnderParentView(APIView):
+#     def get(self, request, parent_id):
+#         try:
+#             parent = get_object_or_404(Parent, id=parent_id)
+#             student_id = request.query_params.get("student_id")
+#             print(f"Fetching alerts for Parent ID: {parent_id} and Student ID: {student_id}")  # Add debug print
+#             # Filter notifications of type "alert" and "warning alert" only
+#             notifications = Notification.objects.filter(
+#                 parent=parent,
+#                 type__in=["Alert", "Warning"]
+#             )
+#             print(f"Found {notifications.count()} notifications before filtering by student")  # Add debug print
+
+#             if student_id:
+#                 student = parent.students.filter(id=student_id).first()
+#                 if student:
+#                     notifications = notifications.filter(message__icontains=student.username)
+#                     print(f"Filtered notifications for student {student.username}, found {notifications.count()} notifications")  # Add debug print
+#                 else:
+#                     return Response({"error": "Student not associated with this parent"}, status=403)
+            
+#             serializer = NotificationSerializer(notifications.order_by('-timestamp'), many=True)
+#             return Response(serializer.data)
+#         except Parent.DoesNotExist:
+#             return Response({'error': 'Parent not found'}, status=404)
+        
 class AlertsUnderParentView(APIView):
     def get(self, request, parent_id):
         try:
-            parent = get_object_or_404(Parent, id=parent_id)
+            parent = Parent.objects.get(id=parent_id)
             student_id = request.query_params.get("student_id")
             
-            print(f"Fetching alerts for Parent ID: {parent_id} and Student ID: {student_id}")  # Add debug print
-            
-            # Filter notifications of type "alert" and "warning alert" only
+            # Use lowercase for consistency with frontend
             notifications = Notification.objects.filter(
                 parent=parent,
-                type__in=["alert", "warning alert"]
-            )
-            
-            print(f"Found {notifications.count()} notifications before filtering by student")  # Add debug print
+                type__in=["alert", "warning"]
+            ).order_by('-timestamp')
 
             if student_id:
-                student = parent.students.filter(id=student_id).first()
-                if student:
-                    notifications = notifications.filter(message__icontains=student.username)
-                    print(f"Filtered notifications for student {student.username}, found {notifications.count()} notifications")  # Add debug print
-                else:
+                try:
+                    student = parent.students.get(id=student_id)
+                    notifications = notifications.filter(
+                        Q(related_student=student) | Q(message__icontains=student.username)
+                    )
+                except Student.DoesNotExist:
                     return Response({"error": "Student not associated with this parent"}, status=403)
             
-            serializer = NotificationSerializer(notifications.order_by('-timestamp'), many=True)
+            serializer = NotificationSerializer(notifications, many=True)
             return Response(serializer.data)
-        
+            
         except Parent.DoesNotExist:
             return Response({'error': 'Parent not found'}, status=404)
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            return Response({'error': 'Internal server error'}, status=500)
         
 class deleteParentAlertView(APIView):
     def delete(self, request, pk):
@@ -1699,3 +1770,58 @@ class deleteParentAlertView(APIView):
             return Response({"message": "Notification deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Notification.DoesNotExist:
             return Response({"message": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+class StudentAttendanceNotifications(APIView):
+    def get(self, request):
+        try:
+            student_id = request.query_params.get('student_id')
+            if not student_id:
+                return Response(
+                    {"status": "error", "message": "Student ID is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student = Student.objects.get(id=student_id)
+            
+            # Filter notifications that contain the student's username in the message
+            notifications = Notification.objects.filter(
+                Q(related_student=student) &
+                (Q(type="alert") | Q(type="warning"))
+            ).order_by('-timestamp')
+            
+            notification_data = []
+            for notification in notifications:
+                notification_data.append({
+                    'id': notification.id,
+                    'message': notification.message,
+                    'timestamp': notification.timestamp.strftime("%I:%M %p, %d %b %Y"),
+                    'type': notification.type,
+                    'is_read': notification.is_read,
+                    'hour': notification.hour
+                })
+            
+            return Response({
+                'status': 'success',
+                'notifications': notification_data
+            }, status=status.HTTP_200_OK)
+            
+        except Student.DoesNotExist:
+            return Response({
+                'status': 'error',
+                'message': 'Student not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+class DeleteNotificationView(APIView):
+    def delete(self, request, notification_id):
+        try:
+            notification = Notification.objects.get(id=notification_id)
+            notification.delete()
+            return Response({
+                'status': 'success',
+                'message': 'Notification deleted successfully'
+            }, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({
+                'status': 'error',
+                'message': 'Notification not found'
+            }, status=status.HTTP_404_NOT_FOUND)

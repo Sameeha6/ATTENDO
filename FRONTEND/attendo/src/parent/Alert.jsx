@@ -16,16 +16,31 @@ const AlertPage = () => {
   }, []);
 
   const fetchNotifications = (parentId, studentId) => {
-    console.log("Fetching notifications for Parent ID:", parentId, "and Student ID:", studentId);  // Add debug log
     axios
       .get(`http://127.0.0.1:8000/api/parent-alerts/${parentId}/?student_id=${studentId}`)
       .then((response) => {
-        console.log("Notifications fetched:", response.data);  // Add debug log
-        // Filter notifications by type 'alert' and 'warning' only
         const filteredNotifications = response.data.filter(
-          (notification) => notification.type === "alert" || notification.type === "warning alert"
+          (notification) => notification.type === "alert" || notification.type === "warning"
         );
-        setNotifications(filteredNotifications);
+  
+        // New: Keep only one alert and one warning per day
+        const uniqueNotifications = [];
+        const seenAlerts = new Set();
+        const seenWarnings = new Set();
+  
+        filteredNotifications.forEach((notification) => {
+          const dateKey = moment(notification.timestamp).format("YYYY-MM-DD");
+  
+          if (notification.type === "alert" && !seenAlerts.has(dateKey)) {
+            uniqueNotifications.push(notification);
+            seenAlerts.add(dateKey);
+          } else if (notification.type === "warning" && !seenWarnings.has(dateKey)) {
+            uniqueNotifications.push(notification);
+            seenWarnings.add(dateKey);
+          }
+        });
+  
+        setNotifications(uniqueNotifications);
       })
       .catch((error) => {
         console.error("Error fetching notifications:", error);
@@ -50,14 +65,13 @@ const AlertPage = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 pt-2 bg-gray-50 overflow-x-hidden">
-      {/* Header */}
+
       <div className="pb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">ALERTS</h1>
         <p className="text-xs sm:text-sm text-gray-500">Updates regarding your ward's attendance</p>
       </div>
 
-      {/* Notification List */}
-      <div className="space-y-4 overflow-y-auto max-h-[80vh]">
+      <div className="space-y-4 ">
         {notifications.map((notification, index) => (
           <div
             key={index}
@@ -71,12 +85,11 @@ const AlertPage = () => {
             </button>
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                {/* Updated Heading based on type */}
+
                 <span className="font-bold text-gray-800 text-sm sm:text-base">
                   {notification.type === "alert" ? "ALERT: Attendance Below 75%" : "WARNING: Attendance Close to 75%"}
                 </span>
 
-                {/* Timestamp + Hour (if applicable) */}
                 <div className="flex items-center text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
                   <MdAccessTime size={16} className="mr-1" />
                   {notification.timestamp && moment(notification.timestamp).format("h:mm A, D MMM YYYY")}
@@ -86,7 +99,6 @@ const AlertPage = () => {
                 </div>
               </div>
 
-              {/* Message */}
               <div className="text-gray-600 mt-1 text-xs sm:text-sm">
                 {notification.message || "No message found"}
               </div>

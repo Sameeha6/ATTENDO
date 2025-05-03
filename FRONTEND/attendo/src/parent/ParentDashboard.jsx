@@ -30,6 +30,7 @@ export default function ParentDashboard() {
         new_password: newPass,
       });
       toast.success("Password changed successfully.");
+      setShowPasswordModal(false)
     } catch (err) {
       toast.error("Error: " + (err.response?.data || "Try again"));
     }

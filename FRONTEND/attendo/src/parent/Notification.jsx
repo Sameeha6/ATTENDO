@@ -19,7 +19,10 @@ const NotificationPage = () => {
     axios
       .get(`http://127.0.0.1:8000/api/notifications/parent/${parentId}/?student_id=${studentId}`)
       .then((response) => {
-        setNotifications(response.data);
+        const filteredNotifications = response.data.filter(
+          (notification) => notification.type === "absent" || notification.type === "absent_3_days"
+        );
+        setNotifications(filteredNotifications);
       })
       .catch((error) => {
         console.error("Error fetching notifications:", error);

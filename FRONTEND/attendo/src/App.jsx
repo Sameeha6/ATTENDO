@@ -15,6 +15,7 @@ import StudentRoutes from './routes/StudentRoutes'
 import FacultyRoutes from './routes/FacultyRoutes'
 import ParentRoutes from "./routes/ParentRoutes";
 import { Notfound } from './components/Notfound'
+import ProtectedRoute from './routes/Protectedroutes'
 
 
 
@@ -33,12 +34,36 @@ return (
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
-        <Route path="/hod/*" element={<HodRoutes />} />
-        <Route path="/tutor/*" element={<TutorRoutes />} />
-        <Route path="/student/*" element={<StudentRoutes />} />
-        <Route path="/faculty/*" element={<FacultyRoutes />} />
-        <Route path="/parent/*" element={<ParentRoutes />} />
+        <Route path="/admin/*" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminRoutes />
+          </ProtectedRoute>} 
+        />
+        <Route path="/hod/*" element={
+          <ProtectedRoute allowedRoles={["HOD"]}>
+            <HodRoutes />
+          </ProtectedRoute>} 
+        />
+        <Route path="/tutor/*" element={
+          <ProtectedRoute allowedRoles={["tutor"]}>
+            <TutorRoutes />
+          </ProtectedRoute>}
+        />
+        <Route path="/student/*" element={
+          <ProtectedRoute allowedRoles={["student"]}>
+          <StudentRoutes />
+          </ProtectedRoute>} 
+        />
+        <Route path="/faculty/*" element={
+          <ProtectedRoute allowedRoles={["faculty"]}>
+          <FacultyRoutes />
+          </ProtectedRoute>} 
+        />
+        <Route path="/parent/*" element={
+          <ProtectedRoute allowedRoles={["parent"]}>
+          <ParentRoutes />
+          </ProtectedRoute>} 
+        />
         <Route path="*" element={<Notfound />} />
       </Routes>
     </div>

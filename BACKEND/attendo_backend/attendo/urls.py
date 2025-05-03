@@ -71,5 +71,7 @@ urlpatterns = [
     path('tutor-report-semester/', TutorAttendanceReportPerSemesterView.as_view(), name='tutor-attendance-semester-report'),
     path("parent-alerts/<int:parent_id>/", AlertsUnderParentView.as_view(), name="alerts-under-parent"),
     path('alert-delete/<int:pk>/', deleteParentAlertView.as_view()),
+    path('student/attendance-notifications/', StudentAttendanceNotifications.as_view(), name='student-attendance-notifications'),
+    path('student/delete-notification/<int:notification_id>/', DeleteNotificationView.as_view(), name='delete-notification'),
     
 ]

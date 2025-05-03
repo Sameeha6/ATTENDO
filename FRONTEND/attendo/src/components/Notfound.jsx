@@ -11,7 +11,7 @@ export const Notfound = () => {
       />
       <h1 className="text-3xl font-bold text-gray-700 mb-2">404 - Page Not Found</h1>
       <p className="text-gray-500 text-center max-w-md">
-        Oops! The page you are looking for does not exist. It might have been moved or deleted.
+        Oops! The page you are looking for does not exist. It might have been moved, deleted or not authorised for you.
       </p>
       {/* <Link
         to="/"

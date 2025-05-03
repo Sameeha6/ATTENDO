@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast,ToastContainer } from 'react-toastify'; 
@@ -11,8 +11,25 @@ function Login() {
   const [error, setError] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [fpUsername, setFpUsername] = useState("");
-  const [fpEmail, setFpEmail] = useState("");
+  // const [fpEmail, setFpEmail] = useState("");
+  const [selectedRole, setSelectedRole] = useState("HOD");
   const navigate = useNavigate();
+
+  const roles = [
+    { value: "HOD", label: "HOD" },
+    { value: "tutor", label: "Tutor" },
+    { value: "faculty", label: "Faculty" },
+    { value: "parent", label: "Parent" },
+    { value: "student", label: "Student" },
+  ];
+
+
+  // useEffect(()=>{
+
+  //   setUsername("")
+  //     setPassword("")
+
+  // },[roles])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,8 +40,12 @@ function Login() {
         username,
         password,
       }); 
+      // setUsername("")
+      // setPassword("")
       if (response.status === 200) {
-        const role = response.data.role || response.data.data?.role;
+        const role = response.data.role || 
+                  response.data.data?.role || 
+                  response.data.user?.role;
         localStorage.setItem('role',response.data.data.role);
         localStorage.setItem("hod_id",response.data.data.hod_id);
         localStorage.setItem("tutor_id",response.data.data.tutor_id);
@@ -37,7 +58,7 @@ function Login() {
         if (role === "admin") {
           navigate("/admin/admin"); 
         }
-        else if(role === "hod"){
+        else if(role === "HOD"){
           navigate("/hod/hodDash");
         }
         else if(role === "faculty"){
@@ -68,10 +89,13 @@ function Login() {
     try {
       await axios.post("http://127.0.0.1:8000/api/forgot-password/", {
         username: fpUsername,
-        email: fpEmail,
+        role: selectedRole,
       });
-      toast.success("Temporary password sent to email.");
+      // setUsername("")
+      // setPassword("")
+      toast.success(`Temporary password sent to ${selectedRole}'s registered email.`);
       setModalIsOpen(false);
+      setFpUsername("");
     } catch (err) {
       toast.error("Error: " + (err.response?.data?.error || "Try again"));
     }
@@ -133,10 +157,13 @@ function Login() {
               >
                 Forgot Password?
               </p>
-              {modalIsOpen && (
+              
+            </div>
+          </form>
+          {modalIsOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
-                  <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-8 text-center">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Forgot Password?</h2>
+                  <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-6 text-center">
+                    <h2 className="text-xl font-bold text-black mb-4">Forgot Password?</h2>
                     
                     <div className="space-y-4">
                       <input
@@ -145,39 +172,53 @@ function Login() {
                         onChange={(e) => setFpUsername(e.target.value)}
                         className="border p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
                       />
-                      <input
-                        placeholder="Email"
-                        value={fpEmail}
-                        onChange={(e) => setFpEmail(e.target.value)}
-                        className="border p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                      />
+                      
+                      <div className="flex flex-col items-start">
+                        <label className="text-gray-700 font-semibold mb-2">Select Your Role:</label>
+                        <div className="grid grid-cols-3 gap-3 w-full">
+                          {roles.map((role) => (
+                            <div key={role.value} className="flex items-center text-sm">
+                              <input
+                                type="radio"
+                                id={role.value}
+                                name="role"
+                                value={role.value}
+                                checked={selectedRole === role.value}
+                                onChange={() => setSelectedRole(role.value)}
+                                className="mr-2"
+                              />
+                              <label htmlFor={role.value}>{role.label}</label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex justify-end gap-4 mt-6">
                       <button
-                        onClick={() => setModalIsOpen(false)}
+                        onClick={() => {
+                          setModalIsOpen(false);
+                          setFpUsername("");
+                        }}
                         className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleForgotPassword}
-                        disabled={!fpUsername || !fpEmail}
+                        disabled={!fpUsername}
                         className={`px-4 py-2 rounded-lg font-semibold ${
-                          (!fpUsername || !fpEmail)
+                          !fpUsername
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-cyan-800 hover:bg-cyan-700 text-white"
                         }`}
                       >
                         Send Password
                       </button>
-
                     </div>
                   </div>
                 </div>
               )}
-            </div>
-          </form>
         </div>
       </div>
       <ToastContainer/>

@@ -134,7 +134,19 @@ class Attendance(models.Model):
     class Meta:
        unique_together = ('student', 'date', 'subject', 'hour')
     
+# class Notification(models.Model):
+#     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
+#     message = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
+#     type = models.CharField(max_length=50, default="absent")
+#     hour = models.CharField(max_length=10,null=True, blank=True) 
+#     is_read = models.BooleanField(default=False)
+
+#     def _str_(self):
+#         return f"{self.parent.username} - {self.message[:20]}"
+
 class Notification(models.Model):
+    related_student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -142,7 +154,7 @@ class Notification(models.Model):
     hour = models.CharField(max_length=10,null=True, blank=True) 
     is_read = models.BooleanField(default=False)
 
-    def _str_(self):
+    def str(self):
         return f"{self.parent.username} - {self.message[:20]}"
     
 class AttendanceEditRequest(models.Model):
