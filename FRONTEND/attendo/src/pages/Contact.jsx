@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import { motion } from 'framer-motion';
 
 const ContactUs = () => {
-  // State for form fields and response message
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    if (!gmailRegex.test(email)) {
+      setResponseMessage("Please enter a valid Gmail address (e.g., yourname@gmail.com).");
+    return;
+  }
     const formData = {
       username: name,
       email: email,
@@ -21,7 +23,6 @@ const ContactUs = () => {
     };
 
     try {
-      // Send POST request to backend API
       const response = await fetch("http://127.0.0.1:8000/api/contactus/", {
         method: "POST",
         headers: {
@@ -29,11 +30,8 @@ const ContactUs = () => {
         },
         body: JSON.stringify(formData),
       });
-
-      // Check if the request was successful
       if (response.ok) {
         setResponseMessage("Your message has been sent successfully!");
-        // Clear form fields
         setName("");
         setEmail("");
         setSubject("");
@@ -49,7 +47,6 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -59,10 +56,7 @@ const ContactUs = () => {
           CONTACT US: ASK ABOUT ATTENDO
         </div>
       </motion.div>
-
-      {/* Content Section */}
       <div className="flex flex-col md:flex-row justify-center items-center md:items-start px-8 py-12">
-        {/* Left Description */}
         <div className="md:w-1/2 w-full px-4">
           <h2 className="text-2xl font-semibold mb-4">Let us know if you have any questions!</h2>
           <p className="text-gray-600">
@@ -70,8 +64,6 @@ const ContactUs = () => {
             We’re happy to assist with any questions and would love to hear your suggestions on how to improve Attendo!
           </p>
         </div>
-
-        {/* Contact Form (Right Side) */}
         <div className="md:w-1/2 w-full bg-white p-8 shadow-md rounded-lg mt-8 md:mt-0">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -117,7 +109,6 @@ const ContactUs = () => {
               ></textarea>
             </div>
 
-            {/* Send Message Button */}
             <button
               type="submit"
               className="w-full bg-blue-950 text-white p-3 rounded-md hover:bg-blue-900"
@@ -126,7 +117,6 @@ const ContactUs = () => {
             </button>
           </form>
 
-          {/* Response Message */}
           {responseMessage && (
             <div className="mt-4 text-center text-gray-800 font-semibold">
               {responseMessage}
@@ -134,11 +124,8 @@ const ContactUs = () => {
           )}
         </div>
       </div>
-
-      {/* Additional content like features and footer */}
       <section className="bg-gray-800 text-white py-12 px-6">
         <div className="max-w-5xl mx-auto">
-          {/* Features */}
           <div className="mb-10">
             <h2 className="text-xl font-bold border-b border-gray-700 pb-2">FEATURES:</h2>
             <ul className="mt-4 space-y-2 text-gray-300 font-light">
@@ -150,7 +137,6 @@ const ContactUs = () => {
             </ul>
           </div>
 
-          {/* Benefits */}
           <div className="mb-10">
             <h2 className="text-xl font-bold border-b border-gray-700 pb-2">BENEFITS</h2>
             <ul className="mt-4 space-y-2 text-gray-300 font-light">
@@ -161,7 +147,6 @@ const ContactUs = () => {
             </ul>
           </div>
 
-          {/* About Section */}
           <div className="mb-10">
             <h2 className="text-xl font-bold border-b border-gray-700 pb-2">ABOUT SMART ATTENDANCE:</h2>
             <p className="text-gray-300 mt-4 font-light">
@@ -175,12 +160,6 @@ const ContactUs = () => {
           <footer className="bg-gray-900 text-white py-6 text-center">
           <p>&copy; 2025 ATTENDO. All Rights Reserved.</p>
         </footer>
-
-          {/* Contact Section */}
-          {/* <div>
-            <h2 className="text-xl font-bold border-b border-gray-700 pb-2">CONTACT US:</h2>
-            <p className="text-gray-300 mt-4 font-light">Have questions? Need assistance? Reach out to us anytime!</p>
-          </div> */}
 
         </div>
       </section>

@@ -50,6 +50,11 @@ const ManageStudents = () => {
 
   const handleAddStudent = async () => {
     try {
+      const emailRegex = /^[^\s@]+@gmail\.com$/;
+      if (!emailRegex.test(form.email)) {
+        toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+        return;
+      }
       await axios.post("http://127.0.0.1:8000/api/students/", form);
       setForm({
         username: "",
@@ -60,6 +65,7 @@ const ManageStudents = () => {
         branch_id: "",
         semester: "",
       });
+    
       fetchStudents();
       toast.success('Student added successfully.');
     } catch (err) {
@@ -98,6 +104,11 @@ const ManageStudents = () => {
 
   const handleUpdate = async () => {
     try {
+      const emailRegex = /^[^\s@]+@gmail\.com$/;
+      if (!emailRegex.test(form.email)) {
+        toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+        return;
+      }
       await axios.put(`http://127.0.0.1:8000/api/students/${editStudentId}/`,form);
       closeModal();
       fetchStudents();

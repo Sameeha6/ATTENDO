@@ -90,6 +90,11 @@ const ManageParents = () => {
   };
 
   const handleAddParent = async () => {
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+          if (!emailRegex.test(newParent.email)) {
+            toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+            return;
+          }
     try {
       const payload = {
         username: newParent.parent_name,
@@ -137,6 +142,11 @@ const ManageParents = () => {
   };
 
   const handleUpdateParent = async () => {
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+          if (!emailRegex.test(newParent.email)) {
+            toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+            return;
+          }
     try {
       const payload = {
         username: editParent.username,

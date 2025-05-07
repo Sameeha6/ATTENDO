@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUsers, FaChartBar, FaBars, FaUserGraduate, FaRegCalendar, FaRegCalendarAlt } from "react-icons/fa";
+import { FaUsers, FaChartBar, FaBars, FaUserGraduate, FaRegCalendarAlt, FaFileAlt } from "react-icons/fa";
 import { MdAdminPanelSettings, MdExpandMore } from "react-icons/md";
 import { Link,useNavigate } from "react-router-dom";
 
@@ -30,7 +30,6 @@ function Tutorbar() {
           <FaBars className="text-xl" />
         </button>
 
-        {/* Logout Button (Hidden in Small Screens) */}
         <button className="hidden lg:block border-2 border-white px-4 py-2 hover:border-orange-200 rounded-md hover:text-orange-200 font-semibold "
           onClick={handleLogout}>
           Log Out
@@ -63,7 +62,7 @@ function Tutorbar() {
             </Link>
             
             <Link to="/tutor/reports" className=" flex items-center py-2 px-4 hover:bg-gray-400 hover:text-black rounded">
-              <FaUsers className="mr-3" />Reports
+              <FaFileAlt className="mr-3" />Reports
             </Link>
 
             {/* Logout Button (Visible in Small Screens) */}

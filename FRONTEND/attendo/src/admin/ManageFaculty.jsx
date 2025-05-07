@@ -11,6 +11,7 @@ const ManageFaculties = () => {
   const [editData, setEditData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/branches/")
       .then((response) => setBranches(response.data))
@@ -27,10 +28,16 @@ const ManageFaculties = () => {
 
   const addFaculty = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+      return;
+    }
     if (!formData.username || !formData.email || !formData.phone_number || !formData.branch) {
       alert("Please fill in all fields.");
       return;
     }
+
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/addfaculty/", formData);
       setFaculties([...faculties, response.data]);
@@ -59,6 +66,11 @@ const ManageFaculties = () => {
 
   const saveEdit = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+      return;
+    }
     try {
       const response = await axios.put(`http://127.0.0.1:8000/api/faculty/${editData.id}/`, editData);
       setFaculties(faculties.map(faculty => faculty.id === editData.id ? response.data : faculty));

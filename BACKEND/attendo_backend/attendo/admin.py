@@ -20,7 +20,7 @@ admin.site.register(TimetableChangeRequest)
 admin.site.register(Notification)
 admin.site.register(HodNotification)
 admin.site.register(AttendanceEditRequest)
-admin.site.register(Alert)
+# admin.site.register(Alert)
 admin.site.register(AttendanceSummary)
 
 class StuAdmin(admin.ModelAdmin):

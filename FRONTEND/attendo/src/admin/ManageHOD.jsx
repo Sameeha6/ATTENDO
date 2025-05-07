@@ -29,6 +29,11 @@ const ManageHOD = () => {
 
   const addHOD = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+        if (!emailRegex.test(formData.email)) {
+          toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+          return;
+        }
     if (!formData.username || !formData.email || !formData.phone || !formData.branch) {
       alert("Please fill in all fields.");
       return;
@@ -63,6 +68,11 @@ const ManageHOD = () => {
 
   const updateHOD = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+        if (!emailRegex.test(formData.email)) {
+          toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+          return;
+        }
     if (!editData || !editData.id) {
       toast.error("HOD ID is missing, cannot update!");
       return;

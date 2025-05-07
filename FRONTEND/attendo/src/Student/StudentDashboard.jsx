@@ -165,7 +165,7 @@ export default function StudentDashboard() {
           className="bg-blue-950 text-white px-8 py-3 rounded-xl text-lg font-semibold shadow-lg hover:bg-blue-950 transition duration-300"
           onClick={handleHistory}
         >
-          View Attendance
+          View Attendance Report
         </motion.button>
       </motion.div>
       <ToastContainer/>

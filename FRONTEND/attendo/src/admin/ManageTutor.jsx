@@ -75,6 +75,11 @@ const ManageTutor = () => {
   const handleAddTutor = async () => {
     try {
       await axios.post("http://127.0.0.1:8000/api/add-tutor/", formData);
+      const emailRegex = /^[^\s@]+@gmail\.com$/;
+              if (!emailRegex.test(formData.email)) {
+                toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+                return;
+              }
       fetchTutors();
       setFormData({ username: "", email: "", phone_number: "", branch: "", academic_year: "" });
       toast.success('Tutor added successfully.');
@@ -87,6 +92,11 @@ const ManageTutor = () => {
 
   const saveEdit = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+            if (!emailRegex.test(formData.email)) {
+              toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+              return;
+            }
     try {
       const payload = {
         username: editData.username,

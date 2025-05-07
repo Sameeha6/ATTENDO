@@ -295,7 +295,8 @@ const FacultyDashboard = () => {
                 onClick={handleConfirmRequest}
                 className="px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600"
               >
-                {getRequestStatus(selectedEntry.id) === 'Rejected' ? 'Resend Request' : 'Send Request'}
+                {/* {getRequestStatus(selectedEntry.id) === 'Rejected' ? 'Resend Request' : 'Send Request'} */}
+                Send Request
               </button>
             </div>
           </div>

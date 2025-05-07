@@ -3,7 +3,6 @@ import axios from "axios";
 import {useLocation} from 'react-router-dom'
 import { toast,ToastContainer } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
-
 const TakeAttendance = () => {
   const location = useLocation();
   const [students, setStudents] = useState([]);
@@ -16,7 +15,6 @@ const TakeAttendance = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
-
   useEffect(() => {
     const { subject } = location.state || {};
     axios.get('http://127.0.0.1:8000/api/students/')
@@ -24,15 +22,11 @@ const TakeAttendance = () => {
         const data = response.data;
         setStudents(data);
         const uniqueBranches = [
-          ...new Map(data.map(item => [item.branch.id, item.branch])).values()
-        ];
-        setBranches(uniqueBranches);
-      })
+          ...new Map(data.map(item => [item.branch.id, item.branch])).values()];
+        setBranches(uniqueBranches);})
       .catch((error) => {
-        console.log("Error fetching students:", error);
-      });
+        console.log("Error fetching students:", error);});
   }, []);
-
   useEffect(() => {
     if (selectedBranch && selectedSemester && selectedAcademicYear) {
       const filtered = students.filter(student =>
@@ -47,15 +41,12 @@ const TakeAttendance = () => {
       setAttendance(initialAttendance);
     }
   }, [selectedBranch, selectedSemester, selectedAcademicYear, students]);
-
   const toggleAttendance = (studentId) => {
     setAttendance(prev => ({
       ...prev,
       [studentId]: prev[studentId] === 'Present' ? 'Absent' : 'Present'
     }));
   };
-
-
   const submitAttendance = () => {
     const submissionData = Object.entries(attendance).map(([studentId, status]) => ({
       student_id: studentId,
@@ -65,65 +56,45 @@ const TakeAttendance = () => {
       date: selectedDate,
       subject_id: location.state.subject.id,
       branch: selectedBranch,
-      semester: selectedSemester,
-    
-    }));
-   
+      semester: selectedSemester}));
     axios.post('http://127.0.0.1:8000/api/mark-attendance/', submissionData)
       .then(response => {
         console.log("Attendance marked:", response.data);
-        toast.success("Attendance successfully submitted.");
-      })
+        toast.success("Attendance successfully submitted.");})
       .catch(error => {
         console.error("Failed to submit attendance:", error);
       if (
         error.response &&
         error.response.status === 400 &&
-        error.response.data.detail === "Attendance already marked for this date and hour."
-      ) {
+        error.response.data.detail === "Attendance already marked for this date and hour.") {
         toast.warning("Attendance already marked for this date and hour.");
       } else {
         toast.error("Attendance already marked for this date and hour.");
         toast.error("Error submitting attendance.");
-      }
-    });
-  };
-
+      }});};
   const fetchAttendanceData = () => {
     if (!selectedAcademicYear || !selectedHour || !selectedDate) {
   console.log("Please select all fields before fetching attendance data.");
-  return;
-}
-
+  return;}
     axios.get('http://127.0.0.1:8000/api/student-attendance/')
       .then((response) => {
         const data = response.data.students;
         const attendanceData = data.reduce((acc, student) => {
           if (student.attendance && student.attendance.length > 0) {
-            acc[student.student_id] = student.attendance[0].status; // Take the first attendance record
-          };
+            acc[student.student_id] = student.attendance[0].status;};
           return acc;
         }, {});
-        setAttendance(attendanceData);
-      })
+        setAttendance(attendanceData);})
       .catch((error) => {
         console.log("Error fetching attendance data:", error);
-      });
-  };
-
-
+      });};
   const saveAttendance = () => {
-    toast.success("Attendance changes have been saved temporarily.");
-  };
-
-
+    toast.success("Attendance changes have been saved temporarily.");};
   const filteredStudents = students.filter(student =>
     student.branch.id === parseInt(selectedBranch) &&
     student.semester === selectedSemester &&
     student.academic_year === selectedAcademicYear
   );
-
-
   return (
     <div className="bg-gray-50 min-h-screen mt-14">
       <div className="p-6">
@@ -133,9 +104,8 @@ const TakeAttendance = () => {
             <select className="w-full p-2 border rounded-md" value={selectedAcademicYear} onChange={(e)=> setSelectedAcademicYear(e.target.value)}>
               <option value="">Select Academic Year</option>  
               {Array.from(new Set(students.map(s => s.academic_year))).map((year, index) => (
-              <option key={index} value={year}>{year}</option>
-            ))}           
-               </select> 
+              <option key={index} value={year}>{year}</option>))}           
+            </select> 
           </div>
           <div>
             <label className="block text-gray-600 font-semibold">Branch</label>
@@ -144,8 +114,7 @@ const TakeAttendance = () => {
               {branches.map(branch => (
                 <option key={branch.id} value={branch.id}>
                   {branch.name} ({branch.code})
-                </option>
-              ))}
+                </option>))}
             </select>
           </div>
           <div>
@@ -153,8 +122,7 @@ const TakeAttendance = () => {
             <select className="w-full p-2 border rounded-md" value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)}>
               <option value="">Select Semester</option>
               {Array.from(new Set(students.map(s => s.semester))).map((sem, index) => (
-                <option key={index} value={sem}>{sem}</option>
-              ))}
+                <option key={index} value={sem}>{sem}</option>))}
             </select>
           </div>
           <div>
@@ -164,8 +132,7 @@ const TakeAttendance = () => {
                   {[1, 2, 3, 4, 5, 6].map(hour => (
                     <option key={hour} value={`Hour ${hour}`}>
                       Hour {hour}
-                    </option>
-                  ))}
+                    </option>))}
               </select>
           </div>
           <div>
@@ -173,7 +140,6 @@ const TakeAttendance = () => {
             <input type="date" className="w-full p-2 border rounded-md"  value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)}/>
           </div>
         </div>
-
       {/* Attendance Table (Visible on larger screens) */}
       {selectedBranch && selectedSemester && selectedAcademicYear && (
           filteredStudents.length > 0 ? (
@@ -197,21 +163,16 @@ const TakeAttendance = () => {
                       ? 'bg-green-500 hover:bg-green-600 focus:ring-green-500'
                       : 'bg-red-500 hover:bg-red-600 focus:ring-red-500'}
                     focus:outline-none focus:ring-2 focus:ring-offset-2 `}
-                    onClick={() => toggleAttendance(student.student_id)}
-                >
+                    onClick={() => toggleAttendance(student.student_id)}>
                     {attendance[student.student_id]}
                   </button>
                 </td>
-              </tr>
-            ))}
+              </tr>))}
           </tbody>
         </table>
-      </div>
-          ) : (
+      </div>) : (
         <p className="block md:hidden text-sm text-center p-6 text-gray-500">
-          No students found for the selected branch, semester, and academic year.</p>
-          )
-      )}
+          No students found for the selected branch, semester, and academic year.</p>))}
       {/* Attendance Cards (Visible on mobile screens) */}
       {selectedBranch && selectedSemester && selectedAcademicYear && (
           filteredStudents.length > 0 ? (
@@ -220,8 +181,7 @@ const TakeAttendance = () => {
           {filteredStudents.map((student) => (
             <div
               key={student.student_id}
-              className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center"
-            >
+              className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
               <div>
                 <p className="text-gray-500 text-sm">{student.student_id}</p>
                 <p className="text-gray-700 font-semibold">{student.username}</p>
@@ -233,54 +193,32 @@ const TakeAttendance = () => {
                     focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                       attendance[student.RegNo] === "Present"
                         ? "focus:ring-green-500"
-                        : "focus:ring-red-500"
-                    }`}
-                    onClick={() => toggleAttendance(student.student_id)}
-                >
+                        : "focus:ring-red-500"}`}
+                    onClick={() => toggleAttendance(student.student_id)}>
                 {attendance[student.student_id]}
               </button>
-            </div>
-          ))}
+            </div>))}
         </div>
-      </div>
-      ) : (
+      </div>) : (
       <p className="hidden md:block text-base text-center p-6 text-gray-500">
         No students found for the selected branch, semester, and academic year.
-      </p>
-      )
-    )}
-
-      {/* Present and Absent Lists */}
-      
-
+      </p>))}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6">
         <div className="border-2 shadow-md p-6">
           <div className="flex items-center space-x-2">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/6752/6752597.png"
-              alt="present"
-              className="w-10 h-10"
-            />
+            <img src="https://cdn-icons-png.flaticon.com/512/6752/6752597.png" alt="present" className="w-10 h-10"/>
             <h3 className="text-lg font-bold text-black">Presentees</h3>
           </div>
           <ul className="mt-2">
             {students
               .filter((student) => attendance[student.student_id] === "Present")
               .map((student) => (
-                <li key={student.student_id} className="text-gray-700">
-                  {student.username}
-                </li>
-              ))}
+                <li key={student.student_id} className="text-gray-700">{student.username}</li>))}
           </ul>
         </div>
-
         <div className="border-2 shadow-md p-4">
           <div className="flex items-center space-x-2">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/18229/18229373.png"
-              alt="absent"
-              className="w-10 h-10"
-            />
+            <img src="https://cdn-icons-png.flaticon.com/512/18229/18229373.png" alt="absent" className="w-10 h-10"/>
             <h3 className="text-lg font-bold text-black">Absentees</h3>
           </div>
           <ul className="mt-2">
@@ -289,23 +227,17 @@ const TakeAttendance = () => {
               .map((student) => (
                 <li key={student.student_id} className="text-gray-700">
                   {student.username}
-                </li>
-              ))}
+                </li>))}
           </ul>
         </div>
       </div>
       <div className="flex justify-center items-center mt-8 gap-4">
-        <button className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full" onClick={saveAttendance}>
-          Save
-        </button>
-        <button className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full" onClick={submitAttendance}>
-          Submit
-        </button>
+        <button className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full" onClick={saveAttendance}>Save</button>
+        <button className="border bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full" onClick={submitAttendance}>Submit</button>
       </div>
     </div>
     <ToastContainer/>
   </div>
   );
 };
-
 export default TakeAttendance;

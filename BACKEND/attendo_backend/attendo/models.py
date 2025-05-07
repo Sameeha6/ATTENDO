@@ -165,14 +165,6 @@ class HodNotification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-class Alert(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    message = models.CharField(max_length=255)
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def _str_(self):
-        return f"Notification for {self.user.username}: {self.message}"
    
 class AttendanceSummary(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

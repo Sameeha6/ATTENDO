@@ -138,6 +138,11 @@ useEffect(() => {
 
   const handleAddParent = async () => {
     try {
+      const emailRegex = /^[^\s@]+@gmail\.com$/;
+          if (!emailRegex.test(newParent.email)) {
+            toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+            return;
+          }
       const payload = {
         username: newParent.parent_name,
         email: newParent.email,
@@ -149,6 +154,7 @@ useEffect(() => {
         branch: newParent.branch_id,
         student_ids: [newParent.ward_id], 
       };
+      
       const response = await axios.post("http://127.0.0.1:8000/api/parents/",payload);
       fetchParents();
       setNewParent({
@@ -181,6 +187,11 @@ useEffect(() => {
 
   const handleUpdateParent = async () => {
     try {
+      const emailRegex = /^[^\s@]+@gmail\.com$/;
+      if (!emailRegex.test(newParent.email)) {
+        toast.error("Invalid email format. Only @gmail.com emails are allowed.");
+        return;
+      }
       const payload = {
         username: editParent.username,
         email: editParent.email,
@@ -192,6 +203,7 @@ useEffect(() => {
         branch: editParent.branch,
         student_ids: [editParent.ward_id],
       };
+     
       await axios.put(`http://127.0.0.1:8000/api/parents/${editParent.id}/`,payload);
       fetchParents();
       closeModal();
