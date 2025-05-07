@@ -10,7 +10,7 @@ function NavbarAndSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear(); //  localStorage.removeItem('key') for specific items
+    localStorage.clear();
     navigate("/login");
   };
 
@@ -93,12 +93,6 @@ function NavbarAndSidebar() {
             </button>
           </nav>
         </div>
-
-        {/* Main Content Area  */}
-        {/* <div className="flex-1 lg:ml-64 p-6 bg-gray-100 min-h-screen"> */}
-          {/* Your page content goes here */}
-          {/* <h1 className="text-2xl font-bold">Welcome to the Dashboard</h1>
-        </div> */}
       </div>
     </div>
   );

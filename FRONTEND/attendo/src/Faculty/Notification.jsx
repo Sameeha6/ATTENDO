@@ -54,7 +54,7 @@ const Notifications = () => {
 
   return (
     <div className="bg-gray-50 font-sans min-h-screen p-4 sm:p-6 pt-2 overflow-x-hidden mt-12">
-      {/* Header */}
+
       <div className="pb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">NOTIFICATIONS</h1>
       </div>

@@ -13,12 +13,6 @@ export const Notfound = () => {
       <p className="text-gray-500 text-center max-w-md">
         Oops! The page you are looking for does not exist. It might have been moved, deleted or not authorised for you.
       </p>
-      {/* <Link
-        to="/"
-        className="mt-6 px-6 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg shadow-md hover:bg-orange-600 transition-all"
-      >
-        Go Back Home
-      </Link> */}
     </div>
   )
 }

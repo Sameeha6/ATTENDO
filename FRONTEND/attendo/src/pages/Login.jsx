@@ -155,7 +155,7 @@ function Login() {
                 className="text-sm text-blue-500 cursor-pointer mt-2 text-center"
                 onClick={() => setModalIsOpen(true)}
               >
-                Forgot Password?
+                Forgot Your Password?
               </p>
               
             </div>

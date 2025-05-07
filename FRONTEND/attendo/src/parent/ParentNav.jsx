@@ -1,16 +1,60 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { FaBars, FaTimes, FaExclamationTriangle, FaBell } from "react-icons/fa";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function ParentNav() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [alertCount, setAlertCount] = useState(0);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
+
+  const fetchCounts = async (parentId, studentId) => {
+    if (!parentId || !studentId) return;
+    
+    try {
+      const notificationsRes = await axios.get(
+        `http://127.0.0.1:8000/api/notifications/parent/${parentId}/?student_id=${studentId}`
+      );
+      const filteredNotifications = notificationsRes.data.filter(
+        n => n.type === "absent" || n.type === "absent_3_days"
+      );
+      setNotificationCount(filteredNotifications.length);
+
+
+    //   const alertsRes = await axios.get(
+    //     `http://127.0.0.1:8000/api/parent-alerts/${parentId}/?student_id=${studentId}`
+    //   );
+    //   const filteredAlerts = alertsRes.data.filter(
+    //     n => n.type === "alert" || n.type === "warning"
+    //   );
+    //   setAlertCount(filteredAlerts.length);
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+    }
+  };
+
+  useEffect(() => {
+    const parentId = localStorage.getItem("parent_id");
+    const studentId = localStorage.getItem("student_id");
+    if (parentId && studentId) {
+      fetchCounts(parentId, studentId);
+    }
+
+    const intervalId = setInterval(() => {
+      if (parentId && studentId) {
+        fetchCounts(parentId, studentId);
+      }
+    }, 100000);
+
+  }, []);
+
 
   const handleNotification = (path) => {
     const selectedStudentId = localStorage.getItem("student_id");
@@ -46,15 +90,25 @@ function ParentNav() {
         </Link>
         <button
           onClick={() => handleNotification("/parent/notifications")}
-          className="hover:text-gray-400 flex items-center"
+          className="hover:text-gray-400 flex items-center relative"
         >
           <FaBell className="mr-2" /> Notifications
+          {notificationCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-orange-400 text-white text-xs rounded-full h-4 w-5 flex items-center justify-center">
+              {notificationCount}
+            </span>
+          )}
         </button>
         <button
           onClick={() => handleAlerts("/parent/alerts")}
-          className="hover:text-gray-400 flex items-center"
+          className="hover:text-gray-400 flex items-center relative"
         >
           <FaExclamationTriangle className="mr-2" /> Alerts
+          {/* {alertCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-orange-400 text-white text-xs rounded-full h-4 w-5 flex items-center justify-center">
+              {alertCount}
+            </span>
+          )} */}
         </button>
         <button className="hidden lg:block border-2 border-white px-4 py-2 hover:border-orange-200 rounded-md hover:text-orange-200 font-semibold"
           onClick={handleLogout}>
@@ -84,12 +138,22 @@ function ParentNav() {
             className="flex items-center py-3 px-4 hover:text-black rounded hover:bg-gray-400"
           >
             <FaBell className="mr-2" /> Notifications
+            {notificationCount > 0 && (
+              <span className="ml-2 bg-orange-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {notificationCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => handleAlerts("/parent/alerts")}
             className="hover:text-black rounded hover:bg-gray-400 flex items-center py-3 px-4"
           >
             <FaExclamationTriangle className="mr-2" /> Alerts
+            {/* {alertCount > 0 && (
+              <span className="ml-2 bg-orange-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {alertCount}
+              </span>
+            )} */}
           </button>
           <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200"
             onClick={handleLogout}>

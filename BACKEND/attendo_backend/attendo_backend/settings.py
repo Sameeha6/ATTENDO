@@ -158,3 +158,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "attendo0402@gmail.com"
 EMAIL_HOST_PASSWORD = "cnsy vsqb frjt rpmm"
+DEFAULT_FROM_EMAIL = 'attendo0402@gmail.com'

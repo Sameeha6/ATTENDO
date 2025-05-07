@@ -1,14 +1,35 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {FaBars,FaTimes,FaHistory,FaChartBar,FaExclamationTriangle, FaBell,} from "react-icons/fa";
 import { Link,useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Facultybar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
   
     const handleLogout = () => {
       localStorage.clear();
       navigate("/login");
+    };
+
+    useEffect(() => {
+      fetchNotificationCount();
+    }, []);
+  
+    const fetchNotificationCount = () => {
+      const facultyId = localStorage.getItem("faculty_id");
+      Promise.all([
+        axios.get("http://127.0.0.1:8000/api/request-hour-change/"),
+        axios.get(`http://127.0.0.1:8000/api/facultyhourreq/${facultyId}/`)
+      ])
+      .then(([hourChangeRes, editRes]) => {
+        const count = hourChangeRes.data.length + editRes.data.notifications.length;
+        setNotificationCount(count);
+      })
+      .catch((error) => {
+        console.error("Error fetching notifications:", error);
+      });
     };
 
   return (
@@ -26,8 +47,13 @@ function Facultybar() {
         <Link to="/faculty/Dash" className="hover:text-gray-400 flex items-center">
           <FaChartBar className="mr-2" /> Dashboard
         </Link>
-        <Link to="/faculty/notification" className="hover:text-gray-400 flex items-center">
-          <FaBell className="mr-2" /> Notifications
+        <Link to="/faculty/notification" className="hover:text-gray-400 flex items-center relative">
+        <FaBell className="mr-2" /> Notifications
+          {notificationCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-orange-400 text-xs rounded-full h-4 w-4 flex items-center justify-center">
+              {notificationCount}
+            </span>
+          )}
         </Link>
         <Link to="/faculty/history" className="hover:text-gray-400 flex items-center">
           <FaHistory className="mr-2" /> History
@@ -57,6 +83,11 @@ function Facultybar() {
           </Link>
           <Link to="/faculty/notification" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
             <FaBell className="mr-2" /> Notifications
+            {notificationCount > 0 && (
+              <span className="ml-auto bg-orange-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {notificationCount}
+              </span>
+            )}
           </Link>
           <Link to="/faculty/history" className="hover:text-black rounded flex items-center py-2 px-4 hover:bg-gray-400">
             <FaHistory className="mr-2" /> History

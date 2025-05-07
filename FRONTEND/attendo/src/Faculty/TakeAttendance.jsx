@@ -15,7 +15,6 @@ const TakeAttendance = () => {
   const [selectedHour, setSelectedHour] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
-  // const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('');
 
   useEffect(() => {
@@ -24,7 +23,6 @@ const TakeAttendance = () => {
       .then((response) => {
         const data = response.data;
         setStudents(data);
-
         const uniqueBranches = [
           ...new Map(data.map(item => [item.branch.id, item.branch])).values()
         ];
@@ -159,17 +157,6 @@ const TakeAttendance = () => {
               ))}
             </select>
           </div>
-          {/* <div>
-          <label className="block text-gray-600 font-semibold">Subject</label>
-          <select onChange={(e) => setSelectedSubject(e.target.value)} value={selectedSubject}>
-          <option value="">Select Subject</option>
-          {subjects.map((subject) => (
-            <option key={subject.id} value={subject.id}>
-              {subject.name}
-            </option>
-          ))}
-  </select>
-          </div> */}
           <div>
           <label className="block text-gray-600 font-semibold">Hour</label>
               <select className="w-full p-2 border rounded-md" value={selectedHour} onChange={(e) => setSelectedHour(e.target.value)}>

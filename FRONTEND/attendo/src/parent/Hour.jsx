@@ -46,7 +46,7 @@ const ParentHourlyAttendance = () => {
 
   useEffect(() => {
     const fetchAttendanceDetails = async () => {
-      const StudentId = localStorage.getItem("student_id"); // get student id from local storage
+      const StudentId = localStorage.getItem("student_id"); 
       if (!semester || !month) {
         setAttendanceData([]);
         setLoading(false);
@@ -108,7 +108,6 @@ const ParentHourlyAttendance = () => {
             <option value="S6">Semester 6</option>
             <option value="S7">Semester 7</option>
             <option value="S8">Semester 8</option>
-            {/* Add more semesters as needed */}
           </select>
           <select
             className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
@@ -128,12 +127,11 @@ const ParentHourlyAttendance = () => {
             <option value="10">October</option>
             <option value="11">November</option>
             <option value="12">December</option>
-            {/* Add more months as needed */}
           </select>
         </div>
       </div>
 
-      {/* Loading / Error */}
+
       {loading && <p className="text-gray-600">Loading attendance data...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
@@ -141,7 +139,7 @@ const ParentHourlyAttendance = () => {
       {!loading && !error && attendanceData.length > 0 && (
         <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-white">
+            <thead className=" bg-white sticky top-0 z-10">
               <tr>
                 <th className="p-4 text-left text-black font-semibold">Date</th>
                 <th className="p-4 text-center text-black font-semibold">Hour 1</th>
@@ -174,12 +172,11 @@ const ParentHourlyAttendance = () => {
         </div>
       )}
 
-      {/* No Records */}
       {!loading && !error && attendanceData.length === 0 && semester && month && (
         <p className="text-gray-600">No attendance records for selected filters.</p>
       )}
 
-      {/* Legend */}
+  
       <div className="flex justify-center space-x-6 mt-8">
         <div className="flex items-center space-x-2">
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-green-600">

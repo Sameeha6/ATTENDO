@@ -1,4 +1,4 @@
-
+import ScrollToTop from './components/ScrolltoTop'
 import React from 'react'
 import './App.css'
 import { Routes, Route,useLocation } from 'react-router-dom'
@@ -29,6 +29,7 @@ return (
   <div className="min-h-screen flex flex-col">
     {!shouldHideNavbar && <Navbar />}
     <div className="flex-grow">
+    <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutUs />} />

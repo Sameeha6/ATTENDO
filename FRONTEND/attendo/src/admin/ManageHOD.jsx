@@ -18,7 +18,6 @@ const ManageHOD = () => {
     try {
       const response = await axios.get("http://127.0.0.1:8000/api/branches/");
       setBranches(response.data);
-      console.log(response.data)
     } catch (error) {
       console.error("Error fetching branches:", error);
     }
@@ -65,10 +64,9 @@ const ManageHOD = () => {
   const updateHOD = async (e) => {
     e.preventDefault();
     if (!editData || !editData.id) {
-      console.error("HOD ID is missing, cannot update!");
+      toast.error("HOD ID is missing, cannot update!");
       return;
     }
-    console.log(editData)
     try {
       await axios.put(`http://127.0.0.1:8000/api/gethod/${editData.id}/`, editData);
       setIsModalOpen(false);
@@ -183,11 +181,6 @@ const ManageHOD = () => {
               <input type="text" name="username" value={editData.username} onChange={(e) => setEditData({ ...editData, username: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
               <input type="email" name="email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
               <input type="text" name="phone" value={editData.phone} onChange={(e) => setEditData({ ...editData, phone: e.target.value })} className="w-full p-2 border rounded-md mb-2" required />
-              {/* <select name="branch" value={editData.branch} onChange={(e) => setEditData({ ...editData, branch: e.target.value })} className="w-full p-2 border rounded-md mb-2" required>
-                {branches.map((branch) => (
-                  <option key={branch.id} value={branch.id}>{branch.name}</option>
-                ))}
-              </select> */}
               <div className="flex justify-end">
                 <button type="submit" className="bg-blue-950 text-white px-4 py-1 rounded-md">Save</button>
               </div>

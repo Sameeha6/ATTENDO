@@ -26,7 +26,6 @@ export default function StudentDashboard() {
           current_password: current,
           new_password: newPass,
         });
-        console.log(response)
         toast.success("Password changed successfully.");
         setShowPasswordModal(false);
       } catch (err) {
@@ -56,17 +55,6 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center text-center p-6">
-      {/* <div className="flex justify-end mb-6">
-        <div>
-        <span className="text-black font-normal">Wanna change password? </span>
-        <button
-          onClick={() => setShowPasswordModal(true)}
-          className=" text-cyan-800 hover:text-cyan-900 font-semibold transition"
-        >
-          Click me
-        </button>
-        </div>
-      </div> */}
       <div className="absolute top-4 mt-20 right-4">
         <span className="text-black font-normal">Wanna change password? </span>
         <button

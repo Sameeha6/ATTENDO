@@ -9,12 +9,10 @@ const FacultyReport = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [selectedBranch, setSelectedBranch] = useState("");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
-
   const [attendanceData, setAttendanceData] = useState({});
 
   // Fetch student + subject + branch data
@@ -25,7 +23,6 @@ const FacultyReport = () => {
         const response = await axios.get(
           `http://127.0.0.1:8000/api/facultybranchstds/${faculty_id}/`
         );
-        console.log(response)
         setStudentDetails(response.data);
       } catch (err) {
         setError("Failed to fetch student details");
@@ -60,7 +57,6 @@ const FacultyReport = () => {
               },
             }
           );
-          console.log(response)
       
           const attendanceMap = {};
           response.data.forEach((student) => {

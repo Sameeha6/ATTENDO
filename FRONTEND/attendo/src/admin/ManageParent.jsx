@@ -18,7 +18,6 @@ const ManageParents = () => {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
 
-
   const [newParent, setNewParent] = useState({
     parent_name: "",
     email: "",
@@ -86,10 +85,10 @@ useEffect(() => {
     );
 
     setBranches(filteredBranchObjects);
-    setSelectedBranch('');    // (optional) clear selectedBranch
-    setSemesters([]);         // (optional) clear semesters
-    setSelectedSemester('');  // (optional) clear selectedSemester
-    setStudents([]);          // (optional) clear students
+    setSelectedBranch('');  
+    setSemesters([]);         
+    setSelectedSemester(''); 
+    setStudents([]);       
   }
 }, [selectedAcademicYear, studentsData]);
 
@@ -104,14 +103,18 @@ useEffect(() => {
         )
         .map(item => item.semester)
     )];
-
-    setSemesters(filteredSemesters);
+    
+    // If no semesters found, show all semesters
+    setSemesters(filteredSemesters.length > 0 ? filteredSemesters : semester);
+    setSelectedSemester('');
+    setStudents([]);
+  } else {
+    // If no branch selected, show all semesters
+    setSemesters(semester);
     setSelectedSemester('');
     setStudents([]);
   }
 }, [selectedAcademicYear, selectedBranch, studentsData]);
-
-
 
   const handleWardIdChange = (e, isEdit = false) => {
     const wardId = e.target.value;
@@ -222,9 +225,6 @@ useEffect(() => {
     );
   });
   
-  
-
-
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Parents</h2>
@@ -238,6 +238,7 @@ useEffect(() => {
               type="text"
               value={selectedAcademicYear}
               onChange={(e) => setSelectedAcademicYear(e.target.value)}
+              className="w-full p-2 border rounded-md"
               list="academic-years"
             />
             <datalist id="academic-years">
@@ -251,6 +252,7 @@ useEffect(() => {
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(Number(e.target.value))} 
+              className="w-full p-2 border rounded-md"
             >
             <option value="">Select Branch</option>
             {branches.map((branch) => (
@@ -258,22 +260,22 @@ useEffect(() => {
               {branch.name}
             </option>
             ))}
-
             </select>
-
           </div>
           <div>
-            <label className="block mb-1 text-gray-600">Semester</label>
-            <select
-              value={selectedSemester}
-              onChange={(e) => setSelectedSemester(e.target.value)}
-            >
-              <option value="">Select Semester</option>
-              {semesters.map((sem, index) => (
-                <option key={index} value={sem}>{sem}</option>
-              ))}
-            </select>
-          </div>
+          <label className="block mb-1 text-gray-600">Semester</label>
+          <select
+            value={selectedSemester}
+            onChange={(e) => setSelectedSemester(e.target.value)}
+            className="w-full p-2 border rounded-md"
+            disabled={!selectedBranch}
+          >
+            <option value="">Select Semester</option>
+            {semester.map((sem, index) => (
+              <option key={index} value={sem}>{sem}</option>
+            ))}
+          </select>
+        </div>
         </div>
       </div>
 
@@ -477,7 +479,7 @@ useEffect(() => {
                 className="p-2 border rounded-md"
               >
                 <option value="">Select Semester</option>
-                {semesters.map((sem) => (
+                {semester.map((sem) => ( 
                   <option key={sem} value={sem}>
                     {sem}
                   </option>

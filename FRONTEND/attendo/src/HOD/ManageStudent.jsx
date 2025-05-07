@@ -146,17 +146,6 @@ const ManageStudents = () => {
             <label className="block mb-1 text-gray-600">Academic year</label>
             <input type="text" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} className="w-full p-2 border rounded-md"/>
           </div>
-          {/* <div>
-            <label className="block mb-1 text-gray-600">Branch</label>
-            <select name="branch_id" value={filters.branch_id} onChange={handleFilterChange} className="w-full p-2 border rounded-md" >
-              <option value="">Select Branch</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
           <div>
             <label className="block mb-1 text-gray-600">Semester</label>
             <select name="semester" value={filters.semester} onChange={handleFilterChange} className="w-full p-2 border rounded-md">

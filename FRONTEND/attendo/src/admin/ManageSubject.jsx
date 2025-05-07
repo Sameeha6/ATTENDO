@@ -131,7 +131,6 @@ const ManageSubject = () => {
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Subjects</h2>
 
-      {/* Form */}
       <form className="bg-gray-100 p-3 rounded-md mb-6" onSubmit={addSubject}>
         <h3 className="text-xl font-semibold mb-3">Add Subject</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,7 +150,6 @@ const ManageSubject = () => {
         <button type="submit" className="mt-4 bg-blue-950 text-white px-4 py-1 rounded-md">Add</button>
       </form>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">
           <thead>
@@ -193,7 +191,6 @@ const ManageSubject = () => {
         </table>
       </div>
 
-      {/* Edit Modal */}
       {isModalOpen && editData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-xl">

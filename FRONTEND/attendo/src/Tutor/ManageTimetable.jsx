@@ -17,6 +17,8 @@ const ManageTimetable = ({ tutorId }) => {
   const [form, setForm] = useState({ semester: "", day: "", time: "", subject_id: "", faculty_id: "" ,branch_id:""});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [filterSemester, setFilterSemester] = useState('');
+
 
   useEffect(() => {
       fetchSubjectsAndSemesters();
@@ -163,6 +165,21 @@ const ManageTimetable = ({ tutorId }) => {
   return (
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Timetable</h2>
+
+        <div className="mb-4 flex flex-col">
+          <label className="font-bold text-gray-800 mb-2">Filter by Semester:</label>
+          <select
+            value={filterSemester}
+            onChange={(e) => setFilterSemester(e.target.value)}
+            className="p-2 border rounded-md w-1/4"
+          >
+            <option value="">All Semesters</option>
+            {semesters.map((sem) => (
+              <option key={sem} value={sem}>{sem}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="bg-gray-100 rounded-md mb-6">
           <form className="bg-gray-100 p-3 rounded-md " onSubmit={handleSubmit}>
             <h3 className="text-xl font-semibold mb-4">Add Timetable</h3>
@@ -248,26 +265,29 @@ const ManageTimetable = ({ tutorId }) => {
             </tr>
           </thead>
           <tbody className="text-gray-600">
-            {timetable.map((entry, index) => (
-              <tr key={entry.id} className="text-center">
-                <td className="border p-1">{index + 1}</td>
-                <td className="border p-1">{entry.semester}</td>
-                <td className="border p-1">{entry.day}</td>
-                <td className="border p-1">{entry.time}</td>
-                <td className="border p-1">{entry.subject.name}</td>
-                <td className="border p-1">{entry.faculty.username}</td>
-                <td className="border p-1">
-                  <button className="text-blue-500" onClick={() => handleEdit(entry)}>
-                    <FaEdit />
-                  </button>
-                </td>
-                <td className="border p-1">
-                  <button className="text-red-500" onClick={() => handleDelete(entry.id)}>
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
+          {timetable
+          .filter(entry => !filterSemester || entry.semester === filterSemester)
+          .map((entry, index) => (
+            <tr key={entry.id} className="text-center">
+              <td className="border p-1">{index + 1}</td>
+              <td className="border p-1">{entry.semester}</td>
+              <td className="border p-1">{entry.day}</td>
+              <td className="border p-1">{entry.time}</td>
+              <td className="border p-1">{entry.subject.name}</td>
+              <td className="border p-1">{entry.faculty.username}</td>
+              <td className="border p-1">
+                <button className="text-blue-500" onClick={() => handleEdit(entry)}>
+                  <FaEdit />
+                </button>
+              </td>
+              <td className="border p-1">
+                <button className="text-red-500" onClick={() => handleDelete(entry.id)}>
+                  <FaTrash />
+                </button>
+              </td>
+            </tr>
+        ))}
+
           </tbody>
         </table>
       </div>

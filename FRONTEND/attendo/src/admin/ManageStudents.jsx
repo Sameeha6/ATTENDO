@@ -14,9 +14,6 @@ const ManageStudents = () => {
     student_id: "",
     email: "",
     phone_number: "",
-    // academic_year: "",
-    // branch_id: "",
-    // semester: "",
   });
 
   const [filters, setFilters] = useState({
@@ -136,7 +133,6 @@ const ManageStudents = () => {
     <div className="p-6 bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold mb-4">Manage Students</h2>
 
-      {/* Filter UI */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -168,7 +164,6 @@ const ManageStudents = () => {
         </div>
       </div>
 
-      {/* Add Student */}
       <div className="bg-gray-100 p-3 rounded-md mb-6">
         <h3 className="text-xl font-semibold mb-3">Create Student</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,7 +196,6 @@ const ManageStudents = () => {
         </button>
       </div>
 
-      {/* Student List */}
       <h3 className="text-xl font-semibold mb-3">Student List</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border">

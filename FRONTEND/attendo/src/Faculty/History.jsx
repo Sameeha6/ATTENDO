@@ -74,7 +74,6 @@ const Attendancehistory = () => {
             requested_by: facultyId,
           };
         });
-
         axios.post('http://127.0.0.1:8000/api/attendance-edit-requests/', {
           requests: editRequests,
           hod_id: hodId,
@@ -216,7 +215,6 @@ const Attendancehistory = () => {
         </div>
       )}
 
-      {/* Popup Modal */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity">
           <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-8 text-center">

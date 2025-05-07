@@ -26,10 +26,6 @@ const ManageTutor = () => {
     academic_year: "",
   });
 
-  // const openModal = (tutor) => {
-  //   setEditData(tutor);
-  //   setIsModalOpen(true);
-  // };
 
   const openModal = (tutor) => {
     setEditData({

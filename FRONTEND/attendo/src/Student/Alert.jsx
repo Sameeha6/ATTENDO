@@ -102,7 +102,7 @@ const AlertPage = () => {
 
   return (
     <div className="bg-gray-50 font-sans min-h-screen pt-14 pr-6 pl-6">
-      {/* Header Section */}
+      
       <div className="pb-4">
         <h1 className="text-2xl font-bold text-gray-900 mt-6">ALERTS</h1>
         <p className="text-sm text-gray-500">Important alerts regarding your attendance</p>

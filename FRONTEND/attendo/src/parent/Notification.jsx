@@ -48,7 +48,7 @@ const NotificationPage = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 pt-2 bg-gray-50 overflow-x-hidden">
-      {/* Header */}
+
       <div className="pb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">NOTIFICATIONS</h1>
         <p className="text-xs sm:text-sm text-gray-500">Updates regarding your ward's attendance</p>

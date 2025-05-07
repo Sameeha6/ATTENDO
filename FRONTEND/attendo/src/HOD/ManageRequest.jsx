@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FiClock } from "react-icons/fi";
+import { toast,ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -14,7 +16,6 @@ const ManageRequests = () => {
           axios.get("http://127.0.0.1:8000/api/request-hour-change/"),
           axios.get(`http://127.0.0.1:8000/api/notifications/${hod_id}/`)
         ]);
-        console.log("Edit Notifications Response: ", editRes.data.notifications);
 
         const editRequests = editRes.data.notifications.map((n) => ({
           id: n.id,
@@ -52,7 +53,6 @@ const ManageRequests = () => {
           { status: action }
         );
       }
-
       setRequests((prev) =>
         prev.map((r) =>
           r.id === requestId ? { ...r, status: action } : r
@@ -60,6 +60,7 @@ const ManageRequests = () => {
       );
     } catch (error) {
       setError("Error updating request status.");
+      toast.error("Error updating request status.")
       console.error(error);
     }
   };
@@ -74,7 +75,7 @@ const ManageRequests = () => {
         <div className="divide-y">
           {requests.map((request) => (
             <div key={request.id} className="py-4 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
-              {/* Status Indicator */}
+
               <div
                 className={`w-2 h-2 rounded-full ${
                   request.status === "Pending"
@@ -128,7 +129,6 @@ const ManageRequests = () => {
                 )}
               </div>
 
-              {/* Date & Time */}
               <div className="text-xs text-gray-500 flex items-center gap-1 sm:mt-0 mt-2">
                 <FiClock size={14} />
                 <span className="break-words">
@@ -139,6 +139,7 @@ const ManageRequests = () => {
           ))}
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

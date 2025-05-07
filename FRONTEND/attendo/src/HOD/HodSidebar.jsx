@@ -1,17 +1,37 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { FaUsers, FaChartBar, FaBars } from "react-icons/fa";
 import { MdAdminPanelSettings, MdExpandMore } from "react-icons/md";
 import { Link,useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Hodbar() {
   const [openUsers, setOpenUsers] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [requestCount, setRequestCount] = useState(0);
 
     const navigate = useNavigate();
     
       const handleLogout = () => {
         localStorage.clear();
         navigate("/login");
+      };
+
+      useEffect(() => {
+        fetchRequestCount();
+      }, []);
+    
+      const fetchRequestCount = async () => {
+        try {
+          const hod_id = localStorage.getItem("hod_id");
+          const [hourRes, editRes] = await Promise.all([
+            axios.get("http://127.0.0.1:8000/api/request-hour-change/"),
+            axios.get(`http://127.0.0.1:8000/api/notifications/${hod_id}/`)
+          ]);
+          const count = hourRes.data.length + editRes.data.notifications.length;
+          setRequestCount(count);
+        } catch (error) {
+          console.error("Error fetching requests:", error);
+        }
       };
 
   return (
@@ -67,8 +87,13 @@ function Hodbar() {
                 </div>
               )}
             </div>
-            <Link to="/hod/manage-requests" className="flex items-center py-3 px-4  hover:bg-gray-400 hover:text-black rounded">
+            <Link to="/hod/manage-requests" className="flex items-center py-3 px-4 hover:bg-gray-400 hover:text-black rounded relative">
               <FaChartBar className="mr-3" /> Manage Request
+              {requestCount > 0 && (
+                <span className="ml-2 bg-orange-400 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {requestCount}
+                </span>
+              )}
             </Link>
 
             <button className="lg:hidden bg-white text-black w-full py-2 mt-4 rounded-md hover:bg-gray-200"

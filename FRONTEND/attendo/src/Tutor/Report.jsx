@@ -22,8 +22,6 @@ const TutorReport = () => {
       const res = await axios.get(`http://127.0.0.1:8000/api/tutor-report-semester/`, {
         params: {
           tutor_id: tutorId,
-          // branch: tutorBranch, // Send branch in the request
-          // academic_year: tutorAcademicYear, // Send academic year in the request
         },
       });
       setAttendanceData(res.data);

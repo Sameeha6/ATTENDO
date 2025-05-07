@@ -16,13 +16,9 @@ const Sem = () => {
           setLoading(false);
           return;
         }
-
-        console.log(`Sending request with student_id: ${studentId}`);
         const response = await axios.get(
           `http://127.0.0.1:8000/api/student-report-semester/?student_id=${studentId}`
         );
-
-        console.log(response.data);
         setAttendanceData(response.data);
       } catch (err) {
         setError("Error fetching data! Please try again.");

@@ -54,14 +54,11 @@ const HourlyAttendance = () => {
         setLoading(false);
         return;
       }
-  
       if (!semester || !month) {
-      
         setAttendanceData([]); 
         setLoading(false);
         return;
       }
-  
       const filters = {
         semester,
         month,
@@ -69,19 +66,17 @@ const HourlyAttendance = () => {
   
       try {
         setLoading(true);
-        const response = await axios.get(`http://127.0.0.1:8000/api/student-hour-attendance/${studentId}/`, { params: filters });
-        console.log('Attendance Data:', response.data);     
+        const response = await axios.get(`http://127.0.0.1:8000/api/student-hour-attendance/${studentId}/`, { params: filters });    
         const reshapedData = reshapeAttendance(response.data.attendance || []);
         setAttendanceData(reshapedData);
         setError(null); 
       } catch (err) {
         setError('Failed to fetch attendance data');
-        console.error(err);  // Log the error correctly
+        console.error(err); 
       } finally {
         setLoading(false);
       }
     }      
-  
     fetchAttendanceDetails();
   }, [semester, month]);
 
@@ -96,7 +91,7 @@ const HourlyAttendance = () => {
 
   return (
     <div className="p-4 w-full min-h-screen bg-gray-50">
-      {/* Header + Filters */}
+      
       <div className="flex flex-col md:flex-row justify-between items-center bg-white text-black mb-6 p-4 rounded-lg font-bold shadow-md gap-3">
         <h1 className="text-xl">Hourly Attendance</h1>
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
@@ -114,7 +109,7 @@ const HourlyAttendance = () => {
             <option value="S6">Semester 6</option>
             <option value="S7">Semester 7</option>
             <option value="S8">Semester 8</option>
-            {/* Add more semesters as needed */}
+            
           </select>
           <select
             className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:border-blue-500"
@@ -138,11 +133,11 @@ const HourlyAttendance = () => {
         </div>
       </div>
 
-      {/* Loading / Error */}
+      
       {loading && <p className="text-gray-600">Loading attendance data...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Attendance Table */}
+      
       {!loading && !error && attendanceData.length > 0 && (
         <div className="bg-white rounded-xl shadow-2xl overflow-x-auto">
           <table className="w-full">
@@ -179,12 +174,11 @@ const HourlyAttendance = () => {
         </div>
       )}
 
-      {/* No Records */}
+
       {!loading && !error && attendanceData.length === 0 && semester && month && (
         <p className="text-gray-600">No attendance records for selected filters.</p>
       )}
 
-      {/* Legend */}
       <div className="flex justify-center space-x-6 mt-8">
         <div className="flex items-center space-x-2">
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-green-600">

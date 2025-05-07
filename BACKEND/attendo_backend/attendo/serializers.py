@@ -7,6 +7,8 @@ from .models import*
 from django.core.mail import send_mail 
 from django.conf import settings
 import random
+from django.core.mail import EmailMessage
+
 import string
 
 
@@ -492,22 +494,27 @@ class ContactMessageSerializer(serializers.Serializer):
     def create(self, validated_data):
         username = validated_data.get('username')
         email = validated_data.get('email')
-
+        
         user = User.objects.filter(username=username, email=email).first()
 
         contact_message = ContactMessage.objects.create(
-            user=user,  # can be None
+            user=user,
             subject=validated_data['subject'],
             message=validated_data['message']
         )
 
-        send_mail(
+        email_msg = EmailMessage(
             subject=validated_data['subject'],
-            message=validated_data['message'],
-            from_email=email,
-            recipient_list=["attendo0402@gmail.com"],
-            fail_silently=False,
+            body=validated_data['message'],
+            from_email=f"{validated_data['username']} <{email}>",  # Shows as "Name <email>"
+            to=["attendo0402@gmail.com"],
+            reply_to=[email], 
         )
+        
+        try:
+            email_msg.send(fail_silently=False)
+        except Exception as e:
+            print(f"Error sending email: {e}")
 
         return contact_message
 

@@ -11,9 +11,9 @@ export default function WelcomePg() {
   const navigate = useNavigate();
   const facultyId = localStorage.getItem("faculty_id");
   const [current, setCurrent] = useState("");
-    const [newPass, setNewPass] = useState("");
-    const [confirm, setConfirm] = useState("");
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPass, setNewPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     const handleChangePassword = async () => {
       if (newPass !== confirm) {
@@ -38,13 +38,11 @@ export default function WelcomePg() {
     const fetchFacultyName = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/faculty/${facultyId}/`);
-        console.log(response)
         setFacultyName(response.data.username);
       } catch (error) {
         console.error("Error fetching faculty details:", error);
       }
     };
-
     if (facultyId) {
       fetchFacultyName();
     }
@@ -56,17 +54,16 @@ export default function WelcomePg() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-50 flex flex-col items-center justify-center text-center p-6">
-      {/* <div className="flex justify-end mb-6"> */}
       <div className="absolute top-4 mt-20 right-4">
-    <span className="text-black font-normal">Wanna change password? </span>
-    <button
-      onClick={() => setShowPasswordModal(true)}
-      className="text-cyan-800 hover:text-cyan-900 font-semibold transition"
-    >
-      Click me
-    </button>
-  </div>
-      {/* </div> */}
+        <span className="text-black font-normal">Wanna change password? </span>
+        <button
+          onClick={() => setShowPasswordModal(true)}
+          className="text-cyan-800 hover:text-cyan-900 font-semibold transition"
+        >
+          Click me
+        </button>
+      </div>
+
       {showPasswordModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md">
@@ -112,14 +109,12 @@ export default function WelcomePg() {
           </div>
         )}
 
-      {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         className="max-w-4xl mx-auto"
       >
-        {/* Icon with Motion */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -130,7 +125,7 @@ export default function WelcomePg() {
           <FaUserCircle className="text-8xl text-gray-600 mx-auto mb-6" />
         </motion.div>
 
-        {/* Hello, [Student Name] with Motion */}
+  
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,7 +135,6 @@ export default function WelcomePg() {
           Hello, <span className="text-blue-950">{facultyName || "Loading"}</span>!
         </motion.h2>
 
-        {/* Welcome Text with Motion */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -150,7 +144,6 @@ export default function WelcomePg() {
           Welcome to <span className="text-blue-950">AttenDo</span>
         </motion.h1>
 
-        {/* Description Text with Motion */}
         <motion.p
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

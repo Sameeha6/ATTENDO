@@ -19,20 +19,18 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Check if the current route is in the specified pages
   const pagesWithBlueNavbar = ["/features", "/about", "/contact", "/login","*"];
   const isNotFoundPage = location.pathname !== "/" && !pagesWithBlueNavbar.includes(location.pathname);
   const isBlueNavbar = pagesWithBlueNavbar.includes(location.pathname) || isScrolled || isNotFoundPage;
 
   return (
     <>
-      {/* NAVBAR */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
         ${isBlueNavbar ? "bg-blue-950 text-white shadow-md" : "bg-transparent text-white"}`}
       >
         <div className="flex justify-between items-center px-6 py-3">
-          {/* Logo */}
+        
           <div className="flex items-center space-x-2">
             <img
               src="https://cdn-icons-png.flaticon.com/512/18747/18747599.png"
@@ -42,7 +40,7 @@ function Navbar() {
             <div className="text-2xl font-sans font-bold">AttenDo</div>
           </div>
 
-          {/* Desktop Menu */}
+        
           <div className="hidden md:flex space-x-6">
             <ul className="flex space-x-6 mt-6">
               <li>
@@ -69,7 +67,7 @@ function Navbar() {
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+    
           <button className="md:hidden" onClick={() => setIsOpen(true)}>
             <FaBars size={24} />
           </button>
@@ -92,11 +90,6 @@ function Navbar() {
               Home
             </Link>
           </li>
-          {/* <li>
-            <Link to="/features" className="hover:text-gray-300" onClick={() => setIsOpen(false)}>
-              Features
-            </Link>
-          </li> */}
           <li>
             <Link to="/about" className="hover:text-gray-300" onClick={() => setIsOpen(false)}>
               About Us
